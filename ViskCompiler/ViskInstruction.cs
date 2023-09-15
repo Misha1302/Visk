@@ -17,7 +17,7 @@ public sealed class ViskInstruction
 
     public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
 
-    public static ViskInstruction CallForeign(MethodInfo? m, int argsCount, ViskType returnType)
+    public static ViskInstruction CallForeign(MethodInfo? m)
     {
         if (m is null)
             throw new InvalidOperationException();
@@ -26,14 +26,20 @@ public sealed class ViskInstruction
 
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), argsCount, returnType
+            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length
         );
     }
 
     public static ViskInstruction Add() => new(ViskInstructionKind.Add);
-
-    public static ViskInstruction CSharpRet() => new(ViskInstructionKind.CSharpRet);
-
+    
     // ReSharper disable once InconsistentNaming
     public static ViskInstruction IMul() => new(ViskInstructionKind.IMul);
+
+    public static ViskInstruction SetLabel(string label) => new(ViskInstructionKind.SetLabel, label);
+
+    public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
+
+    public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
+
+    public static ViskInstruction Prolog(int localsSize) => new(ViskInstructionKind.Prolog, localsSize);
 }

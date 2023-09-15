@@ -4,10 +4,11 @@ namespace ViskCompiler;
 public enum ViskInstructionKind
 {
     PushConst,
-    Drop,
     Add,
     Ret,
-    CSharpRet,
     CallForeign,
-    IMul
+    IMul,
+    SetLabel,
+    Goto,
+    Prolog
 }
