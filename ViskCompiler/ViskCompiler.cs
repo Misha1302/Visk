@@ -64,14 +64,17 @@ public sealed class ViskCompiler
                 _assembler.ret();
                 break;
             case ViskInstructionKind.CallForeign:
-                ArgsManager.MoveArgsToRegisters(
-                    (int)(arg1 ?? throw new InvalidOperationException()), _register, _assembler
+                var argsCount = (int)(arg1 ?? throw new InvalidOperationException());
+                ArgsManager.MoveArgs(
+                    argsCount, _register, _assembler, out var stackAligned
                 );
+                _register.Sub(argsCount);
 
-                AlignStack();
+                if (!stackAligned)
+                    AlignStack();
+
                 _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                if (_register.CurValue != rax)
-                    _assembler.mov(_register.Next(), rax);
+                _assembler.mov(_register.Next(), rax);
                 break;
             case ViskInstructionKind.IMul:
                 _assembler.imul(_register.Previous(), _register.Previous());
@@ -87,7 +90,10 @@ public sealed class ViskCompiler
             case ViskInstructionKind.Prolog:
                 _assembler.push(rbp);
                 _assembler.mov(rbp, rsp);
-                _assembler.sub(rsp, (int)(arg0 ?? throw new InvalidOperationException()));
+                
+                var allocCount = (int)(arg0 ?? throw new InvalidOperationException());
+                if (allocCount != 0)
+                    _assembler.sub(rsp, allocCount);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(inst), inst.InstructionKind.ToString());

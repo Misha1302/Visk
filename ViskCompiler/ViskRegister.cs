@@ -45,4 +45,13 @@ internal sealed class ViskRegister
         ];
 
     public void Reset() => _curRegister = 0;
+
+    public void Sub(int argsCount)
+    {
+        var predict = _curRegister - argsCount;
+        if (predict < 0 || predict >= _registers.Length)
+            throw new InvalidOperationException();
+
+        _curRegister = predict;
+    }
 }

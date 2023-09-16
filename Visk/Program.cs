@@ -1,21 +1,21 @@
 ﻿using Visk;
 using ViskCompiler;
 
-var printLongMultipliedByHalf = typeof(Helper).GetMethod(nameof(Helper.PrintLongMultipliedByHalf));
+
+var printLongMultipliedByHalf = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
 
 var compiler = new ViskCompiler.ViskCompiler(new List<ViskInstruction>
 {
     ViskInstruction.Prolog(0),
-    
-    ViskInstruction.SetLabel("label"),
-    ViskInstruction.PushConst(123), // 123
-    ViskInstruction.PushConst(123), // 123, 123
-    ViskInstruction.PushConst(123), // 123. 123, 123
-    ViskInstruction.CallForeign(printLongMultipliedByHalf),
 
-    ViskInstruction.PushConst(2), // 123, 123, 2
-    ViskInstruction.Add(), // 123, 125
-    ViskInstruction.Add(), // 248
+    ViskInstruction.SetLabel("label"),
+    
+    ViskInstruction.PushConst(123), // 123
+    ViskInstruction.PushConst(124), // 123, 124
+    ViskInstruction.PushConst(125), // 123. 124, 125
+    ViskInstruction.PushConst(126), // 123. 124, 125, 126
+    ViskInstruction.PushConst(127), // 123. 124, 125, 126, 127
+    ViskInstruction.PushConst(128), // 123. 124, 125, 126, 127, 128
     ViskInstruction.CallForeign(printLongMultipliedByHalf),
     ViskInstruction.Goto("label"),
 
