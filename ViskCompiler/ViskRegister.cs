@@ -54,4 +54,10 @@ internal sealed class ViskRegister
 
         _curRegister = predict;
     }
+
+    public AssemblerRegister64 BackValue() => _registers[
+        _curRegister - 1 < 0
+            ? throw new InvalidOperationException("No register to return")
+            : _curRegister - 1
+    ];
 }

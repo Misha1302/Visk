@@ -1,29 +1,34 @@
 ﻿using Visk;
 using ViskCompiler;
 
+var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
 
-var printLongMultipliedByHalf = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
+var module = new ViskModule("main");
 
-var compiler = new ViskCompiler.ViskCompiler(new List<ViskInstruction>
+module.AddFunction("f").AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.Prolog(0),
+    ViskInstruction.PushConst(0),
+    ViskInstruction.SetLocal("i"),
 
     ViskInstruction.SetLabel("label"),
-    
-    ViskInstruction.PushConst(123), // 123
-    ViskInstruction.PushConst(124), // 123, 124
-    ViskInstruction.PushConst(125), // 123. 124, 125
-    ViskInstruction.PushConst(126), // 123. 124, 125, 126
-    ViskInstruction.PushConst(127), // 123. 124, 125, 126, 127
-    ViskInstruction.PushConst(128), // 123. 124, 125, 126, 127, 128
-    ViskInstruction.CallForeign(printLongMultipliedByHalf),
+
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.CallForeign(printLong),
+
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.PushConst(1),
+    ViskInstruction.Add(),
+    ViskInstruction.SetLocal("i"),
+
     ViskInstruction.Goto("label"),
 
     ViskInstruction.PushConst(0), // 0
     ViskInstruction.Ret()
 });
 
-var executor = compiler.Compile();
+
+var image = new ViskImage(module);
+var executor = image.Compile();
 var asmDelegate = executor.GetDelegate();
 
 Console.WriteLine(new string('-', Console.WindowWidth));

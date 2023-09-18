@@ -10,5 +10,7 @@ public enum ViskInstructionKind
     IMul,
     SetLabel,
     Goto,
-    Prolog
+    Prolog,
+    SetLocal,
+    LoadLocal
 }

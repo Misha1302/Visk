@@ -42,4 +42,8 @@ public sealed class ViskInstruction
     public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
     public static ViskInstruction Prolog(int localsSize) => new(ViskInstructionKind.Prolog, localsSize);
+
+    public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
+
+    public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
 }
