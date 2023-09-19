@@ -1,18 +1,21 @@
 ﻿namespace ViskCompiler;
 
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+[DebuggerDisplay("{InstructionKind} {Arguments.Count > 0 ? Arguments[0] : \"\"}")]
 public sealed class ViskInstruction
 {
+    public readonly List<object> Arguments;
+
     private ViskInstruction(ViskInstructionKind instructionKind, params object[]? arguments)
     {
         InstructionKind = instructionKind;
-        Arguments = arguments;
+        Arguments = new List<object>(arguments ?? Array.Empty<object>());
     }
 
     public ViskInstructionKind InstructionKind { get; }
-    public object[]? Arguments { get; }
 
 
     public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
@@ -31,7 +34,7 @@ public sealed class ViskInstruction
     }
 
     public static ViskInstruction Add() => new(ViskInstructionKind.Add);
-    
+
     // ReSharper disable once InconsistentNaming
     public static ViskInstruction IMul() => new(ViskInstructionKind.IMul);
 
@@ -46,4 +49,6 @@ public sealed class ViskInstruction
     public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
 
     public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
+
+    public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
 }

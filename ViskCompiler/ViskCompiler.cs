@@ -34,14 +34,15 @@ internal sealed class ViskCompiler
 
     private void CompileInstructions(ViskFunction function)
     {
-        foreach (var instr in function.Instructions)
+        foreach (var instr in function.TotalInstructions)
             CompileInstruction(instr, function);
     }
 
     private void CompileInstruction(ViskInstruction inst, ViskFunction function)
     {
-        var arg0 = inst.Arguments?.Length > 0 ? inst.Arguments[0] : null;
-        var arg1 = inst.Arguments?.Length > 1 ? inst.Arguments[1] : null;
+        var arg0 = inst.Arguments.Count > 0 ? inst.Arguments[0] : null;
+        var arg1 = inst.Arguments.Count > 1 ? inst.Arguments[1] : null;
+        var arg2 = inst.Arguments.Count > 2 ? inst.Arguments[2] : null;
 
         Label label;
         int localOffset;
@@ -74,10 +75,12 @@ internal sealed class ViskCompiler
                 break;
             case ViskInstructionKind.CallForeign:
                 var argsCount = (int)(arg1 ?? throw new InvalidOperationException());
+                var dataInStack = ((List<string>)(arg2 ?? throw new InvalidOperationException()))
+                    .Select(x => function.Locals[x]).ToList();
                 ArgsManager.MoveArgs(
-                    argsCount, _register, _assembler, out var stackAligned
+                    argsCount, _register, _assembler, dataInStack, out var stackAligned
                 );
-                _register.Sub(argsCount);
+                _register.Sub(Math.Min(argsCount, ViskRegister.Registers.Length - 1));
 
                 if (!stackAligned)
                     AlignStack();
@@ -103,7 +106,7 @@ internal sealed class ViskCompiler
 
                 var allocCount = (int)(arg0 ?? throw new InvalidOperationException());
                 if (allocCount != 0)
-                    _assembler.sub(rsp, allocCount);
+                    _assembler.sub(rsp, allocCount + (allocCount % 16));
                 break;
             case ViskInstructionKind.SetLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
@@ -112,6 +115,9 @@ internal sealed class ViskCompiler
             case ViskInstructionKind.LoadLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
                 _assembler.mov(_register.Next(), __[rbp - localOffset]);
+                break;
+            case ViskInstructionKind.Nop:
+                _assembler.nop();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(inst), inst.InstructionKind.ToString());

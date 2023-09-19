@@ -20,7 +20,7 @@ public sealed class ViskDecompiler
 
         var formatter = new IntelFormatter();
         var output = new FormatterOutputImpl();
-        var firstDefine = true;
+        var directivesCount = 0;
 
         for (var index = 0; index < _asm.Instructions.Count; index++)
         {
@@ -35,12 +35,15 @@ public sealed class ViskDecompiler
                 var (text, kind) = output.List[i];
 
                 if (kind != FormatterTextKind.Directive && i == 0)
-                        sb.Append($"{index.ToString().PadLeft(maxDigits)}: ");
+                    sb.Append($"{index.ToString().PadLeft(maxDigits)}: ");
 
-                if (kind == FormatterTextKind.Directive && firstDefine)
+                if (kind == FormatterTextKind.Directive)
                 {
-                    firstDefine = false;
-                    sb.AppendLine("-------------------------\n");
+                    if (directivesCount == 0)
+                        sb.AppendLine("-------------------------\n");
+
+                    directivesCount++;
+                    sb.Append(directivesCount + ". ");
                 }
 
                 sb.Append(ToPrintableStr(text));
@@ -52,15 +55,13 @@ public sealed class ViskDecompiler
         return sb.ToString();
     }
 
-    private static string ToPrintableStr(string text)
-    {
-        return text switch
+    private static string ToPrintableStr(string text) =>
+        text switch
         {
             "," => ", ",
-            "nop" => "\nnop",
+            "nop" => "\n",
             _ => text
         };
-    }
 
     private sealed class FormatterOutputImpl : FormatterOutput
     {
