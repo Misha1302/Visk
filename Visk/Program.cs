@@ -1,7 +1,8 @@
 ﻿using Visk;
 using ViskCompiler;
 
-var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
+var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
+var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
 
 var module = new ViskModule("main");
 
@@ -18,7 +19,7 @@ module.AddFunction("f").AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(90),
     ViskInstruction.PushConst(100),
     ViskInstruction.Nop(),
-    ViskInstruction.CallForeign(printLong),
+    ViskInstruction.CallForeign(printLongs),
 
     ViskInstruction.PushConst(0), // 0
     ViskInstruction.Ret()

@@ -43,6 +43,7 @@ internal sealed class ViskCompiler
         var arg0 = inst.Arguments.Count > 0 ? inst.Arguments[0] : null;
         var arg1 = inst.Arguments.Count > 1 ? inst.Arguments[1] : null;
         var arg2 = inst.Arguments.Count > 2 ? inst.Arguments[2] : null;
+        var arg3 = inst.Arguments.Count > 3 ? inst.Arguments[3] : null;
 
         Label label;
         int localOffset;
@@ -86,7 +87,8 @@ internal sealed class ViskCompiler
                     AlignStack();
 
                 _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                _assembler.mov(_register.Next(), rax);
+                if((bool)(arg3 ?? throw new InvalidOperationException()))
+                    _assembler.mov(_register.Next(), rax);
                 break;
             case ViskInstructionKind.IMul:
                 prev = _register.Previous();

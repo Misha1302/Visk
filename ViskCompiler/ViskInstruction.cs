@@ -27,9 +27,10 @@ public sealed class ViskInstruction
 
         RuntimeHelpers.PrepareMethod(m.MethodHandle);
 
+        // null! - new List<string>()
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length
+            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, null!, m.ReturnType != typeof(void)
         );
     }
 

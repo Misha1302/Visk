@@ -21,7 +21,7 @@ public static class Preprocessor
     {
         //TODO: 'infinity' args or 'infinity' values in stack
 
-        foreach (var f in module.Functions) 
+        foreach (var f in module.Functions)
             Preprocess(f);
     }
 
@@ -37,7 +37,7 @@ public static class Preprocessor
             if (i.InstructionKind == ViskInstructionKind.CallForeign)
             {
                 pushesCount -= (int)(i.Arguments[1] ?? throw new InvalidOperationException());
-                i.Arguments.Add(lst);
+                i.Arguments[2] = lst;
                 lst = new List<string>();
             }
             else
@@ -59,6 +59,7 @@ public static class Preprocessor
                         lst.Add(name);
                         break;
                     case > 1:
+                        i.Arguments.Add(lst[^1]);
                         i.Arguments.RemoveAt(i.Arguments.Count - 1);
                         break;
                 }

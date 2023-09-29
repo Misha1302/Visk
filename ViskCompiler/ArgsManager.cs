@@ -19,12 +19,13 @@ internal static class ArgsManager
         {
             stackAligned = true;
             var size = (argsCount - _assemblerRegisters.Length) * 8;
-            var maxSize = 32 + (size & 16);
+            var maxSize = 32 + size;
 
             assembler.sub(rsp, maxSize);
+            assembler.and(sp, -0xF);
 
-            var i = maxSize - (size + 8) % 16;
-            for (var j = 0; j < argsCount - _assemblerRegisters.Length - 1; j++, i -= 8)
+            var i = maxSize - 8;
+            for (var j = 0; j < argsCount - _assemblerRegisters.Length; j++, i -= 8)
                 if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
                 {
                     assembler.mov(__[rsp + i], r!.Value);
