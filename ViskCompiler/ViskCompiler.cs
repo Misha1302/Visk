@@ -68,6 +68,7 @@ internal sealed class ViskCompiler
                 break;
             case ViskInstructionKind.Ret:
                 _assembler.mov(rax, _register.Previous());
+                
                 _register.Reset();
 
                 _assembler.mov(rsp, rbp);
@@ -78,16 +79,28 @@ internal sealed class ViskCompiler
                 var argsCount = (int)(arg1 ?? throw new InvalidOperationException());
                 var dataInStack = ((List<string>)(arg2 ?? throw new InvalidOperationException()))
                     .Select(x => function.Locals[x]).ToList();
+                
+                
+
+                foreach (var r in ViskRegister.Registers) 
+                    _assembler.push(r);
+                _assembler.mov(r13, rsp);
+                
                 ArgsManager.MoveArgs(
                     argsCount, _register, _assembler, dataInStack, out var stackAligned
                 );
-                _register.Sub(Math.Min(argsCount, ViskRegister.Registers.Length - 1));
+                _register.Sub(argsCount - dataInStack.Count);
 
                 if (!stackAligned)
                     AlignStack();
 
                 _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                if((bool)(arg3 ?? throw new InvalidOperationException()))
+                _assembler.mov(rsp, r13);
+                
+                foreach (var r in ViskRegister.Registers.Reverse()) 
+                    _assembler.pop(r);
+
+                if ((bool)(arg3 ?? throw new InvalidOperationException()))
                     _assembler.mov(_register.Next(), rax);
                 break;
             case ViskInstructionKind.IMul:
@@ -108,7 +121,7 @@ internal sealed class ViskCompiler
 
                 var allocCount = (int)(arg0 ?? throw new InvalidOperationException());
                 if (allocCount != 0)
-                    _assembler.sub(rsp, allocCount + (allocCount % 16));
+                    _assembler.sub(rsp, allocCount + allocCount % 16);
                 break;
             case ViskInstructionKind.SetLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];

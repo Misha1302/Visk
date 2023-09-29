@@ -66,21 +66,6 @@ internal static class ArgsManager
         public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out int? offset) =>
             StackAtFirst(out register64, out offset);
 
-        // return StackAtFirst(out register64, out offset);
-        private bool RegistersAtFirst(out AssemblerRegister64? register64, out int? offset)
-        {
-            if (_register.CanGetPrevious)
-            {
-                offset = null;
-                register64 = _register.Previous();
-                return true;
-            }
-
-            offset = _dataInStack[^++_pointer];
-            register64 = null;
-            return false;
-        }
-
         private bool StackAtFirst(out AssemblerRegister64? register64, out int? offset)
         {
             if (_pointer < _dataInStack.Count)

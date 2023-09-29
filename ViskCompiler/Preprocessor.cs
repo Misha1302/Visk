@@ -36,9 +36,14 @@ public static class Preprocessor
 
             if (i.InstructionKind == ViskInstructionKind.CallForeign)
             {
-                pushesCount -= (int)(i.Arguments[1] ?? throw new InvalidOperationException());
-                i.Arguments[2] = lst;
-                lst = new List<string>();
+                var argsCount = (int)i.Arguments[1];
+                pushesCount -= argsCount;
+                if (pushesCount < 0)
+                    throw new InvalidOperationException();
+
+                var c = argsCount - (pushesCount > 4 ? 0 : 4);
+                i.Arguments[2] = lst.GetRange(lst.Count - c, c);
+                lst.RemoveRange(lst.Count - c, c);
             }
             else
             {
