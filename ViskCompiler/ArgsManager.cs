@@ -7,49 +7,77 @@ internal static class ArgsManager
 {
     private static readonly AssemblerRegister64[] _assemblerRegisters = { rcx, rdx, r8, r9 };
 
-    public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler, out bool stackAligned)
+    public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler, List<int> dataInStack,
+        out bool stackAligned)
     {
         stackAligned = false;
 
-        var reg = new ViskRegister(fromReg.CurValue);
 
-        /*
-        Maybe this table is true?
-        
-        number. size - total_size - fill_offset
-        
-        1. 8 - 32 - 0
-
-        2. 16 - 48 - 8
-        3. 24 - 48 - 0
-
-        4. 32 - 64 - 8
-        5. 40 - 64 - 0
-
-        6. 48 - 80 - 8
-        7. 56 - 80 - 0 
-        */
+        var regOfOffset = new RegOrOffset(dataInStack, new ViskRegister(fromReg.CurValue));
 
         if (argsCount >= _assemblerRegisters.Length)
         {
             stackAligned = true;
             var size = (argsCount - _assemblerRegisters.Length) * 8;
-            var maxSize = 32 + (size & 16);
+            var maxSize = 32 + size;
 
             assembler.sub(rsp, maxSize);
+            assembler.and(sp, -0xF);
 
-            var i = maxSize - (size + 8) % 16;
-            var k = argsCount - _assemblerRegisters.Length;
-            while (i >= 0 && k > 0)
-            {
-                assembler.mov(__[rsp + i], reg.Previous());
-                i -= 8;
-                k--;
-            }
+            var i = maxSize - 8;
+            for (var j = 0; j < argsCount - _assemblerRegisters.Length; j++, i -= 8)
+                if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+                {
+                    assembler.mov(__[rsp + i], r!.Value);
+                }
+                else if (r is null && offset is null)
+                {
+                    throw new InvalidOperationException();
+                }
+                else
+                {
+                    assembler.mov(rax, __[rbp - offset!.Value]);
+                    assembler.mov(__[rsp + i], rax);
+                }
         }
 
-        var max = Math.Min(argsCount, _assemblerRegisters.Length);
-        for (var j = max - 1; j >= 0; j--)
-            assembler.mov(_assemblerRegisters[j], reg.Previous());
+        var min = Math.Min(argsCount, _assemblerRegisters.Length);
+        for (var j = min - 1; j >= 0; j--)
+            if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+                assembler.mov(_assemblerRegisters[j], r!.Value);
+            else if (r is null && offset is null)
+                throw new InvalidOperationException();
+            else assembler.mov(_assemblerRegisters[j], __[rbp - offset!.Value]);
+    }
+
+    private sealed class RegOrOffset
+    {
+        private readonly List<int> _dataInStack;
+        private readonly ViskRegister _register;
+        private int _pointer;
+
+        public RegOrOffset(List<int> dataInStack, ViskRegister register)
+        {
+            _dataInStack = dataInStack;
+            _register = register;
+            _pointer = 0;
+        }
+
+        public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out int? offset) =>
+            StackAtFirst(out register64, out offset);
+
+        private bool StackAtFirst(out AssemblerRegister64? register64, out int? offset)
+        {
+            if (_pointer < _dataInStack.Count)
+            {
+                offset = _dataInStack[^++_pointer];
+                register64 = null;
+                return false;
+            }
+
+            offset = null;
+            register64 = _register.Previous();
+            return true;
+        }
     }
 }

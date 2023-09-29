@@ -1,14 +1,13 @@
 ﻿namespace ViskCompiler;
 
+using System.Collections.Immutable;
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskRegister
 {
-    private static readonly AssemblerRegister64[] _registers =
-    {
-        rbx, r10, r11, r12, r13, r14, r15
-    };
+    public static readonly ImmutableArray<AssemblerRegister64> Registers =
+        ImmutableArray.Create(rbx, r10, r11, r12, r13);
 
     private int _curRegister;
 
@@ -18,18 +17,19 @@ internal sealed class ViskRegister
 
     public ViskRegister(AssemblerRegister64 value)
     {
-        _curRegister = Array.IndexOf(_registers, value);
+        _curRegister = Registers.IndexOf(value);
     }
 
-    public AssemblerRegister64 CurValue => _registers[_curRegister];
+    public AssemblerRegister64 CurValue => Registers[_curRegister];
+    public bool CanGetPrevious => _curRegister - 1 >= 0;
 
 
     /// <summary>
     /// </summary>
     /// <returns>old value</returns>
     public AssemblerRegister64 Next() =>
-        _registers[
-            _curRegister >= _registers.Length
+        Registers[
+            _curRegister >= Registers.Length
                 ? throw new InvalidOperationException("All registers are used")
                 : _curRegister++
         ];
@@ -38,7 +38,7 @@ internal sealed class ViskRegister
     /// </summary>
     /// <returns>old value</returns>
     public AssemblerRegister64 Previous() =>
-        _registers[
+        Registers[
             _curRegister - 1 < 0
                 ? throw new InvalidOperationException("No register to return")
                 : --_curRegister
@@ -49,13 +49,13 @@ internal sealed class ViskRegister
     public void Sub(int argsCount)
     {
         var predict = _curRegister - argsCount;
-        if (predict < 0 || predict >= _registers.Length)
+        if (predict < 0 || predict >= Registers.Length)
             throw new InvalidOperationException();
 
         _curRegister = predict;
     }
 
-    public AssemblerRegister64 BackValue() => _registers[
+    public AssemblerRegister64 BackValue() => Registers[
         _curRegister - 1 < 0
             ? throw new InvalidOperationException("No register to return")
             : _curRegister - 1
