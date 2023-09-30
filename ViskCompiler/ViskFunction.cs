@@ -30,8 +30,8 @@ public sealed class ViskFunction
                 if (i.InstructionKind != ViskInstructionKind.CallForeign)
                     size += c.output - c.args;
                 else
-                    size += (int)i.Arguments[3] - (int)i.Arguments[1];
-                max = Math.Max(max, size - (ViskRegister.Registers.Length - 1));
+                    size += ((bool)i.Arguments[3] ? 1 : 0) - (int)i.Arguments[1];
+                max = Math.Max(max, size - ViskRegister.Registers.Length);
             }
 
             return max;
@@ -40,8 +40,8 @@ public sealed class ViskFunction
 
     private List<ViskInstruction> Prepare(List<ViskInstruction> instructions)
     {
-        StackAlloc = Locals.Count * 8 + MaxStackSize * 8;
         Locals = GetLocals();
+        StackAlloc = Locals.Count * 8 + MaxStackSize * 8;
         var instr = ViskInstruction.Prolog(StackAlloc);
 
         if (instructions[0].InstructionKind != ViskInstructionKind.Prolog)
