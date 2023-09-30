@@ -51,6 +51,7 @@ internal sealed class ViskCompiler
         switch (inst.InstructionKind)
         {
             case ViskInstructionKind.PushConst:
+                //((IList<Instruction>)_assembler.Instructions)[0] = Instruction.Create(Code.Mov_r64_rm64, rax, rax);
                 var integer = arg0 switch
                 {
                     long l => l,

@@ -7,6 +7,22 @@ using System.Runtime.CompilerServices;
 [DebuggerDisplay("{InstructionKind} {Arguments.Count > 0 ? Arguments[0] : \"\"}")]
 public sealed class ViskInstruction
 {
+    public static readonly Dictionary<ViskInstructionKind, (int args, int output)> InstructionCharacteristics =
+        new()
+        {
+            [ViskInstructionKind.PushConst] = (0, 1),
+            [ViskInstructionKind.Add] = (2, 1),
+            [ViskInstructionKind.Ret] = (1, 0),
+            [ViskInstructionKind.CallForeign] = (100_000, 1),
+            [ViskInstructionKind.IMul] = (2, 1),
+            [ViskInstructionKind.SetLabel] = (0, 0),
+            [ViskInstructionKind.Goto] = (0, 0),
+            [ViskInstructionKind.Prolog] = (0, 0),
+            [ViskInstructionKind.SetLocal] = (0, 0),
+            [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.Nop] = (0, 0)
+        };
+
     public readonly List<object> Arguments;
 
     private ViskInstruction(ViskInstructionKind instructionKind, params object[]? arguments)
