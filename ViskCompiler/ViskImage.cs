@@ -2,8 +2,7 @@
 
 public class ViskImage
 {
-    private readonly ViskModule? _viskModule;
-    private bool _preprocessed;
+    private readonly ViskModule _viskModule = null!;
 
     public ViskImage(ViskModule viskModule)
     {
@@ -12,22 +11,8 @@ public class ViskImage
 
     private ViskModule ViskModule
     {
-        get
-        {
-            if (!_preprocessed)
-            {
-                _preprocessed = true;
-                Preprocess();
-            }
-
-            return _viskModule!;
-        }
+        get => _viskModule;
         init => _viskModule = value ?? throw new InvalidOperationException();
-    }
-
-    private void Preprocess()
-    {
-        Preprocessor.Preprocess(ViskModule);
     }
 
     public ViskX64AsmExecutor Compile() => new ViskCompiler(ViskModule).Compile();

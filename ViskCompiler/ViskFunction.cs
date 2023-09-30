@@ -6,34 +6,43 @@ public sealed class ViskFunction
     public readonly List<ViskInstruction> Instructions = new();
     private readonly Dictionary<string, int> _locals = new();
 
+    public IReadOnlyDictionary<string, int> Locals = null!;
+
     public ViskFunction(string name)
     {
         Name = name;
     }
 
-    public IReadOnlyDictionary<string, int> Locals
-    {
-        get
-        {
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var x in Instructions)
-            {
-                if (x.InstructionKind != ViskInstructionKind.SetLocal)
-                    continue;
-
-                var args = x.Arguments ?? throw new InvalidOperationException();
-                _locals.TryAdd((string)args[0], (_locals.Count + 1) * 8);
-            }
-
-            return _locals;
-        }
-    }
+    public int StackAlloc { get; private set; }
 
     public List<ViskInstruction> TotalInstructions => Prepare(Instructions);
 
+    private int MaxStackSize
+    {
+        get
+        {
+            var size = 0;
+            var max = 0;
+
+            foreach (var i in Instructions)
+            {
+                var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
+                if (i.InstructionKind != ViskInstructionKind.CallForeign)
+                    size += c.output - c.args;
+                else
+                    size += ((bool)i.Arguments[3] ? 1 : 0) - (int)i.Arguments[1];
+                max = Math.Max(max, size - ViskRegister.Registers.Length);
+            }
+
+            return max;
+        }
+    }
+
     private List<ViskInstruction> Prepare(List<ViskInstruction> instructions)
     {
-        var instr = ViskInstruction.Prolog(Locals.Count * 8);
+        Locals = GetLocals();
+        StackAlloc = Locals.Count * 8 + MaxStackSize * 8;
+        var instr = ViskInstruction.Prolog(StackAlloc);
 
         if (instructions[0].InstructionKind != ViskInstructionKind.Prolog)
             instructions.Insert(0, instr);
@@ -42,8 +51,18 @@ public sealed class ViskFunction
         return instructions;
     }
 
-    public void AddRange(List<ViskInstruction> viskInstructions)
+    private IReadOnlyDictionary<string, int> GetLocals()
     {
-        Instructions.AddRange(viskInstructions);
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var x in Instructions)
+        {
+            if (x.InstructionKind != ViskInstructionKind.SetLocal)
+                continue;
+
+            var args = x.Arguments ?? throw new InvalidOperationException();
+            _locals.TryAdd((string)args[0], (_locals.Count + 1) * 8);
+        }
+
+        return _locals;
     }
 }

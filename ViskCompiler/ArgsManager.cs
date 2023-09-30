@@ -7,13 +7,15 @@ internal static class ArgsManager
 {
     private static readonly AssemblerRegister64[] _assemblerRegisters = { rcx, rdx, r8, r9 };
 
-    public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler, List<int> dataInStack,
+    public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler,
+        IEnumerable<AssemblerMemoryOperand> dataInStack,
         out bool stackAligned)
     {
         stackAligned = false;
 
 
-        var regOfOffset = new RegOrOffset(dataInStack, new ViskRegister(fromReg.CurValue));
+        var regOfOffset = new RegOrOffset(new Stack<AssemblerMemoryOperand>(dataInStack.Reverse()),
+            new ViskRegister(fromReg.CurIndex));
 
         if (argsCount >= _assemblerRegisters.Length)
         {
@@ -36,7 +38,7 @@ internal static class ArgsManager
                 }
                 else
                 {
-                    assembler.mov(rax, __[rbp - offset!.Value]);
+                    assembler.mov(rax, offset!.Value);
                     assembler.mov(__[rsp + i], rax);
                 }
         }
@@ -47,30 +49,28 @@ internal static class ArgsManager
                 assembler.mov(_assemblerRegisters[j], r!.Value);
             else if (r is null && offset is null)
                 throw new InvalidOperationException();
-            else assembler.mov(_assemblerRegisters[j], __[rbp - offset!.Value]);
+            else assembler.mov(_assemblerRegisters[j], offset!.Value);
     }
 
     private sealed class RegOrOffset
     {
-        private readonly List<int> _dataInStack;
+        private readonly Stack<AssemblerMemoryOperand> _dataInStack;
         private readonly ViskRegister _register;
-        private int _pointer;
 
-        public RegOrOffset(List<int> dataInStack, ViskRegister register)
+        public RegOrOffset(Stack<AssemblerMemoryOperand> dataInStack, ViskRegister register)
         {
             _dataInStack = dataInStack;
             _register = register;
-            _pointer = 0;
         }
 
-        public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out int? offset) =>
+        public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset) =>
             StackAtFirst(out register64, out offset);
 
-        private bool StackAtFirst(out AssemblerRegister64? register64, out int? offset)
+        private bool StackAtFirst(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset)
         {
-            if (_pointer < _dataInStack.Count)
+            if (_dataInStack.Count != 0)
             {
-                offset = _dataInStack[^++_pointer];
+                offset = _dataInStack.Pop();
                 register64 = null;
                 return false;
             }

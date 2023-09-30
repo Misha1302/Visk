@@ -7,21 +7,21 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskRegister
 {
     public static readonly ImmutableArray<AssemblerRegister64> Registers =
-        ImmutableArray.Create(rbx, r10, r11, r12, r13);
-
-    private int _curRegister;
+        ImmutableArray.Create(rbx, r10, r11, r12);
 
     public ViskRegister()
     {
     }
 
-    public ViskRegister(AssemblerRegister64 value)
+    public ViskRegister(int value)
     {
-        _curRegister = Registers.IndexOf(value);
+        CurIndex = value;
     }
 
-    public AssemblerRegister64 CurValue => Registers[_curRegister];
-    public bool CanGetPrevious => _curRegister - 1 >= 0;
+    public int CurIndex { get; private set; }
+
+    public bool CanGetPrevious => CurIndex - 1 >= 0;
+    public bool CanGetNext => CurIndex < Registers.Length;
 
 
     /// <summary>
@@ -29,9 +29,9 @@ internal sealed class ViskRegister
     /// <returns>old value</returns>
     public AssemblerRegister64 Next() =>
         Registers[
-            _curRegister >= Registers.Length
+            CurIndex >= Registers.Length
                 ? throw new InvalidOperationException("All registers are used")
-                : _curRegister++
+                : CurIndex++
         ];
 
     /// <summary>
@@ -39,25 +39,25 @@ internal sealed class ViskRegister
     /// <returns>old value</returns>
     public AssemblerRegister64 Previous() =>
         Registers[
-            _curRegister - 1 < 0
+            CurIndex - 1 < 0
                 ? throw new InvalidOperationException("No register to return")
-                : --_curRegister
+                : --CurIndex
         ];
 
-    public void Reset() => _curRegister = 0;
+    public void Reset() => CurIndex = 0;
 
     public void Sub(int argsCount)
     {
-        var predict = _curRegister - argsCount;
+        var predict = CurIndex - argsCount;
         if (predict < 0 || predict >= Registers.Length)
             throw new InvalidOperationException();
 
-        _curRegister = predict;
+        CurIndex = predict;
     }
 
     public AssemblerRegister64 BackValue() => Registers[
-        _curRegister - 1 < 0
+        CurIndex - 1 < 0
             ? throw new InvalidOperationException("No register to return")
-            : _curRegister - 1
+            : CurIndex - 1
     ];
 }

@@ -6,7 +6,7 @@ var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
 
 var module = new ViskModule("main");
 
-module.AddFunction("f").AddRange(new List<ViskInstruction>
+module.AddFunction("f").Instructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(10),
     ViskInstruction.PushConst(20),
@@ -18,6 +18,25 @@ module.AddFunction("f").AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(80),
     ViskInstruction.PushConst(90),
     ViskInstruction.PushConst(100),
+    ViskInstruction.PushConst(110),
+    ViskInstruction.PushConst(120),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.CallForeign(printLong),
+    
+    ViskInstruction.PushConst(120),
+    ViskInstruction.CallForeign(printLong),
+    
+    
     ViskInstruction.PushConst(10),
     ViskInstruction.PushConst(20),
     ViskInstruction.PushConst(30),
@@ -28,12 +47,9 @@ module.AddFunction("f").AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(80),
     ViskInstruction.PushConst(90),
     ViskInstruction.PushConst(100),
-    ViskInstruction.Nop(),
     ViskInstruction.CallForeign(printLongs),
-    ViskInstruction.Nop(),
-    ViskInstruction.CallForeign(printLongs),
-
-    ViskInstruction.PushConst(0), // 0
+    
+    ViskInstruction.PushConst(123),
     ViskInstruction.Ret()
 });
 
