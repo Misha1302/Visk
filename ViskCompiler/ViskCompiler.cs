@@ -9,26 +9,27 @@ internal sealed class ViskCompiler
 
     private readonly ViskModule _module;
     private readonly Assembler _assembler = new(64);
-    private readonly ViskRegister _register = new();
-    private readonly List<(Label, long)> _data = new();
-    private readonly Dictionary<string, Label> _labels = new();
-    private readonly Stack<AssemblerMemoryOperand> _stack = new();
+    private readonly ViskDataManager _dataManager;
 
     public ViskCompiler(ViskModule module)
     {
         _module = module;
+        _dataManager = new ViskDataManager(_assembler);
     }
 
     public ViskX64AsmExecutor Compile()
     {
-        ((List<ViskFunction>)_module.Functions).ForEach(CompileInstructions);
-
-
-        _data.ForEach(x =>
+        foreach (var f in _module.Functions)
         {
-            _assembler.Label(ref x.Item1);
-            _assembler.dq(x.Item2);
-        });
+            CompileInstructions(f);
+        }
+
+        foreach (var x in _dataManager.Data)
+        {
+            var copy = x;
+            _assembler.Label(ref copy.Item1);
+            _assembler.dq(copy.Item2);
+        }
 
         return new ViskX64AsmExecutor(_assembler);
     }
@@ -61,39 +62,39 @@ internal sealed class ViskCompiler
                     _ => throw new ArgumentOutOfRangeException()
                 };
 
-                if (_register.CanGetNext)
+                if (_dataManager.Register.CanGetNext)
                 {
-                    _assembler.mov(_register.Next(), __[DefineI64(integer)]);
+                    _assembler.mov(_dataManager.Register.Next(), __[_dataManager.DefineI64(integer)]);
                 }
                 else
                 {
-                    _assembler.mov(rax, __[DefineI64(integer)]);
-                    var offset = (_stack.Count + 1) * 8;
-                    _stack.Push(
+                    _assembler.mov(rax, __[_dataManager.DefineI64(integer)]);
+                    var offset = (_dataManager.Stack.Count + 1) * 8;
+                    _dataManager.Stack.Push(
                         function.Locals.Count != 0
                             ? __[rbp - (function.Locals.Max(x => x.Value) + offset)]
                             : __[rbp - offset]
                     );
-                    _assembler.mov(_stack.Peek(), rax);
+                    _assembler.mov(_dataManager.Stack.Peek(), rax);
                 }
 
                 break;
             case ViskInstructionKind.Add:
-                if (_stack.Count != 0)
+                if (_dataManager.Stack.Count != 0)
                 {
-                    _assembler.add(_register.BackValue(), _stack.Pop());
+                    _assembler.add(_dataManager.Register.BackValue(), _dataManager.Stack.Pop());
                 }
                 else
                 {
-                    prev = _register.Previous();
-                    _assembler.add(_register.BackValue(), prev);
+                    prev = _dataManager.Register.Previous();
+                    _assembler.add(_dataManager.Register.BackValue(), prev);
                 }
 
                 break;
             case ViskInstructionKind.Ret:
-                _assembler.mov(rax, _register.Previous());
+                _assembler.mov(rax, _dataManager.Register.Previous());
 
-                _register.Reset();
+                _dataManager.Register.Reset();
 
                 _assembler.mov(rsp, rbp);
                 _assembler.pop(rbp);
@@ -108,9 +109,9 @@ internal sealed class ViskCompiler
                 _assembler.mov(r13, rsp);
 
                 ArgsManager.MoveArgs(
-                    argsCount, _register, _assembler, _stack, out var stackAligned
+                    argsCount, _dataManager.Register    , _assembler, _dataManager.Stack, out var stackAligned
                 );
-                _register.Sub(argsCount - _stack.Count);
+                _dataManager.Register.Sub(argsCount - _dataManager.Stack.Count);
 
                 if (!stackAligned)
                     AlignStack();
@@ -122,18 +123,18 @@ internal sealed class ViskCompiler
                     _assembler.pop(r);
 
                 if ((bool)(arg3 ?? throw new InvalidOperationException()))
-                    _assembler.mov(_register.Next(), rax);
+                    _assembler.mov(_dataManager.Register.Next(), rax);
                 break;
             case ViskInstructionKind.IMul:
-                prev = _register.Previous();
-                _assembler.imul(_register.BackValue(), prev);
+                prev = _dataManager.Register.Previous();
+                _assembler.imul(_dataManager.Register.BackValue(), prev);
                 break;
             case ViskInstructionKind.SetLabel:
-                label = _labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
+                label = _dataManager.Labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
                 _assembler.Label(ref label);
                 break;
             case ViskInstructionKind.Goto:
-                label = _labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
+                label = _dataManager.Labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
                 _assembler.jmp(label);
                 break;
             case ViskInstructionKind.Prolog:
@@ -146,11 +147,11 @@ internal sealed class ViskCompiler
                 break;
             case ViskInstructionKind.SetLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
-                _assembler.mov(__[rbp - localOffset], _register.Previous());
+                _assembler.mov(__[rbp - localOffset], _dataManager.Register.Previous());
                 break;
             case ViskInstructionKind.LoadLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
-                _assembler.mov(_register.Next(), __[rbp - localOffset]);
+                _assembler.mov(_dataManager.Register.Next(), __[rbp - localOffset]);
                 break;
             case ViskInstructionKind.Nop:
                 _assembler.nop();
@@ -163,12 +164,5 @@ internal sealed class ViskCompiler
     private void AlignStack()
     {
         _assembler.and(sp, StackAlignConst);
-    }
-
-    private Label DefineI64(long l)
-    {
-        var label = _assembler.CreateLabel();
-        _data.Add((label, l));
-        return label;
     }
 }
