@@ -32,11 +32,11 @@ module.AddFunction("f").Instructions.AddRange(new List<ViskInstruction>
     ViskInstruction.Add(),
     ViskInstruction.Add(),
     ViskInstruction.CallForeign(printLong),
-    
+
     ViskInstruction.PushConst(120),
     ViskInstruction.CallForeign(printLong),
-    
-    
+
+
     ViskInstruction.PushConst(10),
     ViskInstruction.PushConst(20),
     ViskInstruction.PushConst(30),
@@ -48,7 +48,7 @@ module.AddFunction("f").Instructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(90),
     ViskInstruction.PushConst(100),
     ViskInstruction.CallForeign(printLongs),
-    
+
     ViskInstruction.PushConst(123),
     ViskInstruction.Ret()
 });

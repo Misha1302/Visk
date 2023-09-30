@@ -19,10 +19,7 @@ internal sealed class ViskCompiler
 
     public ViskX64AsmExecutor Compile()
     {
-        foreach (var f in _module.Functions)
-        {
-            CompileInstructions(f);
-        }
+        foreach (var f in _module.Functions) CompileInstructions(f);
 
         foreach (var x in _dataManager.Data)
         {
@@ -49,7 +46,6 @@ internal sealed class ViskCompiler
 
         Label label;
         int localOffset;
-        AssemblerRegister64 prev;
         switch (inst.InstructionKind)
         {
             case ViskInstructionKind.PushConst:
@@ -81,14 +77,9 @@ internal sealed class ViskCompiler
                 break;
             case ViskInstructionKind.Add:
                 if (_dataManager.Stack.Count != 0)
-                {
                     _assembler.add(_dataManager.Register.BackValue(), _dataManager.Stack.Pop());
-                }
                 else
-                {
-                    prev = _dataManager.Register.Previous();
-                    _assembler.add(_dataManager.Register.BackValue(), prev);
-                }
+                    _assembler.add(_dataManager.Register.BackValue(), _dataManager.Register.Previous());
 
                 break;
             case ViskInstructionKind.Ret:
@@ -103,13 +94,12 @@ internal sealed class ViskCompiler
             case ViskInstructionKind.CallForeign:
                 var argsCount = (int)(arg1 ?? throw new InvalidOperationException());
 
-
                 foreach (var r in ViskRegister.Registers)
                     _assembler.push(r);
                 _assembler.mov(r13, rsp);
 
                 ArgsManager.MoveArgs(
-                    argsCount, _dataManager.Register    , _assembler, _dataManager.Stack, out var stackAligned
+                    argsCount, _dataManager.Register, _assembler, _dataManager.Stack, out var stackAligned
                 );
                 _dataManager.Register.Sub(argsCount - _dataManager.Stack.Count);
 
@@ -126,15 +116,16 @@ internal sealed class ViskCompiler
                     _assembler.mov(_dataManager.Register.Next(), rax);
                 break;
             case ViskInstructionKind.IMul:
-                prev = _dataManager.Register.Previous();
-                _assembler.imul(_dataManager.Register.BackValue(), prev);
+                _assembler.imul(_dataManager.Register.BackValue(), _dataManager.Register.Previous());
                 break;
             case ViskInstructionKind.SetLabel:
-                label = _dataManager.Labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
+                label = _dataManager.Labels.GetOrAdd(_assembler,
+                    (string)(arg0 ?? throw new InvalidOperationException()));
                 _assembler.Label(ref label);
                 break;
             case ViskInstructionKind.Goto:
-                label = _dataManager.Labels.GetOrAdd(_assembler, (string)(arg0 ?? throw new InvalidOperationException()));
+                label = _dataManager.Labels.GetOrAdd(_assembler,
+                    (string)(arg0 ?? throw new InvalidOperationException()));
                 _assembler.jmp(label);
                 break;
             case ViskInstructionKind.Prolog:
