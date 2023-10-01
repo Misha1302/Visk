@@ -27,6 +27,12 @@ public static class Helper
         Console.WriteLine(l1);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void PrintSmt()
+    {
+        Console.WriteLine("Smt");
+    }
+
     public static long GetFour() => (long)(23.4f / GetFive());
     private static long GetFive() => 5;
 }

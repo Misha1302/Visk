@@ -8,18 +8,13 @@ internal static class ArgsManager
     private static readonly AssemblerRegister64[] _assemblerRegisters = { rcx, rdx, r8, r9 };
 
     public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler,
-        IEnumerable<AssemblerMemoryOperand> dataInStack,
-        out bool stackAligned)
+        IEnumerable<AssemblerMemoryOperand> dataInStack)
     {
-        stackAligned = false;
-
-
         var regOfOffset = new RegOrOffset(new Stack<AssemblerMemoryOperand>(dataInStack.Reverse()),
             new ViskRegister(fromReg.CurIndex));
 
         if (argsCount >= _assemblerRegisters.Length)
         {
-            stackAligned = true;
             var size = (argsCount - _assemblerRegisters.Length) * 8;
             var maxSize = 32 + size;
 

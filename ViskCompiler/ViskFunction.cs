@@ -3,13 +3,19 @@ namespace ViskCompiler;
 public sealed class ViskFunction
 {
     public readonly string Name;
+    public readonly int ArgsCount;
+    public readonly bool Returns;
+
     public readonly List<ViskInstruction> Instructions = new();
     private readonly Dictionary<string, int> _locals = new();
 
     public IReadOnlyDictionary<string, int> Locals = null!;
 
-    public ViskFunction(string name)
+
+    public ViskFunction(string name, int argsCount, bool returns)
     {
+        ArgsCount = argsCount;
+        Returns = returns;
         Name = name;
     }
 
@@ -26,11 +32,21 @@ public sealed class ViskFunction
 
             foreach (var i in Instructions)
             {
-                var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
                 if (i.InstructionKind != ViskInstructionKind.CallForeign)
+                {
+                    var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
                     size += c.output - c.args;
+                }
+                else if (i.InstructionKind == ViskInstructionKind.Call)
+                {
+                    var f = (ViskFunction)i.Arguments[0];
+                    size += f.Returns ? 1 : 0  - f.ArgsCount;
+                }
                 else
+                {
                     size += ((bool)i.Arguments[3] ? 1 : 0) - (int)i.Arguments[1];
+                }
+
                 max = Math.Max(max, size - ViskRegister.Registers.Length);
             }
 

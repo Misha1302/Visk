@@ -13,7 +13,8 @@ public sealed class ViskInstruction
             [ViskInstructionKind.PushConst] = (0, 1),
             [ViskInstructionKind.Add] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
-            [ViskInstructionKind.CallForeign] = (100_000, 1),
+            [ViskInstructionKind.CallForeign] = (100_000, 100_000),
+            [ViskInstructionKind.Call] = (100_000, 100_000),
             [ViskInstructionKind.IMul] = (2, 1),
             [ViskInstructionKind.SetLabel] = (0, 0),
             [ViskInstructionKind.Goto] = (0, 0),
@@ -68,4 +69,6 @@ public sealed class ViskInstruction
     public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
 
     public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
+
+    public static ViskInstruction Call(ViskFunction f) => new(ViskInstructionKind.Call, f);
 }

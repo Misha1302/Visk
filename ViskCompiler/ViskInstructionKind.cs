@@ -13,5 +13,6 @@ public enum ViskInstructionKind
     Prolog,
     SetLocal,
     LoadLocal,
-    Nop
+    Nop,
+    Call
 }

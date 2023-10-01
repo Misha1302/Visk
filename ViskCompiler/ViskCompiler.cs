@@ -5,11 +5,12 @@ using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskCompiler
 {
-    private const byte StackAlignConst = unchecked((byte)-16);
+    private const byte StackAlignConst = unchecked((byte)-32);
 
     private readonly ViskModule _module;
     private readonly Assembler _assembler = new(64);
     private readonly ViskDataManager _dataManager;
+    private readonly Dictionary<string, Label> _functions = new();
 
     public ViskCompiler(ViskModule module)
     {
@@ -19,7 +20,11 @@ internal sealed class ViskCompiler
 
     public ViskX64AsmExecutor Compile()
     {
-        foreach (var f in _module.Functions) CompileInstructions(f);
+        _functions.Add(_module.MainFuncName, _assembler.CreateLabel(_module.MainFuncName));
+        _assembler.jmp(_functions[_module.MainFuncName]);
+
+        foreach (var f in _module.Functions)
+            CompileInstructions(f);
 
         foreach (var x in _dataManager.Data)
         {
@@ -33,6 +38,10 @@ internal sealed class ViskCompiler
 
     private void CompileInstructions(ViskFunction function)
     {
+        if (function.Instructions.Last(x => x.InstructionKind != ViskInstructionKind.Nop).InstructionKind !=
+            ViskInstructionKind.Ret)
+            throw new InvalidOperationException();
+
         foreach (var instr in function.TotalInstructions)
             CompileInstruction(instr, function);
     }
@@ -46,6 +55,7 @@ internal sealed class ViskCompiler
 
         Label label;
         int localOffset;
+        Label funcLabel;
         switch (inst.InstructionKind)
         {
             case ViskInstructionKind.PushConst:
@@ -83,7 +93,8 @@ internal sealed class ViskCompiler
 
                 break;
             case ViskInstructionKind.Ret:
-                _assembler.mov(rax, _dataManager.Register.Previous());
+                if (_dataManager.Register.CanGetPrevious)
+                    _assembler.mov(rax, _dataManager.Register.Previous());
 
                 _dataManager.Register.Reset();
 
@@ -92,28 +103,24 @@ internal sealed class ViskCompiler
                 _assembler.ret();
                 break;
             case ViskInstructionKind.CallForeign:
-                var argsCount = (int)(arg1 ?? throw new InvalidOperationException());
-
-                foreach (var r in ViskRegister.Registers)
-                    _assembler.push(r);
-                _assembler.mov(r13, rsp);
-
-                ArgsManager.MoveArgs(
-                    argsCount, _dataManager.Register, _assembler, _dataManager.Stack, out var stackAligned
-                );
-                _dataManager.Register.Sub(argsCount - _dataManager.Stack.Count);
-
-                if (!stackAligned)
-                    AlignStack();
-
+                PrepareCall((int)(arg1 ?? throw new InvalidOperationException()));
                 _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                _assembler.mov(rsp, r13);
+                AfterCall((bool)(arg3 ?? throw new InvalidOperationException()));
+                break;
+            case ViskInstructionKind.Call:
+                var func = (ViskFunction)(arg0 ?? throw new InvalidOperationException());
 
-                foreach (var r in ViskRegister.Registers.Reverse())
-                    _assembler.pop(r);
+                PrepareCall(func.ArgsCount);
 
-                if ((bool)(arg3 ?? throw new InvalidOperationException()))
-                    _assembler.mov(_dataManager.Register.Next(), rax);
+                if (!_functions.TryGetValue(func.Name, out funcLabel))
+                {
+                    funcLabel = _assembler.CreateLabel(funcLabel.Name);
+                    _functions.Add(func.Name, funcLabel);
+                }
+
+                _assembler.call(funcLabel);
+
+                AfterCall(function.Returns);
                 break;
             case ViskInstructionKind.IMul:
                 _assembler.imul(_dataManager.Register.BackValue(), _dataManager.Register.Previous());
@@ -129,6 +136,14 @@ internal sealed class ViskCompiler
                 _assembler.jmp(label);
                 break;
             case ViskInstructionKind.Prolog:
+                if (!_functions.TryGetValue(function.Name, out funcLabel))
+                {
+                    funcLabel = _assembler.CreateLabel(funcLabel.Name);
+                    _functions.Add(function.Name, funcLabel);
+                }
+
+                _assembler.Label(ref funcLabel);
+
                 _assembler.push(rbp);
                 _assembler.mov(rbp, rsp);
 
@@ -150,6 +165,38 @@ internal sealed class ViskCompiler
             default:
                 throw new ArgumentOutOfRangeException(nameof(inst), inst.InstructionKind.ToString());
         }
+    }
+
+    private void AfterCall(bool returns)
+    {
+        _assembler.mov(rax, __[rsp + 8]);
+        _assembler.mov(rsp, rax);
+
+        _assembler.pop(r12);
+        _assembler.pop(r11);
+        _assembler.pop(r10);
+        _assembler.pop(rbx);
+
+        if (returns)
+            _assembler.mov(_dataManager.Register.Next(), rax);
+    }
+
+    private void PrepareCall(int argsCount)
+    {
+        ArgsManager.MoveArgs(
+            argsCount, _dataManager.Register, _assembler, _dataManager.Stack
+        );
+        _dataManager.Register.Sub(argsCount - _dataManager.Stack.Count);
+
+        _assembler.push(rbx);
+        _assembler.push(r10);
+        _assembler.push(r11);
+        _assembler.push(r12);
+
+        _assembler.mov(rax, rsp);
+        AlignStack();
+        _assembler.sub(sp, 16);
+        _assembler.mov(__[rsp + 8], rax);
     }
 
     private void AlignStack()
