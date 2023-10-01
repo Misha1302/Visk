@@ -8,23 +8,27 @@ internal static class ArgsManager
     private static readonly AssemblerRegister64[] _assemblerRegisters = { rcx, rdx, r8, r9 };
 
     public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler,
-        IEnumerable<AssemblerMemoryOperand> dataInStack)
+        Stack<AssemblerMemoryOperand> dataInStack, out bool stackAligned, out int registerUsed)
     {
-        var regOfOffset = new RegOrOffset(new Stack<AssemblerMemoryOperand>(dataInStack.Reverse()),
-            new ViskRegister(fromReg.CurIndex));
+        registerUsed = 0;
+        stackAligned = false;
+
+        var regOfOffset = new RegOrOffset(dataInStack, new ViskRegister(fromReg.CurIndex));
 
         if (argsCount >= _assemblerRegisters.Length)
         {
+            stackAligned = true;
             var size = (argsCount - _assemblerRegisters.Length) * 8;
             var maxSize = 32 + size;
 
             assembler.sub(rsp, maxSize);
-            assembler.and(sp, -0xF);
+            assembler.and(sp, ViskCompiler.StackAlignConst);
 
             var i = maxSize - 8;
             for (var j = 0; j < argsCount - _assemblerRegisters.Length; j++, i -= 8)
                 if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
                 {
+                    registerUsed++;
                     assembler.mov(__[rsp + i], r!.Value);
                 }
                 else if (r is null && offset is null)
@@ -41,10 +45,18 @@ internal static class ArgsManager
         var min = Math.Min(argsCount, _assemblerRegisters.Length);
         for (var j = min - 1; j >= 0; j--)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+            {
+                registerUsed++;
                 assembler.mov(_assemblerRegisters[j], r!.Value);
+            }
             else if (r is null && offset is null)
+            {
                 throw new InvalidOperationException();
-            else assembler.mov(_assemblerRegisters[j], offset!.Value);
+            }
+            else
+            {
+                assembler.mov(_assemblerRegisters[j], offset!.Value);
+            }
     }
 
     private sealed class RegOrOffset

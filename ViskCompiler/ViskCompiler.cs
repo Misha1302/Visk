@@ -5,7 +5,7 @@ using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskCompiler
 {
-    private const byte StackAlignConst = unchecked((byte)-32);
+    public const sbyte StackAlignConst = -16;
 
     private readonly ViskModule _module;
     private readonly Assembler _assembler = new(64);
@@ -75,21 +75,23 @@ internal sealed class ViskCompiler
                 else
                 {
                     _assembler.mov(rax, __[_dataManager.DefineI64(integer)]);
-                    var offset = (_dataManager.Stack.Count + 1) * 8;
-                    _dataManager.Stack.Push(
-                        function.Locals.Count != 0
-                            ? __[rbp - (function.Locals.Max(x => x.Value) + offset)]
-                            : __[rbp - offset]
-                    );
+                    AllocI64InStack(function);
                     _assembler.mov(_dataManager.Stack.Peek(), rax);
                 }
 
                 break;
             case ViskInstructionKind.Add:
                 if (_dataManager.Stack.Count != 0)
-                    _assembler.add(_dataManager.Register.BackValue(), _dataManager.Stack.Pop());
+                {
+                    _assembler.mov(rax, _dataManager.Stack.Pop());
+                    _assembler.add(rax, _dataManager.Stack.Pop());
+                    _assembler.mov(_dataManager.Stack.Peek(), rax);
+                }
                 else
-                    _assembler.add(_dataManager.Register.BackValue(), _dataManager.Register.Previous());
+                {
+                    var prev = _dataManager.Register.Previous();
+                    _assembler.add(_dataManager.Register.BackValue(), prev);
+                }
 
                 break;
             case ViskInstructionKind.Ret:
@@ -103,14 +105,14 @@ internal sealed class ViskCompiler
                 _assembler.ret();
                 break;
             case ViskInstructionKind.CallForeign:
-                PrepareCall((int)(arg1 ?? throw new InvalidOperationException()));
+                PrepareCall((int)(arg1 ?? throw new InvalidOperationException()), function);
                 _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                AfterCall((bool)(arg3 ?? throw new InvalidOperationException()));
+                AfterCall((bool)(arg3 ?? throw new InvalidOperationException()), function);
                 break;
             case ViskInstructionKind.Call:
                 var func = (ViskFunction)(arg0 ?? throw new InvalidOperationException());
 
-                PrepareCall(func.ArgsCount);
+                PrepareCall(func.ArgsCount, function);
 
                 if (!_functions.TryGetValue(func.Name, out funcLabel))
                 {
@@ -120,10 +122,21 @@ internal sealed class ViskCompiler
 
                 _assembler.call(funcLabel);
 
-                AfterCall(function.Returns);
+                AfterCall(function.Returns, function);
                 break;
             case ViskInstructionKind.IMul:
-                _assembler.imul(_dataManager.Register.BackValue(), _dataManager.Register.Previous());
+                if (_dataManager.Stack.Count != 0)
+                {
+                    _assembler.mov(rax, _dataManager.Stack.Pop());
+                    _assembler.imul(rax, _dataManager.Stack.Pop());
+                    _assembler.mov(_dataManager.Stack.Peek(), rax);
+                }
+                else
+                {
+                    var prev = _dataManager.Register.Previous();
+                    _assembler.add(_dataManager.Register.BackValue(), prev);
+                }
+
                 break;
             case ViskInstructionKind.SetLabel:
                 label = _dataManager.Labels.GetOrAdd(_assembler,
@@ -148,8 +161,7 @@ internal sealed class ViskCompiler
                 _assembler.mov(rbp, rsp);
 
                 var allocCount = (int)(arg0 ?? throw new InvalidOperationException());
-                if (allocCount != 0)
-                    _assembler.sub(rsp, allocCount + allocCount % 16);
+                _assembler.sub(rsp, allocCount + ViskRegister.Registers.Length * 8 + 128);
                 break;
             case ViskInstructionKind.SetLocal:
                 localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
@@ -167,36 +179,39 @@ internal sealed class ViskCompiler
         }
     }
 
-    private void AfterCall(bool returns)
+    private void AllocI64InStack(ViskFunction function)
     {
-        _assembler.mov(rax, __[rsp + 8]);
-        _assembler.mov(rsp, rax);
+        var offset = (_dataManager.Stack.Count + 1) * 8;
+        _dataManager.Stack.Push(
+            function.Locals.Count != 0
+                ? __[rbp - (function.Locals.Max(x => x.Value) + offset)]
+                : __[rbp - offset]
+        );
+    }
 
-        _assembler.pop(r12);
-        _assembler.pop(r11);
-        _assembler.pop(r10);
-        _assembler.pop(rbx);
+    private void AfterCall(bool returns, ViskFunction f)
+    {
+        // _assembler.mov(rsp, __[rsp + 8]);
+
+        // for (var index = _dataManager.Register.CurIndex - 1; index >= 0; index--)
+            // _assembler.mov(__[rbp - f.Locals.GetMax(x => x.Value) - (index + 1) * 8], ViskRegister.Registers[index]);
 
         if (returns)
             _assembler.mov(_dataManager.Register.Next(), rax);
     }
 
-    private void PrepareCall(int argsCount)
+    private void PrepareCall(int argsCount, ViskFunction f)
     {
+        // for (var index = 0; index < argsCount - _dataManager.Register.CurIndex; index++)
+        //     _assembler.mov(__[rbp - f.Locals.GetMax(x => x.Value) - (index + 1) * 8], ViskRegister.Registers[index]);
+
         ArgsManager.MoveArgs(
-            argsCount, _dataManager.Register, _assembler, _dataManager.Stack
+            argsCount, _dataManager.Register, _assembler, _dataManager.Stack, out var stackAligned, out var registersUsed
         );
-        _dataManager.Register.Sub(argsCount - _dataManager.Stack.Count);
+        _dataManager.Register.Sub(registersUsed);
 
-        _assembler.push(rbx);
-        _assembler.push(r10);
-        _assembler.push(r11);
-        _assembler.push(r12);
-
-        _assembler.mov(rax, rsp);
-        AlignStack();
-        _assembler.sub(sp, 16);
-        _assembler.mov(__[rsp + 8], rax);
+        if (!stackAligned)
+            AlignStack();
     }
 
     private void AlignStack()

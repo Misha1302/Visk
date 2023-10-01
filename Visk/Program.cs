@@ -13,10 +13,6 @@ var fOther = module.AddFunction("otherFunc", 0, false);
 fMain.Instructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.Call(fOther),
-    ViskInstruction.CallForeign(printSmt),
-    ViskInstruction.Call(fOther),
-    ViskInstruction.CallForeign(printSmt),
-    ViskInstruction.Call(fOther),
 
     ViskInstruction.PushConst(123),
     ViskInstruction.Ret()
@@ -24,8 +20,36 @@ fMain.Instructions.AddRange(new List<ViskInstruction>
 
 fOther.Instructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(120),
+    ViskInstruction.PushConst(20),
+    ViskInstruction.PushConst(30),
+    ViskInstruction.PushConst(40),
+    ViskInstruction.PushConst(50),
+    ViskInstruction.PushConst(60),
+    ViskInstruction.PushConst(70),
+    ViskInstruction.PushConst(80),
+    ViskInstruction.PushConst(90),
+    ViskInstruction.PushConst(100),
+    ViskInstruction.PushConst(100),
+    ViskInstruction.CallForeign(printLongs),
+    
+    ViskInstruction.PushConst(20),
+    ViskInstruction.PushConst(30),
+    ViskInstruction.PushConst(40),
+    ViskInstruction.PushConst(50),
+    ViskInstruction.PushConst(60),
+    ViskInstruction.PushConst(70),
+    ViskInstruction.PushConst(80),
+    ViskInstruction.PushConst(90),
+    ViskInstruction.PushConst(100),
+    ViskInstruction.PushConst(100),
+    ViskInstruction.CallForeign(printLongs),
+    
+    
+    ViskInstruction.Nop(),
+    ViskInstruction.PushConst(-999999999),
     ViskInstruction.CallForeign(printLong),
+    ViskInstruction.Nop(),
+    
     ViskInstruction.Ret()
 });
 
@@ -38,7 +62,7 @@ Console.WriteLine(new string('-', Console.WindowWidth));
 Console.WriteLine(executor.ToString());
 Console.WriteLine(new string('-', Console.WindowWidth));
 
-for (int i = 0; i < 10; i++)
+for (int i = 0; i < 1; i++)
 {
     Console.WriteLine($"Function returned: {asmDelegate()}");
     Console.WriteLine("\n\n");

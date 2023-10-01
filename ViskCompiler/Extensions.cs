@@ -12,4 +12,12 @@ public static class Extensions
 
         return label;
     }
+
+    public static int GetMax<T>(this IEnumerable<T> collection, Func<T, int> p)
+    {
+        var max = 0;
+        foreach (var c in collection) 
+            max = Math.Max(p(c), max);
+        return max;
+    }
 }

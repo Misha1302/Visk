@@ -7,7 +7,7 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskRegister
 {
     public static readonly ImmutableArray<AssemblerRegister64> Registers =
-        ImmutableArray.Create(rbx, r10, r11, r12);
+        ImmutableArray.Create(rbx, r10, r11, r12, r13, r14, r15);
 
     public ViskRegister()
     {
@@ -49,7 +49,7 @@ internal sealed class ViskRegister
     public void Sub(int argsCount)
     {
         var predict = CurIndex - argsCount;
-        if (predict < 0 || predict >= Registers.Length)
+        if (predict < 0 || predict > Registers.Length)
             throw new InvalidOperationException();
 
         CurIndex = predict;
