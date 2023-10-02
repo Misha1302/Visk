@@ -73,7 +73,7 @@ public sealed class ViskFunction
             max = Math.Max(max, size - ViskRegister.Registers.Length);
         }
 
-        return max;
+        return max + 1;
     }
 
     private IReadOnlyDictionary<string, int> GetLocals()

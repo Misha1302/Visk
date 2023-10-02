@@ -11,7 +11,6 @@ internal class ViskDataManager
     public readonly Assembler Assembler;
     public readonly Dictionary<string, Label> Functions = new();
     public readonly ViskRegister Register = new();
-    public readonly ViskStack Stack = new();
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
@@ -19,7 +18,15 @@ internal class ViskDataManager
         Module = module ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
     }
 
+    public ViskStack Stack { get; private set; } = null!;
+
     public IReadOnlyList<(Label, long)> Data => _data;
+
+    public void NewFunc(int stackSize)
+    {
+        Stack = new ViskStack(stackSize * 8);
+        Register.Reset();
+    }
 
     public Label DefineI64(long l)
     {

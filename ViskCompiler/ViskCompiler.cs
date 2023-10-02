@@ -92,8 +92,9 @@ internal sealed class ViskCompiler
                 _dataManager.Assembler.push(rbp);
                 _dataManager.Assembler.mov(rbp, rsp);
 
+                _dataManager.NewFunc(func.MaxStackSize);
                 _dataManager.Assembler.sub(rsp,
-                    ViskStack.MaxStackSize + ViskRegister.Registers.Length * ViskStack.BlockSize
+                    _dataManager.Stack.MaxStackSize + ViskRegister.Registers.Length * ViskStack.BlockSize
                 );
                 _dataManager.Assembler.and(sp, ViskStack.StackAlignConst);
 

@@ -15,4 +15,6 @@ public static class Extensions
             _ => ThrowHelper.ThrowInvalidOperationException<int>("Obj is not integer")
         };
     }
+
+    public static int AsI32(this object? o) => (int)AsI64(o);
 }

@@ -6,11 +6,18 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskStack
 {
     public const int BlockSize = 8;
-    public const int MaxStackSize = 512;
     public const sbyte StackAlignConst = -16;
+
     private const int MinValue = BlockSize * 1;
 
+    public readonly int MaxStackSize;
+
     private int _offset = MinValue;
+
+    public ViskStack(int maxStackSize)
+    {
+        MaxStackSize = maxStackSize;
+    }
 
     public AssemblerMemoryOperand GetNext()
     {
