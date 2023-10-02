@@ -4,16 +4,19 @@ using Iced.Intel;
 
 internal class ViskDataManager
 {
-    private readonly Assembler _assembler;
     private readonly List<(Label, long)> _data = new();
+    private readonly Dictionary<string, Label> _labels = new();
 
+    public readonly ViskModule Module;
+    public readonly Assembler Assembler;
+    public readonly Dictionary<string, Label> Functions = new();
     public readonly ViskRegister Register = new();
-    public readonly Dictionary<string, Label> Labels = new();
-    public readonly Stack<AssemblerMemoryOperand> Stack = new();
+    public readonly ViskStack Stack = new();
 
-    public ViskDataManager(Assembler assembler)
+    public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
-        _assembler = assembler;
+        Assembler = assembler ?? ThrowHelper.ThrowInvalidOperationException<Assembler>();
+        Module = module ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
     }
 
     public IReadOnlyList<(Label, long)> Data => _data;
@@ -24,8 +27,17 @@ internal class ViskDataManager
         if (ind != -1)
             return _data[ind].Item1;
 
-        var label = _assembler.CreateLabel();
+        var label = Assembler.CreateLabel();
         _data.Add((label, l));
+        return label;
+    }
+
+    public Label GetLabel(string name)
+    {
+        if (_labels.TryGetValue(name, out var label))
+            return label;
+
+        _labels.Add(name, label = Assembler.CreateLabel(name));
         return label;
     }
 }

@@ -5,6 +5,7 @@ public enum ViskInstructionKind
 {
     PushConst,
     Add,
+    Sub,
     Ret,
     CallForeign,
     IMul,

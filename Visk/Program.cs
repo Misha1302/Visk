@@ -10,46 +10,57 @@ var module = new ViskModule("main");
 var fMain = module.AddFunction("main", 0, false);
 var fOther = module.AddFunction("otherFunc", 0, false);
 
-fMain.Instructions.AddRange(new List<ViskInstruction>
+fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.Call(fOther),
-
-    ViskInstruction.PushConst(123),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.Add(),
+    ViskInstruction.IMul(),
+    ViskInstruction.Sub(),
     ViskInstruction.Ret()
 });
 
-fOther.Instructions.AddRange(new List<ViskInstruction>
+fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(20),
-    ViskInstruction.PushConst(30),
-    ViskInstruction.PushConst(40),
-    ViskInstruction.PushConst(50),
-    ViskInstruction.PushConst(60),
-    ViskInstruction.PushConst(70),
-    ViskInstruction.PushConst(80),
-    ViskInstruction.PushConst(90),
     ViskInstruction.PushConst(100),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.CallForeign(printLongs),
     
-    ViskInstruction.PushConst(20),
-    ViskInstruction.PushConst(30),
-    ViskInstruction.PushConst(40),
-    ViskInstruction.PushConst(50),
-    ViskInstruction.PushConst(60),
-    ViskInstruction.PushConst(70),
-    ViskInstruction.PushConst(80),
-    ViskInstruction.PushConst(90),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.CallForeign(printLongs),
-    
-    
-    ViskInstruction.Nop(),
-    ViskInstruction.PushConst(-999999999),
-    ViskInstruction.CallForeign(printLong),
-    ViskInstruction.Nop(),
-    
+    //ViskInstruction.CallForeign(printLong),
     ViskInstruction.Ret()
 });
 

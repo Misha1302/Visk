@@ -12,6 +12,7 @@ public sealed class ViskInstruction
         {
             [ViskInstructionKind.PushConst] = (0, 1),
             [ViskInstructionKind.Add] = (2, 1),
+            [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
@@ -40,18 +41,18 @@ public sealed class ViskInstruction
     public static ViskInstruction CallForeign(MethodInfo? m)
     {
         if (m is null)
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException();
 
         RuntimeHelpers.PrepareMethod(m.MethodHandle);
 
-        // null! - new List<string>()
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, null!, m.ReturnType != typeof(void)
+            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType != typeof(void)
         );
     }
 
     public static ViskInstruction Add() => new(ViskInstructionKind.Add);
+    public static ViskInstruction Sub() => new(ViskInstructionKind.Sub);
 
     // ReSharper disable once InconsistentNaming
     public static ViskInstruction IMul() => new(ViskInstructionKind.IMul);
@@ -62,7 +63,7 @@ public sealed class ViskInstruction
 
     public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
-    public static ViskInstruction Prolog(int localsSize) => new(ViskInstructionKind.Prolog, localsSize);
+    public static ViskInstruction Prolog() => new(ViskInstructionKind.Prolog);
 
     public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
 

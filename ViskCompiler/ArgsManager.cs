@@ -22,7 +22,7 @@ internal static class ArgsManager
             var maxSize = 32 + size;
 
             assembler.sub(rsp, maxSize);
-            assembler.and(sp, ViskCompiler.StackAlignConst);
+            assembler.and(sp, ViskStack.StackAlignConst);
 
             var i = maxSize - 8;
             for (var j = 0; j < argsCount - _assemblerRegisters.Length; j++, i -= 8)
@@ -33,7 +33,7 @@ internal static class ArgsManager
                 }
                 else if (r is null && offset is null)
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 else
                 {
@@ -51,7 +51,7 @@ internal static class ArgsManager
             }
             else if (r is null && offset is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             else
             {

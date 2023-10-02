@@ -30,7 +30,7 @@ internal sealed class ViskRegister
     public AssemblerRegister64 Next() =>
         Registers[
             CurIndex >= Registers.Length
-                ? throw new InvalidOperationException("All registers are used")
+                ? ThrowHelper.ThrowInvalidOperationException<int>("All registers are used")
                 : CurIndex++
         ];
 
@@ -40,7 +40,7 @@ internal sealed class ViskRegister
     public AssemblerRegister64 Previous() =>
         Registers[
             CurIndex - 1 < 0
-                ? throw new InvalidOperationException("No register to return")
+                ? ThrowHelper.ThrowInvalidOperationException<int>("No register to return")
                 : --CurIndex
         ];
 
@@ -50,14 +50,14 @@ internal sealed class ViskRegister
     {
         var predict = CurIndex - argsCount;
         if (predict < 0 || predict > Registers.Length)
-            throw new InvalidOperationException();
+            ThrowHelper.ThrowInvalidOperationException();
 
         CurIndex = predict;
     }
 
     public AssemblerRegister64 BackValue() => Registers[
         CurIndex - 1 < 0
-            ? throw new InvalidOperationException("No register to return")
+            ? ThrowHelper.ThrowInvalidOperationException<int>("No register to return")
             : CurIndex - 1
     ];
 }
