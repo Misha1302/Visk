@@ -59,7 +59,7 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
 fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(100),
-    
+
     //ViskInstruction.CallForeign(printLong),
     ViskInstruction.Ret()
 });
@@ -73,7 +73,7 @@ Console.WriteLine(new string('-', Console.WindowWidth));
 Console.WriteLine(executor.ToString());
 Console.WriteLine(new string('-', Console.WindowWidth));
 
-for (int i = 0; i < 1; i++)
+for (var i = 0; i < 1; i++)
 {
     Console.WriteLine($"Function returned: {asmDelegate()}");
     Console.WriteLine("\n\n");
