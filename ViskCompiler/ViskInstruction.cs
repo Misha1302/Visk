@@ -14,14 +14,18 @@ public sealed class ViskInstruction
             [ViskInstructionKind.Add] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
+            [ViskInstructionKind.Cmp] = (2, 1),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
             [ViskInstructionKind.IMul] = (2, 1),
             [ViskInstructionKind.SetLabel] = (0, 0),
             [ViskInstructionKind.Goto] = (0, 0),
+            [ViskInstructionKind.Drop] = (1, 0),
+            [ViskInstructionKind.GotoIfNotEquals] = (1, 0),
             [ViskInstructionKind.Prolog] = (0, 0),
             [ViskInstructionKind.SetLocal] = (0, 0),
             [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.Dup] = (1, 2),
             [ViskInstructionKind.Nop] = (0, 0)
         };
 
@@ -60,6 +64,7 @@ public sealed class ViskInstruction
     public static ViskInstruction SetLabel(string label) => new(ViskInstructionKind.SetLabel, label);
 
     public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
+    public static ViskInstruction GotoIfNotEquals(string label) => new(ViskInstructionKind.GotoIfNotEquals, label);
 
     public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
@@ -72,4 +77,10 @@ public sealed class ViskInstruction
     public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
 
     public static ViskInstruction Call(ViskFunction f) => new(ViskInstructionKind.Call, f);
+
+    public static ViskInstruction Dup() => new(ViskInstructionKind.Dup);
+
+    public static ViskInstruction Cmp() => new(ViskInstructionKind.Cmp);
+
+    public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 }

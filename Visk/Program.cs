@@ -1,4 +1,5 @@
-﻿using Visk;
+﻿using System.Diagnostics;
+using Visk;
 using ViskCompiler;
 
 var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
@@ -7,36 +8,26 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
 
-var fMain = module.AddFunction("main", 0, false);
-var fOther = module.AddFunction("otherFunc", 0, false);
+var fMain = module.AddFunction("main", 0, true);
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
+    ViskInstruction.PushConst(0),
+    
+    ViskInstruction.SetLabel("Label"),
+
+    // ViskInstruction.Dup(),
+    // ViskInstruction.CallForeign(printLong),
+
     ViskInstruction.PushConst(1),
-    ViskInstruction.PushConst(2),
-    ViskInstruction.PushConst(3),
-    ViskInstruction.PushConst(4),
-    ViskInstruction.PushConst(5),
+    ViskInstruction.Add(),
+    ViskInstruction.Dup(),
 
-    ViskInstruction.PushConst(6),
-    ViskInstruction.PushConst(7),
-    ViskInstruction.PushConst(8),
-    ViskInstruction.PushConst(9),
-    ViskInstruction.PushConst(10),
-
-    ViskInstruction.CallForeign(printLongs),
-
-    ViskInstruction.PushConst(11),
-    ViskInstruction.CallForeign(printLong),
-
-    ViskInstruction.Ret()
-});
-
-fOther.RawInstructions.AddRange(new List<ViskInstruction>
-{
-    ViskInstruction.PushConst(100),
-
-    //ViskInstruction.CallForeign(printLong),
+    ViskInstruction.PushConst(int.MaxValue),
+    ViskInstruction.Cmp(),
+    ViskInstruction.GotoIfNotEquals("Label"),
+    
+    
     ViskInstruction.Ret()
 });
 
@@ -49,8 +40,10 @@ Console.WriteLine(new string('-', Console.WindowWidth));
 Console.WriteLine(executor.ToString());
 Console.WriteLine(new string('-', Console.WindowWidth));
 
-for (var i = 0; i < 1; i++)
+var sw = new Stopwatch();
+for (var i = 0; i < 5; i++)
 {
-    Console.WriteLine($"Function returned: {asmDelegate()}");
-    Console.WriteLine("\n\n");
+    sw.Restart();
+    
+    Console.WriteLine($"Function returned: {asmDelegate()}; Approximate execution time: {sw.ElapsedMilliseconds}\n\n");
 }

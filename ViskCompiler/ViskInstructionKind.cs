@@ -15,5 +15,9 @@ public enum ViskInstructionKind
     SetLocal,
     LoadLocal,
     Nop,
-    Call
+    Call,
+    GotoIfNotEquals,
+    Dup,
+    Cmp,
+    Drop
 }

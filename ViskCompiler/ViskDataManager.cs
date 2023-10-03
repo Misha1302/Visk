@@ -22,9 +22,12 @@ internal class ViskDataManager
 
     public IReadOnlyList<(Label, long)> Data => _data;
 
+    public int CurrentFuncMaxStackSize { get; private set; }
+
     public void NewFunc(int stackSize)
     {
         Stack = new ViskStack(stackSize * 8);
+        CurrentFuncMaxStackSize = stackSize * 8;
         Register.Reset();
     }
 

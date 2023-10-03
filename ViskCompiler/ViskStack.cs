@@ -37,10 +37,12 @@ internal sealed class ViskStack
         return __[rbp - _offset];
     }
 
-    public void Drop(int count = 1)
-    {
-        _offset -= BlockSize * count;
-    }
-
     public bool IsEmpty() => _offset <= MinValue;
+
+    public AssemblerMemoryOperand BackValue()
+    {
+        if (_offset - BlockSize < MinValue)
+            ThrowHelper.ThrowInvalidOperationException("No value to return");
+        return __[rbp - (_offset - BlockSize)];
+    }
 }
