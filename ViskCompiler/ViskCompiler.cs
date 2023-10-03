@@ -6,10 +6,12 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskCompiler
 {
     private readonly ViskDataManager _dataManager;
+    private readonly ArgsManager _argsManager;
 
     public ViskCompiler(ViskModule module)
     {
         _dataManager = new ViskDataManager(new Assembler(64), module);
+        _argsManager = new ArgsManager(_dataManager);
     }
 
     public ViskX64AsmExecutor Compile()
@@ -68,24 +70,32 @@ internal sealed class ViskCompiler
 
                 break;
             case ViskInstructionKind.Add:
-                Action<AssemblerRegister64, AssemblerMemoryOperand> addMm = _dataManager.Assembler.add;
-                Action<AssemblerRegister64, AssemblerRegister64> addRr = _dataManager.Assembler.add;
-
-                Operate(addMm, addRr);
-
+                Operate(_dataManager.Assembler.add, _dataManager.Assembler.add);
                 break;
             case ViskInstructionKind.IMul:
-                Action<AssemblerRegister64, AssemblerMemoryOperand> mulMm = _dataManager.Assembler.imul;
-                Action<AssemblerRegister64, AssemblerRegister64> mulRr = _dataManager.Assembler.imul;
-
-                Operate(mulMm, mulRr);
-
+                Operate(_dataManager.Assembler.imul, _dataManager.Assembler.imul);
                 break;
             case ViskInstructionKind.Sub:
-                Action<AssemblerRegister64, AssemblerMemoryOperand> subMm = _dataManager.Assembler.sub;
-                Action<AssemblerRegister64, AssemblerRegister64> subRr = _dataManager.Assembler.sub;
+                Operate(_dataManager.Assembler.sub, _dataManager.Assembler.sub);
+                break;
+            case ViskInstructionKind.CallForeign:
+                _argsManager.SaveRegs();
+                _argsManager.MoveArgs(arg1.AsI32());
 
-                Operate(subMm, subRr);
+                _dataManager.Assembler.call((ulong)arg0.As<nint>());
+
+                var rt = arg2.As<Type>();
+                if (rt != typeof(void))
+                {
+                    if (rt != typeof(int))
+                        ThrowHelper.ThrowInvalidOperationException("Unknown return type");
+
+                    if (_dataManager.Register.CanGetNext)
+                        _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+                    else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+                }
+
+                _argsManager.LoadRegs();
 
                 break;
             case ViskInstructionKind.Prolog:
@@ -96,13 +106,14 @@ internal sealed class ViskCompiler
                 _dataManager.Assembler.sub(rsp,
                     _dataManager.Stack.MaxStackSize + ViskRegister.Registers.Length * ViskStack.BlockSize
                 );
-                _dataManager.Assembler.and(sp, ViskStack.StackAlignConst);
+                _dataManager.Assembler.and(sp, ViskStack.NegStackAlign);
 
                 break;
             case ViskInstructionKind.Ret:
                 if (!_dataManager.Stack.IsEmpty())
                     _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
-                else _dataManager.Assembler.mov(rax, _dataManager.Register.Previous());
+                else if (_dataManager.Register.CanGetPrevious)
+                    _dataManager.Assembler.mov(rax, _dataManager.Register.Previous());
 
                 _dataManager.Assembler.mov(rsp, rbp);
                 _dataManager.Assembler.pop(rbp);

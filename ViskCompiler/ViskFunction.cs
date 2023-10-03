@@ -67,7 +67,7 @@ public sealed class ViskFunction
             }
             else
             {
-                size += ((bool)i.Arguments[3] ? 1 : 0) - (int)i.Arguments[1];
+                size += ((Type)i.Arguments[2] != typeof(void) ? 1 : 0) - (int)i.Arguments[1];
             }
 
             max = Math.Max(max, size - ViskRegister.Registers.Length);

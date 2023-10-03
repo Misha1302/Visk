@@ -9,15 +9,6 @@ internal sealed class ViskRegister
     public static readonly ImmutableArray<AssemblerRegister64> Registers =
         ImmutableArray.Create(rbx, r10, r11, r12, r13, r14, r15);
 
-    public ViskRegister()
-    {
-    }
-
-    public ViskRegister(int value)
-    {
-        CurIndex = value;
-    }
-
     public int CurIndex { get; private set; }
 
     public bool CanGetPrevious => CurIndex - 1 >= 0;

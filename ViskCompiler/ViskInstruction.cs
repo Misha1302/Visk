@@ -47,7 +47,7 @@ public sealed class ViskInstruction
 
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType != typeof(void)
+            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType
         );
     }
 
