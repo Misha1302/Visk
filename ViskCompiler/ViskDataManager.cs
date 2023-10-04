@@ -1,6 +1,7 @@
 namespace ViskCompiler;
 
 using Iced.Intel;
+using static Iced.Intel.AssemblerRegisters;
 
 internal class ViskDataManager
 {
@@ -24,11 +25,24 @@ internal class ViskDataManager
 
     public int CurrentFuncMaxStackSize { get; private set; }
 
-    public void NewFunc(int stackSize)
+    public IReadOnlyDictionary<string, AssemblerMemoryOperand> CurrentFuncLocals { get; private set; } = null!;
+    public int CurrentFuncLocalsSize => CurrentFuncLocals.Count;
+
+    public void NewFunc(int stackSize, IReadOnlyDictionary<string, int> locals)
     {
         Stack = new ViskStack(stackSize * 8);
         CurrentFuncMaxStackSize = stackSize * 8;
         Register.Reset();
+        
+        CurrentFuncLocals = locals
+            .Select(x => (
+                    key: x.Key,
+                    value: __[
+                        rbp - CurrentFuncMaxStackSize - ViskRegister.Registers.Length * ViskStack.BlockSize - x.Value
+                    ]
+                )
+            )
+            .ToDictionary(tuple => tuple.key, tuple => tuple.value);
     }
 
     public Label DefineI64(long l)

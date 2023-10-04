@@ -13,16 +13,19 @@ var fMain = module.AddFunction("main", 0, true);
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
+    ViskInstruction.SetLocal("loc"),
     
     ViskInstruction.SetLabel("Label"),
 
     // ViskInstruction.Dup(),
     // ViskInstruction.CallForeign(printLong),
 
+    ViskInstruction.LoadLocal("loc"),
     ViskInstruction.PushConst(1),
     ViskInstruction.Add(),
-    ViskInstruction.Dup(),
-
+    ViskInstruction.SetLocal("loc"),
+    
+    ViskInstruction.LoadLocal("loc"),
     ViskInstruction.PushConst(int.MaxValue),
     ViskInstruction.Cmp(),
     ViskInstruction.GotoIfNotEquals("Label"),

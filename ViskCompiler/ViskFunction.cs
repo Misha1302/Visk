@@ -20,7 +20,7 @@ public sealed class ViskFunction
     public IReadOnlyDictionary<string, int> Locals
     {
         get => _locals;
-        set => _locals = (Dictionary<string, int>)value;
+        private set => _locals = (Dictionary<string, int>)value;
     }
 
     public List<ViskInstruction> TotalInstructions => Prepare(RawInstructions);
@@ -57,26 +57,30 @@ public sealed class ViskFunction
         {
             if (i.InstructionKind == ViskInstructionKind.CallForeign)
             {
-                size += ((Type)i.Arguments[2] != typeof(void) ? 1 : 0) - (int)i.Arguments[1];
+                Max((int)i.Arguments[1], i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
             }
             else if (i.InstructionKind == ViskInstructionKind.Call)
             {
-                var f = (ViskFunction)i.Arguments[0];
-                size += (f.Returns ? 1 : 0) - f.ArgsCount;
+                var f = i.Arguments[0].As<ViskFunction>();
+                Max(f.ArgsCount, f.Returns ? 1 : 0);
             }
             else
             {
                 var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
-                size += c.output;
-                max = Math.Max(max, size - ViskRegister.Registers.Length);
-                
-                size -= c.args;
+                Max(c.args, c.output);
             }
 
             max = Math.Max(max, size - ViskRegister.Registers.Length);
         }
 
-        return max + 1;
+        return max;
+
+        void Max(int args, int output)
+        {
+            size += output;
+            max = Math.Max(max, size - ViskRegister.Registers.Length);
+            size -= args;
+        }
     }
 
     private IReadOnlyDictionary<string, int> GetLocals()

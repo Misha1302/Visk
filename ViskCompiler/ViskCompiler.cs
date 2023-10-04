@@ -16,6 +16,13 @@ internal sealed class ViskCompiler
 
     public ViskX64AsmExecutor Compile()
     {
+        CompileInternal();
+
+        return new ViskX64AsmExecutor(_dataManager.Assembler);
+    }
+
+    private void CompileInternal()
+    {
         CompileFunctions();
 
         foreach (var data in _dataManager.Data)
@@ -24,8 +31,6 @@ internal sealed class ViskCompiler
             _dataManager.Assembler.Label(ref dataItem1);
             _dataManager.Assembler.dq(data.Item2);
         }
-
-        return new ViskX64AsmExecutor(_dataManager.Assembler);
     }
 
     private void CompileFunctions()
@@ -72,6 +77,37 @@ internal sealed class ViskCompiler
                 Operate(_dataManager.Assembler.cmp, _dataManager.Assembler.cmp, false);
                 _dataManager.Assembler.jne(_dataManager.GetLabel(arg0.As<string>()));
                 break;
+            case ViskInstructionKind.SetLocal:
+                if (!_dataManager.Stack.IsEmpty())
+                {
+                    _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
+                    _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
+                }
+                else
+                {
+                    _dataManager.Assembler.mov(
+                        _dataManager.CurrentFuncLocals[arg0.As<string>()],
+                        _dataManager.Register.Previous()
+                    );
+                }
+
+                break;
+            case ViskInstructionKind.LoadLocal:
+                if (_dataManager.Register.CanGetNext)
+                {
+                    _dataManager.Assembler.mov(
+                        _dataManager.Register.Next(),
+                        _dataManager.CurrentFuncLocals[arg0.As<string>()]
+                    );
+                }
+                else
+                {
+                    _dataManager.Assembler.mov(rax, _dataManager.CurrentFuncLocals[arg0.As<string>()]);
+                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+                }
+
+                break;
+
             case ViskInstructionKind.Nop:
                 _dataManager.Assembler.nop();
                 break;
@@ -142,9 +178,11 @@ internal sealed class ViskCompiler
                 _dataManager.Assembler.push(rbp);
                 _dataManager.Assembler.mov(rbp, rsp);
 
-                _dataManager.NewFunc(func.MaxStackSize);
+                _dataManager.NewFunc(func.MaxStackSize, func.Locals);
                 _dataManager.Assembler.sub(rsp,
-                    _dataManager.Stack.MaxStackSize + ViskRegister.Registers.Length * ViskStack.BlockSize
+                    _dataManager.Stack.MaxStackSize +
+                    ViskRegister.Registers.Length * ViskStack.BlockSize +
+                    _dataManager.CurrentFuncLocalsSize
                 );
                 _dataManager.Assembler.and(sp, ViskStack.NegStackAlign);
 
@@ -162,6 +200,9 @@ internal sealed class ViskCompiler
                 _dataManager.Assembler.pop(rbp);
                 _dataManager.Assembler.ret();
 
+                break;
+            default:
+                ThrowHelper.ThrowInvalidOperationException($"Unknown instruction: {instruction}");
                 break;
         }
     }
