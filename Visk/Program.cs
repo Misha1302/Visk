@@ -14,7 +14,7 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
     ViskInstruction.SetLocal("loc"),
-    
+
     ViskInstruction.SetLabel("Label"),
 
     // ViskInstruction.Dup(),
@@ -24,13 +24,13 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(1),
     ViskInstruction.Add(),
     ViskInstruction.SetLocal("loc"),
-    
+
     ViskInstruction.LoadLocal("loc"),
     ViskInstruction.PushConst(int.MaxValue),
     ViskInstruction.Cmp(),
     ViskInstruction.GotoIfNotEquals("Label"),
-    
-    
+
+
     ViskInstruction.Ret()
 });
 
@@ -47,6 +47,6 @@ var sw = new Stopwatch();
 for (var i = 0; i < 5; i++)
 {
     sw.Restart();
-    
+
     Console.WriteLine($"Function returned: {asmDelegate()}; Approximate execution time: {sw.ElapsedMilliseconds}\n\n");
 }

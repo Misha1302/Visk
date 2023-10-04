@@ -33,7 +33,7 @@ internal class ViskDataManager
         Stack = new ViskStack(stackSize * 8);
         CurrentFuncMaxStackSize = stackSize * 8;
         Register.Reset();
-        
+
         CurrentFuncLocals = locals
             .Select(x => (
                     key: x.Key,

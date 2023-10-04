@@ -8,7 +8,7 @@ internal sealed class ViskRegister
 {
     public static readonly ImmutableArray<AssemblerRegister64> Registers =
         ImmutableArray.Create(rbx, r10, r11, r12, r13, r14, r15);
-    
+
     public static readonly ImmutableArray<AssemblerRegister8> Registers8 =
         ImmutableArray.Create(bl, r10b, r11b, r12b, r13b, r14b, r15b);
 

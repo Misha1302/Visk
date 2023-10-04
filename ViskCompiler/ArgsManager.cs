@@ -69,7 +69,8 @@ internal sealed class ArgsManager
         _regsCount = _dataManager.Register.CurIndex;
     }
 
-    private AssemblerMemoryOperand GetMemOp(int index) => __[rbp - _dataManager.CurrentFuncMaxStackSize - (index + 1) * ViskStack.BlockSize];
+    private AssemblerMemoryOperand GetMemOp(int index) =>
+        __[rbp - _dataManager.CurrentFuncMaxStackSize - (index + 1) * ViskStack.BlockSize];
 
     public void LoadRegs()
     {
