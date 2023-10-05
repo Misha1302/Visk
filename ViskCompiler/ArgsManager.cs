@@ -89,14 +89,11 @@ internal sealed class ArgsManager
         for (var index = 0; index < _dataManager.Register.CurIndex; index++)
         {
             var register = ViskRegister.Registers[index];
-            _dataManager.Assembler.mov(GetMemOp(index), register);
+            _dataManager.Assembler.mov(_dataManager.FuncStackManager.GetMemoryToSaveReg(index), register);
         }
 
         _regsCount = _dataManager.Register.CurIndex;
     }
-
-    private AssemblerMemoryOperand GetMemOp(int index) =>
-        __[rbp - _dataManager.CurrentFuncMaxStackSize - (index + 1) * ViskStack.BlockSize];
 
     public void LoadRegs()
     {
@@ -106,7 +103,7 @@ internal sealed class ArgsManager
         for (var index = _regsCount - 1; index >= 0; index--)
         {
             var register = ViskRegister.Registers[index];
-            _dataManager.Assembler.mov(register, GetMemOp(index));
+            _dataManager.Assembler.mov(register, _dataManager.FuncStackManager.GetMemoryToSaveReg(index));
         }
 
         _stackChanged = 0;

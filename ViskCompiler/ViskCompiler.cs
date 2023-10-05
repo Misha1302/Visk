@@ -185,7 +185,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        DataManager.Assembler.mov(rax, __[rbp + DataManager.NextArgIndex() * 8 + FuncPrologSize]);
+        DataManager.Assembler.mov(rax, DataManager.FuncStackManager.GetMemoryArg(DataManager.NextArgIndex() * 8+ FuncPrologSize));
         DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
     }
 

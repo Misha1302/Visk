@@ -2,7 +2,6 @@ namespace ViskCompiler;
 
 using System.Diagnostics.Contracts;
 using Iced.Intel;
-using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskDataManager
 {
@@ -12,12 +11,14 @@ internal sealed class ViskDataManager
     public readonly ViskModule Module;
     public readonly Assembler Assembler;
     public readonly ViskRegister Register = new();
+    public readonly ViskFunctionStackManager FuncStackManager;
     private int _argIndex;
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
         Assembler = assembler ?? ThrowHelper.ThrowInvalidOperationException<Assembler>();
         Module = module ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
+        FuncStackManager = new ViskFunctionStackManager(this);
     }
 
     public ViskStack Stack { get; private set; } = null!;
@@ -31,17 +32,15 @@ internal sealed class ViskDataManager
 
     public void NewFunc(int stackSize, IReadOnlyDictionary<string, int> locals)
     {
-        Stack = new ViskStack(stackSize * 8);
         CurrentFuncMaxStackSize = stackSize * 8;
+        Stack = new ViskStack(this);
         Register.Reset();
         _argIndex = 0;
 
         CurrentFuncLocals = locals
             .Select(x => (
                     key: x.Key,
-                    value: __[
-                        rbp - CurrentFuncMaxStackSize - ViskRegister.Registers.Length * ViskStack.BlockSize - x.Value
-                    ]
+                    value: FuncStackManager.GetMemoryLocal(x.Value)
                 )
             )
             .ToDictionary(tuple => tuple.key, tuple => tuple.value);

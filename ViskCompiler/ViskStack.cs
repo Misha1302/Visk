@@ -1,27 +1,28 @@
 ﻿namespace ViskCompiler;
 
+using System.Diagnostics.Contracts;
 using Iced.Intel;
-using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskStack
 {
     public const int BlockSize = 8;
     public const sbyte PosStackAlign = -16;
-
     private const int MinValue = BlockSize * 1;
 
+    private readonly ViskDataManager _dataManager;
     public readonly int MaxStackSize;
 
     private int _offset = MinValue;
 
-    public ViskStack(int maxStackSize)
+    public ViskStack(ViskDataManager dataManager)
     {
-        MaxStackSize = maxStackSize;
+        _dataManager = dataManager;
+        MaxStackSize = dataManager.CurrentFuncMaxStackSize;
     }
 
     public AssemblerMemoryOperand GetNext()
     {
-        var assemblerMemoryOperand = __[rbp - _offset];
+        var assemblerMemoryOperand = _dataManager.FuncStackManager.GetStackMemory(_offset);
         _offset += BlockSize;
         if (_offset > MaxStackSize)
             ThrowHelper.ThrowInvalidOperationException("Stack overflowed");
@@ -33,15 +34,16 @@ internal sealed class ViskStack
         _offset -= BlockSize;
         if (_offset < MinValue)
             ThrowHelper.ThrowInvalidOperationException("No value to return");
-        return __[rbp - _offset];
+        return _dataManager.FuncStackManager.GetStackMemory(_offset);
     }
 
+    [Pure]
     public bool IsEmpty() => _offset <= MinValue;
 
     public AssemblerMemoryOperand BackValue()
     {
         if (_offset - BlockSize < MinValue)
             ThrowHelper.ThrowInvalidOperationException("No value to return");
-        return __[rbp - (_offset - BlockSize)];
+        return _dataManager.FuncStackManager.GetStackMemory(_offset - BlockSize);
     }
 }
