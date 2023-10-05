@@ -56,13 +56,14 @@ internal sealed class ViskArgsManager
                 _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
     }
 
+    // it's stdcall i guess?
     public void MoveArgs(int argsCount)
     {
         var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
 
         var totalSize = argsCount * 8 + argsCount * 8 % 16;
         _dataManager.Assembler.sub(rsp, totalSize);
-        var pointer = totalSize - 8;
+        var pointer = argsCount * 8 - 8;
 
         for (var i = 0; i < argsCount; i++, pointer -= 8)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))

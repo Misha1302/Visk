@@ -9,7 +9,7 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 var module = new ViskModule("main");
 
 var fMain = module.AddFunction("main", 0, typeof(long));
-var fOther = module.AddFunction("other", 10, typeof(long));
+var fOther = module.AddFunction("other", 8, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
@@ -25,8 +25,6 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(6),
     ViskInstruction.PushConst(7),
     ViskInstruction.PushConst(8),
-    ViskInstruction.PushConst(9),
-    ViskInstruction.PushConst(10),
     ViskInstruction.Call(fOther),
 
     ViskInstruction.Ret(),
@@ -46,11 +44,10 @@ fOther.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.SetArg("arg5"),
     ViskInstruction.SetArg("arg6"),
     ViskInstruction.SetArg("arg7"),
-    ViskInstruction.SetArg("arg8"),
-    ViskInstruction.SetArg("arg9"),
 
     ViskInstruction.LoadLocal("arg0"),
-    ViskInstruction.LoadLocal("arg9"),
+    ViskInstruction.LoadLocal("arg4"),
+    ViskInstruction.LoadLocal("arg7"),
     ViskInstruction.IMul(),
     ViskInstruction.IMul(),
     ViskInstruction.Ret()
