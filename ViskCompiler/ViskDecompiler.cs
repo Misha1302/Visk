@@ -1,5 +1,6 @@
 namespace ViskCompiler;
 
+using System.Diagnostics.Contracts;
 using System.Text;
 using Iced.Intel;
 
@@ -55,6 +56,7 @@ public sealed class ViskDecompiler
         return sb.ToString();
     }
 
+    [Pure]
     private static string ToPrintableStr(string text) =>
         text switch
         {

@@ -1,9 +1,13 @@
 ﻿namespace ViskCompiler;
 
+using System.Diagnostics.Contracts;
+
 public static class Extensions
 {
+    [Pure]
     public static T As<T>(this object? o) => (T)(o ?? ThrowHelper.ThrowInvalidOperationException<T>());
 
+    [Pure]
     public static long AsI64(this object? o)
     {
         return o switch
@@ -16,5 +20,6 @@ public static class Extensions
         };
     }
 
+    [Pure]
     public static int AsI32(this object? o) => (int)AsI64(o);
 }

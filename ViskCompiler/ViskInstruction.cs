@@ -1,6 +1,7 @@
 ﻿namespace ViskCompiler;
 
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -41,9 +42,9 @@ public sealed class ViskInstruction
     public ViskInstructionKind InstructionKind { get; }
 
 
-    public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
+    [Pure] public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
 
-    public static ViskInstruction CallForeign(MethodInfo? m)
+    [Pure] public static ViskInstruction CallForeign(MethodInfo? m)
     {
         if (m is null)
             ThrowHelper.ThrowInvalidOperationException();
@@ -56,34 +57,36 @@ public sealed class ViskInstruction
         );
     }
 
-    public static ViskInstruction Add() => new(ViskInstructionKind.Add);
-    public static ViskInstruction Sub() => new(ViskInstructionKind.Sub);
+    [Pure] public static ViskInstruction Add() => new(ViskInstructionKind.Add);
+    [Pure] public static ViskInstruction Sub() => new(ViskInstructionKind.Sub);
 
     // ReSharper disable once InconsistentNaming
-    public static ViskInstruction IMul() => new(ViskInstructionKind.IMul);
+    [Pure] public static ViskInstruction IMul() => new(ViskInstructionKind.IMul);
 
-    public static ViskInstruction SetLabel(string label) => new(ViskInstructionKind.SetLabel, label);
+    [Pure] public static ViskInstruction SetLabel(string label) => new(ViskInstructionKind.SetLabel, label);
 
-    public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
-    public static ViskInstruction GotoIfNotEquals(string label) => new(ViskInstructionKind.GotoIfNotEquals, label);
+    [Pure] public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
 
-    public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
+    [Pure] public static ViskInstruction GotoIfNotEquals(string label) =>
+        new(ViskInstructionKind.GotoIfNotEquals, label);
 
-    public static ViskInstruction Prolog() => new(ViskInstructionKind.Prolog);
+    [Pure] public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
-    public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
+    [Pure] public static ViskInstruction Prolog() => new(ViskInstructionKind.Prolog);
 
-    public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
+    [Pure] public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
 
-    public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
+    [Pure] public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
 
-    public static ViskInstruction Call(ViskFunction f) => new(ViskInstructionKind.Call, f);
+    [Pure] public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
 
-    public static ViskInstruction Dup() => new(ViskInstructionKind.Dup);
+    [Pure] public static ViskInstruction Call(ViskFunction f) => new(ViskInstructionKind.Call, f);
 
-    public static ViskInstruction Cmp() => new(ViskInstructionKind.Cmp);
+    [Pure] public static ViskInstruction Dup() => new(ViskInstructionKind.Dup);
 
-    public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
+    [Pure] public static ViskInstruction Cmp() => new(ViskInstructionKind.Cmp);
 
-    public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
+    [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
+
+    [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
 }

@@ -55,19 +55,19 @@ public sealed class ViskFunction
 
         foreach (var i in RawInstructions)
         {
-            if (i.InstructionKind == ViskInstructionKind.CallForeign)
+            switch (i.InstructionKind)
             {
-                Max((int)i.Arguments[1], i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
-            }
-            else if (i.InstructionKind == ViskInstructionKind.Call)
-            {
-                var f = i.Arguments[0].As<ViskFunction>();
-                Max(f.ArgsCount, f.ReturnType != typeof(void) ? 1 : 0);
-            }
-            else
-            {
-                var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
-                Max(c.args, c.output);
+                case ViskInstructionKind.CallForeign:
+                    Max((int)i.Arguments[1], i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
+                    break;
+                case ViskInstructionKind.Call:
+                    var f = i.Arguments[0].As<ViskFunction>();
+                    Max(f.ArgsCount, f.ReturnType != typeof(void) ? 1 : 0);
+                    break;
+                default:
+                    var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
+                    Max(c.args, c.output);
+                    break;
             }
 
             max = Math.Max(max, size - ViskRegister.Registers.Length);

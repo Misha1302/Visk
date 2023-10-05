@@ -6,7 +6,6 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskStack
 {
     public const int BlockSize = 8;
-    public const sbyte NegStackAlign = -16;
     public const sbyte PosStackAlign = -16;
 
     private const int MinValue = BlockSize * 1;

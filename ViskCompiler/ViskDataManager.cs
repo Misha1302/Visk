@@ -4,14 +4,13 @@ using System.Diagnostics.Contracts;
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
-internal class ViskDataManager
+internal sealed class ViskDataManager
 {
     private readonly List<(Label, long)> _data = new();
     private readonly Dictionary<string, Label> _labels = new();
 
     public readonly ViskModule Module;
     public readonly Assembler Assembler;
-    public readonly Dictionary<string, Label> Functions = new();
     public readonly ViskRegister Register = new();
     private int _argIndex;
 
@@ -70,8 +69,5 @@ internal class ViskDataManager
         return label;
     }
 
-    public int NextArgIndex()
-    {
-        return _argIndex++;
-    }
+    public int NextArgIndex() => _argIndex++;
 }
