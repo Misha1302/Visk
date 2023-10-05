@@ -29,7 +29,7 @@ internal sealed class ViskDataManager
     public int CurrentFuncMaxStackSize { get; private set; }
 
     public IReadOnlyDictionary<string, AssemblerMemoryOperand> CurrentFuncLocals { get; private set; } = null!;
-    public int CurrentFuncLocalsSize => CurrentFuncLocals.Count;
+    public int CurrentFuncLocalsSize => CurrentFuncLocals.Count * 8;
 
     public void NewFunc(int stackSize, IReadOnlyDictionary<string, int> locals)
     {
