@@ -45,7 +45,7 @@ public sealed class ViskFunction
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (RawInstructions.Any(i => i.Arguments.Any(x => x == null)))
-            ThrowHelper.ThrowInvalidOperationException("Some arg is null");
+            ViskThrowHelper.ThrowInvalidOperationException("Some arg is null");
     }
 
     private int GetMaxStackSize()
@@ -92,7 +92,7 @@ public sealed class ViskFunction
                 continue;
 
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            var args = x.Arguments ?? ThrowHelper.ThrowInvalidOperationException<List<object>>();
+            var args = x.Arguments ?? ViskThrowHelper.ThrowInvalidOperationException<List<object>>();
             _locals.TryAdd((string)args[0], (_locals.Count + 1) * 8);
         }
 

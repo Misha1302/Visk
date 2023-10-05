@@ -25,7 +25,7 @@ internal sealed class ViskStack
         var assemblerMemoryOperand = _dataManager.FuncStackManager.GetStackMemory(_offset);
         _offset += BlockSize;
         if (_offset > MaxStackSize)
-            ThrowHelper.ThrowInvalidOperationException("Stack overflowed");
+            ViskThrowHelper.ThrowInvalidOperationException("Stack overflowed");
         return assemblerMemoryOperand;
     }
 
@@ -33,7 +33,7 @@ internal sealed class ViskStack
     {
         _offset -= BlockSize;
         if (_offset < MinValue)
-            ThrowHelper.ThrowInvalidOperationException("No value to return");
+            ViskThrowHelper.ThrowInvalidOperationException("No value to return");
         return _dataManager.FuncStackManager.GetStackMemory(_offset);
     }
 
@@ -43,7 +43,7 @@ internal sealed class ViskStack
     public AssemblerMemoryOperand BackValue()
     {
         if (_offset - BlockSize < MinValue)
-            ThrowHelper.ThrowInvalidOperationException("No value to return");
+            ViskThrowHelper.ThrowInvalidOperationException("No value to return");
         return _dataManager.FuncStackManager.GetStackMemory(_offset - BlockSize);
     }
 }

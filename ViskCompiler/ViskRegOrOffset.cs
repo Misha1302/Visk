@@ -2,12 +2,12 @@
 
 using Iced.Intel;
 
-internal sealed class RegOrOffset
+internal sealed class ViskRegOrOffset
 {
     private readonly ViskStack _dataInStack;
     private readonly ViskRegister _register;
 
-    public RegOrOffset(ViskStack dataInStack, ViskRegister register)
+    public ViskRegOrOffset(ViskStack dataInStack, ViskRegister register)
     {
         _dataInStack = dataInStack;
         _register = register;

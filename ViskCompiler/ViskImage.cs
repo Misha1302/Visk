@@ -13,7 +13,7 @@ public sealed class ViskImage
     {
         get => _viskModule;
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        init => _viskModule = value ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
+        init => _viskModule = value ?? ViskThrowHelper.ThrowInvalidOperationException<ViskModule>();
     }
 
     public ViskX64AsmExecutor Compile() => new ViskCompiler(ViskModule).Compile();

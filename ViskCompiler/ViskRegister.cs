@@ -21,28 +21,28 @@ internal sealed class ViskRegister
     public AssemblerRegister64 Next() =>
         Registers[
             CurIndex >= Registers.Length
-                ? ThrowHelper.ThrowInvalidOperationException<int>("All registers are used")
+                ? ViskThrowHelper.ThrowInvalidOperationException<int>("All registers are used")
                 : CurIndex++
         ];
 
     public AssemblerRegister64 Previous() =>
         Registers[
             CurIndex - 1 < 0
-                ? ThrowHelper.ThrowInvalidOperationException<int>("No register to return")
+                ? ViskThrowHelper.ThrowInvalidOperationException<int>("No register to return")
                 : --CurIndex
         ];
 
     public AssemblerRegister8 Next8() =>
         Registers8[
             CurIndex >= Registers8.Length
-                ? ThrowHelper.ThrowInvalidOperationException<int>("All registers are used")
+                ? ViskThrowHelper.ThrowInvalidOperationException<int>("All registers are used")
                 : CurIndex++
         ];
 
     public AssemblerRegister8 Previous8() =>
         Registers8[
             CurIndex - 1 < 0
-                ? ThrowHelper.ThrowInvalidOperationException<int>("No register to return")
+                ? ViskThrowHelper.ThrowInvalidOperationException<int>("No register to return")
                 : --CurIndex
         ];
 
@@ -50,7 +50,7 @@ internal sealed class ViskRegister
 
     public AssemblerRegister64 BackValue() => Registers[
         CurIndex - 1 < 0
-            ? ThrowHelper.ThrowInvalidOperationException<int>("No register to return")
+            ? ViskThrowHelper.ThrowInvalidOperationException<int>("No register to return")
             : CurIndex - 1
     ];
 

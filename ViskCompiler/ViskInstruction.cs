@@ -47,7 +47,7 @@ public sealed class ViskInstruction
     [Pure] public static ViskInstruction CallForeign(MethodInfo? m)
     {
         if (m is null)
-            ThrowHelper.ThrowInvalidOperationException();
+            ViskThrowHelper.ThrowInvalidOperationException();
 
         RuntimeHelpers.PrepareMethod(m.MethodHandle);
 

@@ -16,8 +16,8 @@ internal sealed class ViskDataManager
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
-        Assembler = assembler ?? ThrowHelper.ThrowInvalidOperationException<Assembler>();
-        Module = module ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
+        Assembler = assembler ?? ViskThrowHelper.ThrowInvalidOperationException<Assembler>();
+        Module = module ?? ViskThrowHelper.ThrowInvalidOperationException<ViskModule>();
         FuncStackManager = new ViskFunctionStackManager(this);
     }
 

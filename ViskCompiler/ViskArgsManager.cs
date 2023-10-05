@@ -3,21 +3,21 @@
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
-internal sealed class ArgsManager
+internal sealed class ViskArgsManager
 {
     private static readonly AssemblerRegister64[] _argsRegisters = { rcx, rdx, r8, r9 };
     private readonly ViskDataManager _dataManager;
     private int _stackChanged;
     private int _regsCount;
 
-    public ArgsManager(ViskDataManager dataManager)
+    public ViskArgsManager(ViskDataManager dataManager)
     {
         _dataManager = dataManager;
     }
 
     public void ForeignMoveArgs(int argsCount)
     {
-        var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
+        var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
 
         if (argsCount >= _argsRegisters.Length)
         {
@@ -37,7 +37,7 @@ internal sealed class ArgsManager
                 }
                 else if (r is null && offset is null)
                 {
-                    ThrowHelper.ThrowInvalidOperationException();
+                    ViskThrowHelper.ThrowInvalidOperationException();
                 }
                 else
                 {
@@ -51,14 +51,14 @@ internal sealed class ArgsManager
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
                 _dataManager.Assembler.mov(_argsRegisters[j], r!.Value);
             else if (r is null && offset is null)
-                ThrowHelper.ThrowInvalidOperationException();
+                ViskThrowHelper.ThrowInvalidOperationException();
             else
                 _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
     }
 
     public void MoveArgs(int argsCount)
     {
-        var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
+        var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
 
         var totalSize = argsCount * 8 + argsCount * 8 % 16;
         _dataManager.Assembler.sub(rsp, totalSize);
@@ -71,7 +71,7 @@ internal sealed class ArgsManager
             }
             else if (r is null && offset is null)
             {
-                ThrowHelper.ThrowInvalidOperationException();
+                ViskThrowHelper.ThrowInvalidOperationException();
             }
             else
             {
@@ -84,7 +84,7 @@ internal sealed class ArgsManager
     public void SaveRegs()
     {
         if (_stackChanged != 0)
-            ThrowHelper.ThrowInvalidOperationException("You must to move args after call this method");
+            ViskThrowHelper.ThrowInvalidOperationException("You must to move args after call this method");
 
         for (var index = 0; index < _dataManager.Register.CurIndex; index++)
         {
@@ -114,7 +114,7 @@ internal sealed class ArgsManager
         if (rt == typeof(void)) return;
 
         if (rt != typeof(long))
-            ThrowHelper.ThrowInvalidOperationException("Unknown return type");
+            ViskThrowHelper.ThrowInvalidOperationException("Unknown return type");
 
         if (_dataManager.Register.CanGetNext)
             _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);

@@ -6,12 +6,12 @@ internal abstract class ViskCompilerBase
 {
     private const string NotImplemented = "Not implemented operation";
     protected readonly ViskDataManager DataManager;
-    protected readonly ArgsManager ArgsManager;
+    protected readonly ViskArgsManager ViskArgsManager;
 
     protected ViskCompilerBase(ViskModule module)
     {
         DataManager = new ViskDataManager(new Assembler(64), module);
-        ArgsManager = new ArgsManager(DataManager);
+        ViskArgsManager = new ViskArgsManager(DataManager);
     }
 
     public ViskX64AsmExecutor Compile()
@@ -82,7 +82,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Drop => Drop,
             ViskInstructionKind.Ret => Ret,
             ViskInstructionKind.SetArg => SetArg,
-            _ => ThrowHelper.ThrowInvalidOperationException<Action<object?, object?, object?, ViskFunction>>(
+            _ => ViskThrowHelper.ThrowInvalidOperationException<Action<object?, object?, object?, ViskFunction>>(
                 $"Unknown instruction: {instruction}"
             )
         };
@@ -91,59 +91,59 @@ internal abstract class ViskCompilerBase
     }
 
     protected virtual void PushConst(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Add(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Sub(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Ret(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void CallForeign(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     // ReSharper disable once InconsistentNaming
     protected virtual void IMul(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void SetLabel(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Goto(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Prolog(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void LoadLocal(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Nop(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Call(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void GotoIfNotEquals(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Dup(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Cmp(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Drop(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     private static void GetArgs(ViskInstruction instruction, out object? o, out object? o1, out object? o2)
     {
