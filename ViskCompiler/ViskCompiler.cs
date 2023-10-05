@@ -157,11 +157,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.mov(rbp, rsp);
 
         DataManager.NewFunc(func.MaxStackSize, func.Locals);
-        DataManager.Assembler.sub(rsp,
-            DataManager.Stack.MaxStackSize +
-            ViskRegister.Registers.Length * ViskStack.BlockSize +
-            DataManager.CurrentFuncLocalsSize
-        );
+
+
+        var totalSize = DataManager.Stack.MaxStackSize +
+                        ViskRegister.Registers.Length * ViskStack.BlockSize +
+                        DataManager.CurrentFuncLocalsSize;
+        DataManager.Assembler.sub(rsp, totalSize + totalSize % 16);
     }
 
     protected override void Drop(object? arg0, object? arg1, object? arg2, ViskFunction func)
@@ -186,7 +187,10 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
         DataManager.Assembler.mov(rax,
-            DataManager.FuncStackManager.GetMemoryArg(DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize));
+            DataManager.FuncStackManager.GetMemoryArg(
+                DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize
+            )
+        );
         DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
     }
 

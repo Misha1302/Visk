@@ -13,9 +13,7 @@ var fOther = module.AddFunction("other", 8, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.Nop(),
-    ViskInstruction.Nop(),
-    ViskInstruction.Nop(),
+    ViskInstruction.SetLabel("hi"),
 
     ViskInstruction.PushConst(1),
     ViskInstruction.PushConst(2),
@@ -26,6 +24,8 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(7),
     ViskInstruction.PushConst(8),
     ViskInstruction.Call(fOther),
+
+    ViskInstruction.Goto("hi"),
 
     ViskInstruction.Ret(),
 
@@ -50,6 +50,9 @@ fOther.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.LoadLocal("arg7"),
     ViskInstruction.IMul(),
     ViskInstruction.IMul(),
+
+    ViskInstruction.CallForeign(printLong),
+
     ViskInstruction.Ret()
 });
 

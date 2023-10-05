@@ -81,6 +81,8 @@ internal sealed class ViskArgsManager
 
                 _dataManager.Assembler.mov(__[rsp + pointer], rax);
             }
+
+        _stackChanged = totalSize;
     }
 
     public void SaveRegs()

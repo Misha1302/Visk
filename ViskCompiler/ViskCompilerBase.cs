@@ -38,7 +38,8 @@ internal abstract class ViskCompilerBase
 
     private void CompileFunctions()
     {
-        var mainFunc = DataManager.Module.Functions.First(x => x.Name == DataManager.Module.MainFuncName);
+        var mainFunc = DataManager.Module.Functions.First(x => x.IsMain);
+
         CompileFunction(mainFunc);
 
         foreach (var function in DataManager.Module.Functions)

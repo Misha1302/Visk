@@ -14,7 +14,7 @@ public sealed class ViskModule
 
     public ViskFunction AddFunction(string name, int argsCount, Type returnType)
     {
-        var f = new ViskFunction(name, argsCount, returnType);
+        var f = new ViskFunction(name, argsCount, returnType, name == MainFuncName);
         _functions.Add(f);
         return f;
     }

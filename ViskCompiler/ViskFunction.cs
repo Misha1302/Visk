@@ -5,16 +5,19 @@ public sealed class ViskFunction
     public readonly string Name;
     public readonly int ArgsCount;
     public readonly Type ReturnType;
+    public readonly bool IsMain;
 
     public readonly List<ViskInstruction> RawInstructions = new();
     private Dictionary<string, int> _locals = new();
 
 
-    public ViskFunction(string name, int argsCount, Type returnType)
+    public ViskFunction(string name, int argsCount, Type returnType, bool isMain = false)
     {
         ArgsCount = argsCount;
         ReturnType = returnType;
         Name = name;
+
+        IsMain = isMain;
     }
 
     public IReadOnlyDictionary<string, int> Locals
