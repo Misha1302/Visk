@@ -85,5 +85,5 @@ public sealed class ViskInstruction
 
     public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
-    public static ViskInstruction SetArg(string name, int argInd) => new(ViskInstructionKind.SetArg, name, argInd);
+    public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
 }

@@ -13,6 +13,7 @@ internal class ViskDataManager
     public readonly Assembler Assembler;
     public readonly Dictionary<string, Label> Functions = new();
     public readonly ViskRegister Register = new();
+    private int _argIndex;
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
@@ -34,6 +35,7 @@ internal class ViskDataManager
         Stack = new ViskStack(stackSize * 8);
         CurrentFuncMaxStackSize = stackSize * 8;
         Register.Reset();
+        _argIndex = 0;
 
         CurrentFuncLocals = locals
             .Select(x => (
@@ -66,5 +68,10 @@ internal class ViskDataManager
 
         _labels.Add(name, label = Assembler.CreateLabel(name));
         return label;
+    }
+
+    public int NextArgIndex()
+    {
+        return _argIndex++;
     }
 }

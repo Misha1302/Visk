@@ -207,7 +207,7 @@ internal sealed class ViskCompiler
 
                 break;
             case ViskInstructionKind.SetArg:
-                _dataManager.Assembler.mov(rax, __[rbp + arg1.As<int>() * 8 + 16]);
+                _dataManager.Assembler.mov(rax, __[rbp + _dataManager.NextArgIndex() * 8 + 16]);
                 _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
                 break;
             default:
