@@ -3,276 +3,231 @@ namespace ViskCompiler;
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
-internal sealed class ViskCompiler
+internal sealed class ViskCompiler : ViskCompilerBase
 {
-    private readonly ViskDataManager _dataManager;
-    private readonly ArgsManager _argsManager;
+    private const int FuncPrologSize = 16;
 
-    public ViskCompiler(ViskModule module)
+    public ViskCompiler(ViskModule module) : base(module)
     {
-        _dataManager = new ViskDataManager(new Assembler(64), module);
-        _argsManager = new ArgsManager(_dataManager);
     }
 
-    public ViskX64AsmExecutor Compile()
-    {
-        CompileInternal();
 
-        return new ViskX64AsmExecutor(_dataManager.Assembler);
+    protected override void PushConst(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        Push(arg0.AsI64());
     }
 
-    private void CompileInternal()
+    protected override void Add(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        CompileFunctions();
-
-        DeclareData();
+        Operate(DataManager.Assembler.add, DataManager.Assembler.add);
     }
 
-    private void DeclareData()
+    protected override void SetLabel(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        foreach (var data in _dataManager.Data)
+        var label = DataManager.GetLabel(arg0.As<string>());
+        DataManager.Assembler.Label(ref label);
+    }
+
+    protected override void Goto(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        DataManager.Assembler.jmp(DataManager.GetLabel(arg0.As<string>()));
+    }
+
+    protected override void GotoIfNotEquals(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        Push(0);
+        Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp, false);
+        DataManager.Assembler.jne(DataManager.GetLabel(arg0.As<string>()));
+    }
+
+    protected override void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        if (!DataManager.Stack.IsEmpty())
         {
-            var dataItem1 = data.Item1;
-            _dataManager.Assembler.Label(ref dataItem1);
-            _dataManager.Assembler.dq(data.Item2);
+            DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+            DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
+        }
+        else
+        {
+            DataManager.Assembler.mov(
+                DataManager.CurrentFuncLocals[arg0.As<string>()],
+                DataManager.Register.Previous()
+            );
         }
     }
 
-    private void CompileFunctions()
+    protected override void LoadLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        var mainFunc = _dataManager.Module.Functions.First(x => x.Name == _dataManager.Module.MainFuncName);
-        CompileFunction(mainFunc);
-
-        foreach (var function in _dataManager.Module.Functions)
+        if (DataManager.Register.CanGetNext)
         {
-            if (function == mainFunc)
-                continue;
-
-            CompileFunction(function);
-        }
-    }
-
-    private void CompileFunction(ViskFunction func)
-    {
-        foreach (var instruction in func.TotalInstructions)
-            CompileInstruction(instruction, func);
-    }
-
-    private void CompileInstruction(ViskInstruction instruction, ViskFunction func)
-    {
-        GetArgs(instruction, out var arg0, out var arg1, out var arg2);
-
-        switch (instruction.InstructionKind)
-        {
-            case ViskInstructionKind.PushConst:
-                Push(arg0.AsI64());
-                break;
-            case ViskInstructionKind.Add:
-                Operate(_dataManager.Assembler.add, _dataManager.Assembler.add);
-                break;
-            case ViskInstructionKind.SetLabel:
-                var label = _dataManager.GetLabel(arg0.As<string>());
-                _dataManager.Assembler.Label(ref label);
-                break;
-            case ViskInstructionKind.Goto:
-                _dataManager.Assembler.jmp(_dataManager.GetLabel(arg0.As<string>()));
-                break;
-            case ViskInstructionKind.GotoIfNotEquals:
-                Push(0);
-                Operate(_dataManager.Assembler.cmp, _dataManager.Assembler.cmp, false);
-                _dataManager.Assembler.jne(_dataManager.GetLabel(arg0.As<string>()));
-                break;
-            case ViskInstructionKind.SetLocal:
-                if (!_dataManager.Stack.IsEmpty())
-                {
-                    _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
-                    _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
-                }
-                else
-                {
-                    _dataManager.Assembler.mov(
-                        _dataManager.CurrentFuncLocals[arg0.As<string>()],
-                        _dataManager.Register.Previous()
-                    );
-                }
-
-                break;
-            case ViskInstructionKind.LoadLocal:
-                if (_dataManager.Register.CanGetNext)
-                {
-                    _dataManager.Assembler.mov(
-                        _dataManager.Register.Next(),
-                        _dataManager.CurrentFuncLocals[arg0.As<string>()]
-                    );
-                }
-                else
-                {
-                    _dataManager.Assembler.mov(rax, _dataManager.CurrentFuncLocals[arg0.As<string>()]);
-                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
-                }
-
-                break;
-
-            case ViskInstructionKind.Nop:
-                _dataManager.Assembler.nop();
-                break;
-            case ViskInstructionKind.Cmp:
-                Operate(_dataManager.Assembler.cmp, _dataManager.Assembler.cmp);
-
-                if (_dataManager.Register.CanGetNext)
-                {
-                    _dataManager.Register.Previous();
-                    var oldValue = _dataManager.Register.Current();
-                    var assemblerRegister8 = _dataManager.Register.Next8();
-                    _dataManager.Assembler.setne(assemblerRegister8);
-                    _dataManager.Assembler.movzx(oldValue, assemblerRegister8);
-                }
-                else
-                {
-                    _dataManager.Assembler.setne(al);
-                    _dataManager.Assembler.movzx(rax, al);
-                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
-                }
-
-                break;
-            case ViskInstructionKind.Dup:
-                if (_dataManager.Register.CanGetNext)
-                {
-                    var src = _dataManager.Register.BackValue();
-                    var dst = _dataManager.Register.Next();
-
-                    _dataManager.Assembler.mov(dst, src);
-                }
-                else
-                {
-                    var src = _dataManager.Stack.BackValue();
-                    var dst = _dataManager.Stack.GetNext();
-
-                    _dataManager.Assembler.mov(rax, src);
-                    _dataManager.Assembler.mov(dst, rax);
-                }
-
-                break;
-            case ViskInstructionKind.IMul:
-                Operate(_dataManager.Assembler.imul, _dataManager.Assembler.imul);
-                break;
-            case ViskInstructionKind.Sub:
-                Operate(_dataManager.Assembler.sub, _dataManager.Assembler.sub);
-                break;
-            case ViskInstructionKind.CallForeign:
-                _argsManager.SaveRegs();
-                _argsManager.ForeignMoveArgs(arg1.AsI32());
-
-                _dataManager.Assembler.call((ulong)arg0.As<nint>());
-
-                _argsManager.LoadRegs();
-                _argsManager.SaveReturnValue(arg2.As<Type>());
-                break;
-            case ViskInstructionKind.Call:
-                _argsManager.SaveRegs();
-                _argsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
-
-                _dataManager.Assembler.call(_dataManager.GetLabel(arg0.As<ViskFunction>().Name));
-
-                _argsManager.LoadRegs();
-                _argsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
-                break;
-            case ViskInstructionKind.Prolog:
-                label = _dataManager.GetLabel(func.Name);
-                _dataManager.Assembler.Label(ref label);
-
-                _dataManager.Assembler.push(rbp);
-                _dataManager.Assembler.mov(rbp, rsp);
-
-                _dataManager.NewFunc(func.MaxStackSize, func.Locals);
-                _dataManager.Assembler.sub(rsp,
-                    _dataManager.Stack.MaxStackSize +
-                    ViskRegister.Registers.Length * ViskStack.BlockSize +
-                    _dataManager.CurrentFuncLocalsSize
-                );
-
-                break;
-            case ViskInstructionKind.Drop:
-                Drop();
-                break;
-            case ViskInstructionKind.Ret:
-                if (!_dataManager.Stack.IsEmpty())
-                    _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
-                else if (_dataManager.Register.CanGetPrevious)
-                    _dataManager.Assembler.mov(rax, _dataManager.Register.Previous());
-
-                _dataManager.Assembler.mov(rsp, rbp);
-                _dataManager.Assembler.pop(rbp);
-                _dataManager.Assembler.ret();
-
-                break;
-            case ViskInstructionKind.SetArg:
-                _dataManager.Assembler.mov(rax, __[rbp + _dataManager.NextArgIndex() * 8 + 16]);
-                _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
-                break;
-            default:
-                ThrowHelper.ThrowInvalidOperationException($"Unknown instruction: {instruction}");
-                break;
-        }
-    }
-
-    private void Drop()
-    {
-        if (!_dataManager.Stack.IsEmpty())
-            _dataManager.Stack.GetPrevious();
-        else _dataManager.Register.Previous();
-    }
-
-    private void Push(long number)
-    {
-        if (_dataManager.Register.CanGetNext)
-        {
-            _dataManager.Assembler.mov(
-                _dataManager.Register.Next(),
-                __[_dataManager.DefineI64(number)]
+            DataManager.Assembler.mov(
+                DataManager.Register.Next(),
+                DataManager.CurrentFuncLocals[arg0.As<string>()]
             );
         }
         else
         {
-            _dataManager.Assembler.mov(rax, __[_dataManager.DefineI64(number)]);
-            _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+            DataManager.Assembler.mov(rax, DataManager.CurrentFuncLocals[arg0.As<string>()]);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+        }
+    }
+
+    protected override void Nop(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        DataManager.Assembler.nop();
+    }
+
+    protected override void Cmp(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp);
+
+        if (DataManager.Register.CanGetNext)
+        {
+            DataManager.Register.Previous();
+            var oldValue = DataManager.Register.Current();
+            var assemblerRegister8 = DataManager.Register.Next8();
+            DataManager.Assembler.setne(assemblerRegister8);
+            DataManager.Assembler.movzx(oldValue, assemblerRegister8);
+        }
+        else
+        {
+            DataManager.Assembler.setne(al);
+            DataManager.Assembler.movzx(rax, al);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+        }
+    }
+
+    protected override void Dup(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        if (DataManager.Register.CanGetNext)
+        {
+            var src = DataManager.Register.BackValue();
+            var dst = DataManager.Register.Next();
+
+            DataManager.Assembler.mov(dst, src);
+        }
+        else
+        {
+            var src = DataManager.Stack.BackValue();
+            var dst = DataManager.Stack.GetNext();
+
+            DataManager.Assembler.mov(rax, src);
+            DataManager.Assembler.mov(dst, rax);
+        }
+    }
+
+    protected override void IMul(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        Operate(DataManager.Assembler.imul, DataManager.Assembler.imul);
+    }
+
+    protected override void Sub(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        Operate(DataManager.Assembler.sub, DataManager.Assembler.sub);
+    }
+
+    protected override void CallForeign(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        ArgsManager.SaveRegs();
+        ArgsManager.ForeignMoveArgs(arg1.AsI32());
+
+        DataManager.Assembler.call((ulong)arg0.As<nint>());
+
+        ArgsManager.LoadRegs();
+        ArgsManager.SaveReturnValue(arg2.As<Type>());
+    }
+
+    protected override void Call(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        ArgsManager.SaveRegs();
+        ArgsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
+
+        DataManager.Assembler.call(DataManager.GetLabel(arg0.As<ViskFunction>().Name));
+
+        ArgsManager.LoadRegs();
+        ArgsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
+    }
+
+    protected override void Prolog(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        var label = DataManager.GetLabel(func.Name);
+        DataManager.Assembler.Label(ref label);
+
+        DataManager.Assembler.push(rbp);
+        DataManager.Assembler.mov(rbp, rsp);
+
+        DataManager.NewFunc(func.MaxStackSize, func.Locals);
+        DataManager.Assembler.sub(rsp,
+            DataManager.Stack.MaxStackSize +
+            ViskRegister.Registers.Length * ViskStack.BlockSize +
+            DataManager.CurrentFuncLocalsSize
+        );
+    }
+
+    protected override void Drop(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        if (!DataManager.Stack.IsEmpty())
+            DataManager.Stack.GetPrevious();
+        else DataManager.Register.Previous();
+    }
+
+    protected override void Ret(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        if (!DataManager.Stack.IsEmpty())
+            DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+        else if (DataManager.Register.CanGetPrevious)
+            DataManager.Assembler.mov(rax, DataManager.Register.Previous());
+
+        DataManager.Assembler.mov(rsp, rbp);
+        DataManager.Assembler.pop(rbp);
+        DataManager.Assembler.ret();
+    }
+
+    protected override void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        DataManager.Assembler.mov(rax, __[rbp + DataManager.NextArgIndex() * 8 + FuncPrologSize]);
+        DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
+    }
+
+    private void Push(long number)
+    {
+        if (DataManager.Register.CanGetNext)
+        {
+            DataManager.Assembler.mov(
+                DataManager.Register.Next(),
+                __[DataManager.DefineI64(number)]
+            );
+        }
+        else
+        {
+            DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
         }
     }
 
     private void Operate(Action<AssemblerRegister64, AssemblerMemoryOperand> mm,
         Action<AssemblerRegister64, AssemblerRegister64> rr, bool saveResult = true)
     {
-        if (!_dataManager.Stack.IsEmpty())
+        if (!DataManager.Stack.IsEmpty())
         {
-            var src = _dataManager.Stack.GetPrevious();
-            if (!_dataManager.Stack.IsEmpty())
+            var src = DataManager.Stack.GetPrevious();
+            if (!DataManager.Stack.IsEmpty())
             {
-                _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
+                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
                 mm(rax, src);
 
                 if (saveResult)
-                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+                    DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
             }
             else
             {
-                if (saveResult)
-                    mm(_dataManager.Register.BackValue(), src);
-                else mm(_dataManager.Register.Previous(), src);
+                mm(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), src);
             }
         }
         else
         {
-            var srcReg = _dataManager.Register.Previous();
-            if (saveResult)
-                rr(_dataManager.Register.BackValue(), srcReg);
-            else rr(_dataManager.Register.Previous(), srcReg);
+            var srcReg = DataManager.Register.Previous();
+            rr(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), srcReg);
         }
-    }
-
-    private static void GetArgs(ViskInstruction instruction, out object? o, out object? o1, out object? o2)
-    {
-        o = instruction.Arguments.Count > 0 ? instruction.Arguments[0] : null;
-        o1 = instruction.Arguments.Count > 1 ? instruction.Arguments[1] : null;
-        o2 = instruction.Arguments.Count > 2 ? instruction.Arguments[2] : null;
     }
 }
