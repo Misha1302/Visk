@@ -6,12 +6,10 @@ internal abstract class ViskCompilerBase
 {
     private const string NotImplemented = "Not implemented operation";
     protected readonly ViskDataManager DataManager;
-    protected readonly ViskArgsManager ViskArgsManager;
 
     protected ViskCompilerBase(ViskModule module)
     {
         DataManager = new ViskDataManager(new Assembler(64), module);
-        ViskArgsManager = new ViskArgsManager(DataManager);
     }
 
     public ViskX64AsmExecutor Compile()

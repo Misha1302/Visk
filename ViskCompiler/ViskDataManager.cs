@@ -12,13 +12,14 @@ internal sealed class ViskDataManager
     public readonly Assembler Assembler;
     public readonly ViskRegister Register = new();
     public readonly ViskFunctionStackManager FuncStackManager;
-    private int _argIndex;
+    public readonly ViskArgsManager ViskArgsManager;
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
         Assembler = assembler ?? ViskThrowHelper.ThrowInvalidOperationException<Assembler>();
         Module = module ?? ViskThrowHelper.ThrowInvalidOperationException<ViskModule>();
         FuncStackManager = new ViskFunctionStackManager(this);
+        ViskArgsManager = new ViskArgsManager(this);
     }
 
     public ViskStack Stack { get; private set; } = null!;
@@ -35,7 +36,7 @@ internal sealed class ViskDataManager
         CurrentFuncMaxStackSize = stackSize * 8;
         Stack = new ViskStack(this);
         Register.Reset();
-        _argIndex = 0;
+        ViskArgsManager.Reset();
 
         CurrentFuncLocals = locals
             .Select(x => (
@@ -67,6 +68,4 @@ internal sealed class ViskDataManager
         _labels.Add(name, label = Assembler.CreateLabel(name));
         return label;
     }
-
-    public int NextArgIndex() => _argIndex++;
 }

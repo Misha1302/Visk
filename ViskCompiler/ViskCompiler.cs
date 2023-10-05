@@ -128,24 +128,24 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void CallForeign(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        ViskArgsManager.SaveRegs();
-        ViskArgsManager.ForeignMoveArgs(arg1.AsI32());
+        DataManager.ViskArgsManager.SaveRegs();
+        DataManager.ViskArgsManager.ForeignMoveArgs(arg1.AsI32());
 
         DataManager.Assembler.call((ulong)arg0.As<nint>());
 
-        ViskArgsManager.LoadRegs();
-        ViskArgsManager.SaveReturnValue(arg2.As<Type>());
+        DataManager.ViskArgsManager.LoadRegs();
+        DataManager.ViskArgsManager.SaveReturnValue(arg2.As<Type>());
     }
 
     protected override void Call(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        ViskArgsManager.SaveRegs();
-        ViskArgsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
+        DataManager.ViskArgsManager.SaveRegs();
+        DataManager.ViskArgsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
 
         DataManager.Assembler.call(DataManager.GetLabel(arg0.As<ViskFunction>().Name));
 
-        ViskArgsManager.LoadRegs();
-        ViskArgsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
+        DataManager.ViskArgsManager.LoadRegs();
+        DataManager.ViskArgsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
     }
 
     protected override void Prolog(object? arg0, object? arg1, object? arg2, ViskFunction func)
@@ -186,7 +186,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
         DataManager.Assembler.mov(rax,
-            DataManager.FuncStackManager.GetMemoryArg(DataManager.NextArgIndex() * 8 + FuncPrologSize));
+            DataManager.FuncStackManager.GetMemoryArg(DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize));
         DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
     }
 

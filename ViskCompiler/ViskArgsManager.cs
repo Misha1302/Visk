@@ -9,6 +9,7 @@ internal sealed class ViskArgsManager
     private readonly ViskDataManager _dataManager;
     private int _stackChanged;
     private int _regsCount;
+    private int _index;
 
     public ViskArgsManager(ViskDataManager dataManager)
     {
@@ -121,4 +122,8 @@ internal sealed class ViskArgsManager
             _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
         else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
     }
+
+    public void Reset() => _index = 0;
+
+    public int NextArgIndex() => _index++;
 }
