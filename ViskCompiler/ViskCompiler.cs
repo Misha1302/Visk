@@ -25,6 +25,11 @@ internal sealed class ViskCompiler
     {
         CompileFunctions();
 
+        DeclareData();
+    }
+
+    private void DeclareData()
+    {
         foreach (var data in _dataManager.Data)
         {
             var dataItem1 = data.Item1;
@@ -156,14 +161,33 @@ internal sealed class ViskCompiler
                 break;
             case ViskInstructionKind.CallForeign:
                 _argsManager.SaveRegs();
-                _argsManager.MoveArgs(arg1.AsI32());
+                _argsManager.ForeignMoveArgs(arg1.AsI32());
 
                 _dataManager.Assembler.call((ulong)arg0.As<nint>());
 
                 var rt = arg2.As<Type>();
                 if (rt != typeof(void))
                 {
-                    if (rt != typeof(int))
+                    if (rt != typeof(long))
+                        ThrowHelper.ThrowInvalidOperationException("Unknown return type");
+
+                    if (_dataManager.Register.CanGetNext)
+                        _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+                    else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+                }
+
+                _argsManager.LoadRegs();
+
+                break;
+            case ViskInstructionKind.Call:
+                _argsManager.SaveRegs();
+                _argsManager.ForeignMoveArgs(arg0.As<ViskFunction>().ArgsCount);
+
+                _dataManager.Assembler.call(_dataManager.GetLabel(arg0.As<ViskFunction>().Name));
+
+                if (arg0.As<ViskFunction>().ReturnType != typeof(void))
+                {
+                    if (arg0.As<ViskFunction>().ReturnType != typeof(long))
                         ThrowHelper.ThrowInvalidOperationException("Unknown return type");
 
                     if (_dataManager.Register.CanGetNext)
@@ -175,6 +199,9 @@ internal sealed class ViskCompiler
 
                 break;
             case ViskInstructionKind.Prolog:
+                label = _dataManager.GetLabel(func.Name);
+                _dataManager.Assembler.Label(ref label);
+                
                 _dataManager.Assembler.push(rbp);
                 _dataManager.Assembler.mov(rbp, rsp);
 

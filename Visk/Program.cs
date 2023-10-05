@@ -8,16 +8,41 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
 
-var fMain = module.AddFunction("main", 0, true);
+var fMain = module.AddFunction("main", 0, typeof(long));
+var fOther = module.AddFunction("other", 0, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
+{
+    ViskInstruction.Nop(),
+    ViskInstruction.Nop(),
+    ViskInstruction.Nop(),
+    
+    ViskInstruction.Call(fOther),
+    ViskInstruction.Nop(),
+
+    ViskInstruction.Call(fOther),
+    ViskInstruction.Nop(),
+
+    ViskInstruction.Call(fOther),
+    ViskInstruction.Nop(),
+
+    ViskInstruction.Add(),
+    ViskInstruction.Nop(),
+
+    ViskInstruction.Add(),
+    ViskInstruction.Nop(),
+
+    ViskInstruction.Ret(), ViskInstruction.Nop(), ViskInstruction.Nop()
+});
+
+fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
     ViskInstruction.SetLocal("loc"),
 
     ViskInstruction.SetLabel("Label"),
 
-    // ViskInstruction.Dup(),
+    // ViskInstruction.LoadLocal("loc"),
     // ViskInstruction.CallForeign(printLong),
 
     ViskInstruction.LoadLocal("loc"),
@@ -26,11 +51,11 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.SetLocal("loc"),
 
     ViskInstruction.LoadLocal("loc"),
-    ViskInstruction.PushConst(int.MaxValue),
+    ViskInstruction.PushConst(111_111),
     ViskInstruction.Cmp(),
     ViskInstruction.GotoIfNotEquals("Label"),
 
-
+    ViskInstruction.LoadLocal("loc"),
     ViskInstruction.Ret()
 });
 

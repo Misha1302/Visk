@@ -1,5 +1,6 @@
 namespace ViskCompiler;
 
+using System.Diagnostics.Contracts;
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
@@ -56,6 +57,7 @@ internal class ViskDataManager
         return label;
     }
 
+    [Pure]
     public Label GetLabel(string name)
     {
         if (_labels.TryGetValue(name, out var label))

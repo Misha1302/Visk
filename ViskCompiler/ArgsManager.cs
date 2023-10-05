@@ -15,7 +15,7 @@ internal sealed class ArgsManager
         _dataManager = dataManager;
     }
 
-    public void MoveArgs(int argsCount)
+    public void ForeignMoveArgs(int argsCount)
     {
         var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
 
@@ -26,7 +26,8 @@ internal sealed class ArgsManager
 
             var delta = maxSize + (ViskStack.PosStackAlign - maxSize % ViskStack.PosStackAlign);
             _stackChanged += delta;
-            _dataManager.Assembler.sub(rsp, delta);
+            if (delta != 0)
+                _dataManager.Assembler.sub(rsp, delta);
 
             var i = maxSize - 8;
             for (var j = 0; j < argsCount - _argsRegisters.Length; j++, i -= 8)
@@ -74,7 +75,8 @@ internal sealed class ArgsManager
 
     public void LoadRegs()
     {
-        _dataManager.Assembler.add(rsp, _stackChanged);
+        if (_stackChanged != 0)
+            _dataManager.Assembler.add(rsp, _stackChanged);
 
         for (var index = _regsCount - 1; index >= 0; index--)
         {

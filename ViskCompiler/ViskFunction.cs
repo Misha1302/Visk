@@ -4,16 +4,16 @@ public sealed class ViskFunction
 {
     public readonly string Name;
     public readonly int ArgsCount;
-    public readonly bool Returns;
+    public readonly Type ReturnType;
 
     public readonly List<ViskInstruction> RawInstructions = new();
     private Dictionary<string, int> _locals = new();
 
 
-    public ViskFunction(string name, int argsCount, bool returns)
+    public ViskFunction(string name, int argsCount, Type returnType)
     {
         ArgsCount = argsCount;
-        Returns = returns;
+        ReturnType = returnType;
         Name = name;
     }
 
@@ -62,7 +62,7 @@ public sealed class ViskFunction
             else if (i.InstructionKind == ViskInstructionKind.Call)
             {
                 var f = i.Arguments[0].As<ViskFunction>();
-                Max(f.ArgsCount, f.Returns ? 1 : 0);
+                Max(f.ArgsCount, f.ReturnType != typeof(void) ? 1 : 0);
             }
             else
             {
