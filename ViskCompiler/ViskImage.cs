@@ -1,6 +1,6 @@
 ﻿namespace ViskCompiler;
 
-public class ViskImage
+public sealed class ViskImage
 {
     private readonly ViskModule _viskModule = null!;
 
@@ -12,7 +12,8 @@ public class ViskImage
     private ViskModule ViskModule
     {
         get => _viskModule;
-        init => _viskModule = value ?? throw new InvalidOperationException();
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        init => _viskModule = value ?? ThrowHelper.ThrowInvalidOperationException<ViskModule>();
     }
 
     public ViskX64AsmExecutor Compile() => new ViskCompiler(ViskModule).Compile();

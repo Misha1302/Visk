@@ -5,217 +5,274 @@ using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskCompiler
 {
-    public const sbyte StackAlignConst = -16;
-
-    private readonly ViskModule _module;
-    private readonly Assembler _assembler = new(64);
     private readonly ViskDataManager _dataManager;
-    private readonly Dictionary<string, Label> _functions = new();
+    private readonly ArgsManager _argsManager;
 
     public ViskCompiler(ViskModule module)
     {
-        _module = module;
-        _dataManager = new ViskDataManager(_assembler);
+        _dataManager = new ViskDataManager(new Assembler(64), module);
+        _argsManager = new ArgsManager(_dataManager);
     }
 
     public ViskX64AsmExecutor Compile()
     {
-        _functions.Add(_module.MainFuncName, _assembler.CreateLabel(_module.MainFuncName));
-        _assembler.jmp(_functions[_module.MainFuncName]);
+        CompileInternal();
 
-        foreach (var f in _module.Functions)
-            CompileInstructions(f);
+        return new ViskX64AsmExecutor(_dataManager.Assembler);
+    }
 
-        foreach (var x in _dataManager.Data)
+    private void CompileInternal()
+    {
+        CompileFunctions();
+
+        DeclareData();
+    }
+
+    private void DeclareData()
+    {
+        foreach (var data in _dataManager.Data)
         {
-            var copy = x;
-            _assembler.Label(ref copy.Item1);
-            _assembler.dq(copy.Item2);
+            var dataItem1 = data.Item1;
+            _dataManager.Assembler.Label(ref dataItem1);
+            _dataManager.Assembler.dq(data.Item2);
         }
-
-        return new ViskX64AsmExecutor(_assembler);
     }
 
-    private void CompileInstructions(ViskFunction function)
+    private void CompileFunctions()
     {
-        if (function.Instructions.Last(x => x.InstructionKind != ViskInstructionKind.Nop).InstructionKind !=
-            ViskInstructionKind.Ret)
-            throw new InvalidOperationException();
+        var mainFunc = _dataManager.Module.Functions.First(x => x.Name == _dataManager.Module.MainFuncName);
+        CompileFunction(mainFunc);
 
-        foreach (var instr in function.TotalInstructions)
-            CompileInstruction(instr, function);
+        foreach (var function in _dataManager.Module.Functions)
+        {
+            if (function == mainFunc)
+                continue;
+
+            CompileFunction(function);
+        }
     }
 
-    private void CompileInstruction(ViskInstruction inst, ViskFunction function)
+    private void CompileFunction(ViskFunction func)
     {
-        var arg0 = inst.Arguments.Count > 0 ? inst.Arguments[0] : null;
-        var arg1 = inst.Arguments.Count > 1 ? inst.Arguments[1] : null;
-        var arg2 = inst.Arguments.Count > 2 ? inst.Arguments[2] : null;
-        var arg3 = inst.Arguments.Count > 3 ? inst.Arguments[3] : null;
+        foreach (var instruction in func.TotalInstructions)
+            CompileInstruction(instruction, func);
+    }
 
-        Label label;
-        int localOffset;
-        Label funcLabel;
-        switch (inst.InstructionKind)
+    private void CompileInstruction(ViskInstruction instruction, ViskFunction func)
+    {
+        GetArgs(instruction, out var arg0, out var arg1, out var arg2);
+
+        switch (instruction.InstructionKind)
         {
             case ViskInstructionKind.PushConst:
-                var integer = arg0 switch
+                Push(arg0.AsI64());
+                break;
+            case ViskInstructionKind.Add:
+                Operate(_dataManager.Assembler.add, _dataManager.Assembler.add);
+                break;
+            case ViskInstructionKind.SetLabel:
+                var label = _dataManager.GetLabel(arg0.As<string>());
+                _dataManager.Assembler.Label(ref label);
+                break;
+            case ViskInstructionKind.Goto:
+                _dataManager.Assembler.jmp(_dataManager.GetLabel(arg0.As<string>()));
+                break;
+            case ViskInstructionKind.GotoIfNotEquals:
+                Push(0);
+                Operate(_dataManager.Assembler.cmp, _dataManager.Assembler.cmp, false);
+                _dataManager.Assembler.jne(_dataManager.GetLabel(arg0.As<string>()));
+                break;
+            case ViskInstructionKind.SetLocal:
+                if (!_dataManager.Stack.IsEmpty())
                 {
-                    long l => l,
-                    int i => i,
-                    float f => BitConverter.SingleToInt32Bits(f),
-                    double d => BitConverter.DoubleToInt64Bits(d),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
+                    _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
+                    _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
+                }
+                else
+                {
+                    _dataManager.Assembler.mov(
+                        _dataManager.CurrentFuncLocals[arg0.As<string>()],
+                        _dataManager.Register.Previous()
+                    );
+                }
+
+                break;
+            case ViskInstructionKind.LoadLocal:
+                if (_dataManager.Register.CanGetNext)
+                {
+                    _dataManager.Assembler.mov(
+                        _dataManager.Register.Next(),
+                        _dataManager.CurrentFuncLocals[arg0.As<string>()]
+                    );
+                }
+                else
+                {
+                    _dataManager.Assembler.mov(rax, _dataManager.CurrentFuncLocals[arg0.As<string>()]);
+                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+                }
+
+                break;
+
+            case ViskInstructionKind.Nop:
+                _dataManager.Assembler.nop();
+                break;
+            case ViskInstructionKind.Cmp:
+                Operate(_dataManager.Assembler.cmp, _dataManager.Assembler.cmp);
 
                 if (_dataManager.Register.CanGetNext)
                 {
-                    _assembler.mov(_dataManager.Register.Next(), __[_dataManager.DefineI64(integer)]);
+                    _dataManager.Register.Previous();
+                    var oldValue = _dataManager.Register.Current();
+                    var assemblerRegister8 = _dataManager.Register.Next8();
+                    _dataManager.Assembler.setne(assemblerRegister8);
+                    _dataManager.Assembler.movzx(oldValue, assemblerRegister8);
                 }
                 else
                 {
-                    _assembler.mov(rax, __[_dataManager.DefineI64(integer)]);
-                    AllocI64InStack(function);
-                    _assembler.mov(_dataManager.Stack.Peek(), rax);
+                    _dataManager.Assembler.setne(al);
+                    _dataManager.Assembler.movzx(rax, al);
+                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
                 }
 
                 break;
-            case ViskInstructionKind.Add:
-                if (_dataManager.Stack.Count != 0)
+            case ViskInstructionKind.Dup:
+                if (_dataManager.Register.CanGetNext)
                 {
-                    _assembler.mov(rax, _dataManager.Stack.Pop());
-                    _assembler.add(rax, _dataManager.Stack.Pop());
-                    _assembler.mov(_dataManager.Stack.Peek(), rax);
+                    var src = _dataManager.Register.BackValue();
+                    var dst = _dataManager.Register.Next();
+
+                    _dataManager.Assembler.mov(dst, src);
                 }
                 else
                 {
-                    var prev = _dataManager.Register.Previous();
-                    _assembler.add(_dataManager.Register.BackValue(), prev);
+                    var src = _dataManager.Stack.BackValue();
+                    var dst = _dataManager.Stack.GetNext();
+
+                    _dataManager.Assembler.mov(rax, src);
+                    _dataManager.Assembler.mov(dst, rax);
                 }
 
-                break;
-            case ViskInstructionKind.Ret:
-                if (_dataManager.Register.CanGetPrevious)
-                    _assembler.mov(rax, _dataManager.Register.Previous());
-
-                _dataManager.Register.Reset();
-
-                _assembler.mov(rsp, rbp);
-                _assembler.pop(rbp);
-                _assembler.ret();
-                break;
-            case ViskInstructionKind.CallForeign:
-                PrepareCall((int)(arg1 ?? throw new InvalidOperationException()), function);
-                _assembler.call((ulong)(nint)(arg0 ?? throw new InvalidOperationException()));
-                AfterCall((bool)(arg3 ?? throw new InvalidOperationException()), function);
-                break;
-            case ViskInstructionKind.Call:
-                var func = (ViskFunction)(arg0 ?? throw new InvalidOperationException());
-
-                PrepareCall(func.ArgsCount, function);
-
-                if (!_functions.TryGetValue(func.Name, out funcLabel))
-                {
-                    funcLabel = _assembler.CreateLabel(funcLabel.Name);
-                    _functions.Add(func.Name, funcLabel);
-                }
-
-                _assembler.call(funcLabel);
-
-                AfterCall(function.Returns, function);
                 break;
             case ViskInstructionKind.IMul:
-                if (_dataManager.Stack.Count != 0)
-                {
-                    _assembler.mov(rax, _dataManager.Stack.Pop());
-                    _assembler.imul(rax, _dataManager.Stack.Pop());
-                    _assembler.mov(_dataManager.Stack.Peek(), rax);
-                }
-                else
-                {
-                    var prev = _dataManager.Register.Previous();
-                    _assembler.add(_dataManager.Register.BackValue(), prev);
-                }
+                Operate(_dataManager.Assembler.imul, _dataManager.Assembler.imul);
+                break;
+            case ViskInstructionKind.Sub:
+                Operate(_dataManager.Assembler.sub, _dataManager.Assembler.sub);
+                break;
+            case ViskInstructionKind.CallForeign:
+                _argsManager.SaveRegs();
+                _argsManager.ForeignMoveArgs(arg1.AsI32());
 
+                _dataManager.Assembler.call((ulong)arg0.As<nint>());
+
+                _argsManager.LoadRegs();
+                _argsManager.SaveReturnValue(arg2.As<Type>());
                 break;
-            case ViskInstructionKind.SetLabel:
-                label = _dataManager.Labels.GetOrAdd(_assembler,
-                    (string)(arg0 ?? throw new InvalidOperationException()));
-                _assembler.Label(ref label);
-                break;
-            case ViskInstructionKind.Goto:
-                label = _dataManager.Labels.GetOrAdd(_assembler,
-                    (string)(arg0 ?? throw new InvalidOperationException()));
-                _assembler.jmp(label);
+            case ViskInstructionKind.Call:
+                _argsManager.SaveRegs();
+                _argsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
+
+                _dataManager.Assembler.call(_dataManager.GetLabel(arg0.As<ViskFunction>().Name));
+
+                _argsManager.LoadRegs();
+                _argsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
                 break;
             case ViskInstructionKind.Prolog:
-                if (!_functions.TryGetValue(function.Name, out funcLabel))
-                {
-                    funcLabel = _assembler.CreateLabel(funcLabel.Name);
-                    _functions.Add(function.Name, funcLabel);
-                }
+                label = _dataManager.GetLabel(func.Name);
+                _dataManager.Assembler.Label(ref label);
 
-                _assembler.Label(ref funcLabel);
+                _dataManager.Assembler.push(rbp);
+                _dataManager.Assembler.mov(rbp, rsp);
 
-                _assembler.push(rbp);
-                _assembler.mov(rbp, rsp);
+                _dataManager.NewFunc(func.MaxStackSize, func.Locals);
+                _dataManager.Assembler.sub(rsp,
+                    _dataManager.Stack.MaxStackSize +
+                    ViskRegister.Registers.Length * ViskStack.BlockSize +
+                    _dataManager.CurrentFuncLocalsSize
+                );
 
-                var allocCount = (int)(arg0 ?? throw new InvalidOperationException());
-                _assembler.sub(rsp, allocCount + ViskRegister.Registers.Length * 8 + 128);
                 break;
-            case ViskInstructionKind.SetLocal:
-                localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
-                _assembler.mov(__[rbp - localOffset], _dataManager.Register.Previous());
+            case ViskInstructionKind.Drop:
+                Drop();
                 break;
-            case ViskInstructionKind.LoadLocal:
-                localOffset = function.Locals[(string)(arg0 ?? throw new InvalidOperationException())];
-                _assembler.mov(_dataManager.Register.Next(), __[rbp - localOffset]);
+            case ViskInstructionKind.Ret:
+                if (!_dataManager.Stack.IsEmpty())
+                    _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
+                else if (_dataManager.Register.CanGetPrevious)
+                    _dataManager.Assembler.mov(rax, _dataManager.Register.Previous());
+
+                _dataManager.Assembler.mov(rsp, rbp);
+                _dataManager.Assembler.pop(rbp);
+                _dataManager.Assembler.ret();
+
                 break;
-            case ViskInstructionKind.Nop:
-                _assembler.nop();
+            case ViskInstructionKind.SetArg:
+                _dataManager.Assembler.mov(rax, __[rbp + arg1.As<int>() * 8 + 16]);
+                _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(inst), inst.InstructionKind.ToString());
+                ThrowHelper.ThrowInvalidOperationException($"Unknown instruction: {instruction}");
+                break;
         }
     }
 
-    private void AllocI64InStack(ViskFunction function)
+    private void Drop()
     {
-        var offset = (_dataManager.Stack.Count + 1) * 8;
-        _dataManager.Stack.Push(
-            function.Locals.Count != 0
-                ? __[rbp - (function.Locals.Max(x => x.Value) + offset)]
-                : __[rbp - offset]
-        );
+        if (!_dataManager.Stack.IsEmpty())
+            _dataManager.Stack.GetPrevious();
+        else _dataManager.Register.Previous();
     }
 
-    private void AfterCall(bool returns, ViskFunction f)
+    private void Push(long number)
     {
-        // _assembler.mov(rsp, __[rsp + 8]);
-
-        // for (var index = _dataManager.Register.CurIndex - 1; index >= 0; index--)
-            // _assembler.mov(__[rbp - f.Locals.GetMax(x => x.Value) - (index + 1) * 8], ViskRegister.Registers[index]);
-
-        if (returns)
-            _assembler.mov(_dataManager.Register.Next(), rax);
+        if (_dataManager.Register.CanGetNext)
+        {
+            _dataManager.Assembler.mov(
+                _dataManager.Register.Next(),
+                __[_dataManager.DefineI64(number)]
+            );
+        }
+        else
+        {
+            _dataManager.Assembler.mov(rax, __[_dataManager.DefineI64(number)]);
+            _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+        }
     }
 
-    private void PrepareCall(int argsCount, ViskFunction f)
+    private void Operate(Action<AssemblerRegister64, AssemblerMemoryOperand> mm,
+        Action<AssemblerRegister64, AssemblerRegister64> rr, bool saveResult = true)
     {
-        // for (var index = 0; index < argsCount - _dataManager.Register.CurIndex; index++)
-        //     _assembler.mov(__[rbp - f.Locals.GetMax(x => x.Value) - (index + 1) * 8], ViskRegister.Registers[index]);
+        if (!_dataManager.Stack.IsEmpty())
+        {
+            var src = _dataManager.Stack.GetPrevious();
+            if (!_dataManager.Stack.IsEmpty())
+            {
+                _dataManager.Assembler.mov(rax, _dataManager.Stack.GetPrevious());
+                mm(rax, src);
 
-        ArgsManager.MoveArgs(
-            argsCount, _dataManager.Register, _assembler, _dataManager.Stack, out var stackAligned, out var registersUsed
-        );
-        _dataManager.Register.Sub(registersUsed);
-
-        if (!stackAligned)
-            AlignStack();
+                if (saveResult)
+                    _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+            }
+            else
+            {
+                if (saveResult)
+                    mm(_dataManager.Register.BackValue(), src);
+                else mm(_dataManager.Register.Previous(), src);
+            }
+        }
+        else
+        {
+            var srcReg = _dataManager.Register.Previous();
+            if (saveResult)
+                rr(_dataManager.Register.BackValue(), srcReg);
+            else rr(_dataManager.Register.Previous(), srcReg);
+        }
     }
 
-    private void AlignStack()
+    private static void GetArgs(ViskInstruction instruction, out object? o, out object? o1, out object? o2)
     {
-        _assembler.and(sp, StackAlignConst);
+        o = instruction.Arguments.Count > 0 ? instruction.Arguments[0] : null;
+        o1 = instruction.Arguments.Count > 1 ? instruction.Arguments[1] : null;
+        o2 = instruction.Arguments.Count > 2 ? instruction.Arguments[2] : null;
     }
 }

@@ -5,6 +5,7 @@ public enum ViskInstructionKind
 {
     PushConst,
     Add,
+    Sub,
     Ret,
     CallForeign,
     IMul,
@@ -14,5 +15,10 @@ public enum ViskInstructionKind
     SetLocal,
     LoadLocal,
     Nop,
-    Call
+    Call,
+    GotoIfNotEquals,
+    Dup,
+    Cmp,
+    Drop,
+    SetArg
 }

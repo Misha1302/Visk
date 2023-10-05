@@ -1,4 +1,5 @@
-﻿using Visk;
+﻿using System.Diagnostics;
+using Visk;
 using ViskCompiler;
 
 var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
@@ -7,49 +8,52 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
 
-var fMain = module.AddFunction("main", 0, false);
-var fOther = module.AddFunction("otherFunc", 0, false);
+var fMain = module.AddFunction("main", 0, typeof(long));
+var fOther = module.AddFunction("other", 10, typeof(long));
 
-fMain.Instructions.AddRange(new List<ViskInstruction>
+fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
+    ViskInstruction.Nop(),
+    ViskInstruction.Nop(),
+    ViskInstruction.Nop(),
+    
+    ViskInstruction.PushConst(1),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(3),
+    ViskInstruction.PushConst(4),
+    ViskInstruction.PushConst(5),
+    ViskInstruction.PushConst(6),
+    ViskInstruction.PushConst(7),
+    ViskInstruction.PushConst(8),
+    ViskInstruction.PushConst(9),
+    ViskInstruction.PushConst(10),
     ViskInstruction.Call(fOther),
 
-    ViskInstruction.PushConst(123),
-    ViskInstruction.Ret()
+    ViskInstruction.Ret(), 
+    
+    ViskInstruction.Nop(), 
+    ViskInstruction.Nop(),
+    ViskInstruction.Nop()
 });
 
-fOther.Instructions.AddRange(new List<ViskInstruction>
+fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(20),
-    ViskInstruction.PushConst(30),
-    ViskInstruction.PushConst(40),
-    ViskInstruction.PushConst(50),
-    ViskInstruction.PushConst(60),
-    ViskInstruction.PushConst(70),
-    ViskInstruction.PushConst(80),
-    ViskInstruction.PushConst(90),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.CallForeign(printLongs),
-    
-    ViskInstruction.PushConst(20),
-    ViskInstruction.PushConst(30),
-    ViskInstruction.PushConst(40),
-    ViskInstruction.PushConst(50),
-    ViskInstruction.PushConst(60),
-    ViskInstruction.PushConst(70),
-    ViskInstruction.PushConst(80),
-    ViskInstruction.PushConst(90),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.PushConst(100),
-    ViskInstruction.CallForeign(printLongs),
-    
-    
-    ViskInstruction.Nop(),
-    ViskInstruction.PushConst(-999999999),
-    ViskInstruction.CallForeign(printLong),
-    ViskInstruction.Nop(),
-    
+    ViskInstruction.SetArg("arg0", 0),
+    ViskInstruction.SetArg("arg1", 1),
+    ViskInstruction.SetArg("arg2", 2),
+    ViskInstruction.SetArg("arg3", 3),
+    ViskInstruction.SetArg("arg4", 4),
+    ViskInstruction.SetArg("arg5", 5),
+    ViskInstruction.SetArg("arg6", 6),
+    ViskInstruction.SetArg("arg7", 7),
+    ViskInstruction.SetArg("arg8", 8),
+    ViskInstruction.SetArg("arg9", 9),
+
+    ViskInstruction.LoadLocal("arg0"),
+    ViskInstruction.LoadLocal("arg4"),
+    ViskInstruction.LoadLocal("arg9"),
+    ViskInstruction.IMul(),
+    ViskInstruction.IMul(),
     ViskInstruction.Ret()
 });
 
@@ -62,8 +66,10 @@ Console.WriteLine(new string('-', Console.WindowWidth));
 Console.WriteLine(executor.ToString());
 Console.WriteLine(new string('-', Console.WindowWidth));
 
-for (int i = 0; i < 1; i++)
+var sw = new Stopwatch();
+for (var i = 0; i < 5; i++)
 {
-    Console.WriteLine($"Function returned: {asmDelegate()}");
-    Console.WriteLine("\n\n");
+    sw.Restart();
+
+    Console.WriteLine($"Function returned: {asmDelegate()}; Approximate execution time: {sw.ElapsedMilliseconds}\n\n");
 }

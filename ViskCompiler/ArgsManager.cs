@@ -3,88 +3,124 @@
 using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 
-internal static class ArgsManager
+internal sealed class ArgsManager
 {
-    private static readonly AssemblerRegister64[] _assemblerRegisters = { rcx, rdx, r8, r9 };
+    private static readonly AssemblerRegister64[] _argsRegisters = { rcx, rdx, r8, r9 };
+    private readonly ViskDataManager _dataManager;
+    private int _stackChanged;
+    private int _regsCount;
 
-    public static void MoveArgs(int argsCount, ViskRegister fromReg, Assembler assembler,
-        Stack<AssemblerMemoryOperand> dataInStack, out bool stackAligned, out int registerUsed)
+    public ArgsManager(ViskDataManager dataManager)
     {
-        registerUsed = 0;
-        stackAligned = false;
+        _dataManager = dataManager;
+    }
 
-        var regOfOffset = new RegOrOffset(dataInStack, new ViskRegister(fromReg.CurIndex));
+    public void ForeignMoveArgs(int argsCount)
+    {
+        var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
 
-        if (argsCount >= _assemblerRegisters.Length)
+        if (argsCount >= _argsRegisters.Length)
         {
-            stackAligned = true;
-            var size = (argsCount - _assemblerRegisters.Length) * 8;
+            var size = (argsCount - _argsRegisters.Length) * 8;
             var maxSize = 32 + size;
 
-            assembler.sub(rsp, maxSize);
-            assembler.and(sp, ViskCompiler.StackAlignConst);
+            var delta = maxSize + (ViskStack.PosStackAlign - maxSize % ViskStack.PosStackAlign);
+            _stackChanged += delta;
+            if (delta != 0)
+                _dataManager.Assembler.sub(rsp, delta);
 
             var i = maxSize - 8;
-            for (var j = 0; j < argsCount - _assemblerRegisters.Length; j++, i -= 8)
+            for (var j = 0; j < argsCount - _argsRegisters.Length; j++, i -= 8)
                 if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
                 {
-                    registerUsed++;
-                    assembler.mov(__[rsp + i], r!.Value);
+                    _dataManager.Assembler.mov(__[rsp + i], r!.Value);
                 }
                 else if (r is null && offset is null)
                 {
-                    throw new InvalidOperationException();
+                    ThrowHelper.ThrowInvalidOperationException();
                 }
                 else
                 {
-                    assembler.mov(rax, offset!.Value);
-                    assembler.mov(__[rsp + i], rax);
+                    _dataManager.Assembler.mov(rax, offset!.Value);
+                    _dataManager.Assembler.mov(__[rsp + i], rax);
                 }
         }
 
-        var min = Math.Min(argsCount, _assemblerRegisters.Length);
+        var min = Math.Min(argsCount, _argsRegisters.Length);
         for (var j = min - 1; j >= 0; j--)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+                _dataManager.Assembler.mov(_argsRegisters[j], r!.Value);
+            else if (r is null && offset is null)
+                ThrowHelper.ThrowInvalidOperationException();
+            else
+                _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
+    }
+
+    public void MoveArgs(int argsCount)
+    {
+        var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
+
+        var totalSize = argsCount * 8 + argsCount * 8 % 16;
+        _dataManager.Assembler.sub(rsp, totalSize);
+        var pointer = totalSize - 8;
+
+        for (var i = 0; i < argsCount; i++, pointer -= 8)
+            if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
             {
-                registerUsed++;
-                assembler.mov(_assemblerRegisters[j], r!.Value);
+                _dataManager.Assembler.mov(__[rsp + pointer], r!.Value);
             }
             else if (r is null && offset is null)
             {
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             }
             else
             {
-                assembler.mov(_assemblerRegisters[j], offset!.Value);
+                _dataManager.Assembler.mov(rax, offset!.Value);
+
+                _dataManager.Assembler.mov(__[rsp + pointer], rax);
             }
     }
 
-    private sealed class RegOrOffset
+    public void SaveRegs()
     {
-        private readonly Stack<AssemblerMemoryOperand> _dataInStack;
-        private readonly ViskRegister _register;
+        if (_stackChanged != 0)
+            ThrowHelper.ThrowInvalidOperationException("You must to move args after call this method");
 
-        public RegOrOffset(Stack<AssemblerMemoryOperand> dataInStack, ViskRegister register)
+        for (var index = 0; index < _dataManager.Register.CurIndex; index++)
         {
-            _dataInStack = dataInStack;
-            _register = register;
+            var register = ViskRegister.Registers[index];
+            _dataManager.Assembler.mov(GetMemOp(index), register);
         }
 
-        public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset) =>
-            StackAtFirst(out register64, out offset);
+        _regsCount = _dataManager.Register.CurIndex;
+    }
 
-        private bool StackAtFirst(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset)
+    private AssemblerMemoryOperand GetMemOp(int index) =>
+        __[rbp - _dataManager.CurrentFuncMaxStackSize - (index + 1) * ViskStack.BlockSize];
+
+    public void LoadRegs()
+    {
+        if (_stackChanged != 0)
+            _dataManager.Assembler.add(rsp, _stackChanged);
+
+        for (var index = _regsCount - 1; index >= 0; index--)
         {
-            if (_dataInStack.Count != 0)
-            {
-                offset = _dataInStack.Pop();
-                register64 = null;
-                return false;
-            }
-
-            offset = null;
-            register64 = _register.Previous();
-            return true;
+            var register = ViskRegister.Registers[index];
+            _dataManager.Assembler.mov(register, GetMemOp(index));
         }
+
+        _stackChanged = 0;
+    }
+
+    public void SaveReturnValue(Type rt)
+    {
+        if (rt == typeof(void)) return;
+
+        if (rt != typeof(long))
+            ThrowHelper.ThrowInvalidOperationException("Unknown return type");
+
+        if (_dataManager.Register.CanGetNext)
+            _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+        else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
     }
 }

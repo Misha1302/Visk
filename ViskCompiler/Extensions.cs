@@ -1,23 +1,20 @@
 ﻿namespace ViskCompiler;
 
-using Iced.Intel;
-
 public static class Extensions
 {
-    public static Label GetOrAdd(this Dictionary<string, Label> dictionary, Assembler assembler, string s)
-    {
-        Label label;
-        if (!dictionary.TryAdd(s, label = assembler.CreateLabel(s)))
-            label = dictionary[s];
+    public static T As<T>(this object? o) => (T)(o ?? ThrowHelper.ThrowInvalidOperationException<T>());
 
-        return label;
+    public static long AsI64(this object? o)
+    {
+        return o switch
+        {
+            long l => l,
+            int i => i,
+            short s => s,
+            byte b => b,
+            _ => ThrowHelper.ThrowInvalidOperationException<int>("Obj is not integer")
+        };
     }
 
-    public static int GetMax<T>(this IEnumerable<T> collection, Func<T, int> p)
-    {
-        var max = 0;
-        foreach (var c in collection) 
-            max = Math.Max(p(c), max);
-        return max;
-    }
+    public static int AsI32(this object? o) => (int)AsI64(o);
 }
