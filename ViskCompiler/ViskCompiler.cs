@@ -165,43 +165,22 @@ internal sealed class ViskCompiler
 
                 _dataManager.Assembler.call((ulong)arg0.As<nint>());
 
-                var rt = arg2.As<Type>();
-                if (rt != typeof(void))
-                {
-                    if (rt != typeof(long))
-                        ThrowHelper.ThrowInvalidOperationException("Unknown return type");
-
-                    if (_dataManager.Register.CanGetNext)
-                        _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
-                    else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
-                }
-
                 _argsManager.LoadRegs();
-
+                _argsManager.SaveReturnValue(arg2.As<Type>());
                 break;
             case ViskInstructionKind.Call:
                 _argsManager.SaveRegs();
-                _argsManager.ForeignMoveArgs(arg0.As<ViskFunction>().ArgsCount);
+                _argsManager.MoveArgs(arg0.As<ViskFunction>().ArgsCount);
 
                 _dataManager.Assembler.call(_dataManager.GetLabel(arg0.As<ViskFunction>().Name));
 
-                if (arg0.As<ViskFunction>().ReturnType != typeof(void))
-                {
-                    if (arg0.As<ViskFunction>().ReturnType != typeof(long))
-                        ThrowHelper.ThrowInvalidOperationException("Unknown return type");
-
-                    if (_dataManager.Register.CanGetNext)
-                        _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
-                    else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
-                }
-
                 _argsManager.LoadRegs();
-
+                _argsManager.SaveReturnValue(arg0.As<ViskFunction>().ReturnType);
                 break;
             case ViskInstructionKind.Prolog:
                 label = _dataManager.GetLabel(func.Name);
                 _dataManager.Assembler.Label(ref label);
-                
+
                 _dataManager.Assembler.push(rbp);
                 _dataManager.Assembler.mov(rbp, rsp);
 
@@ -211,7 +190,6 @@ internal sealed class ViskCompiler
                     ViskRegister.Registers.Length * ViskStack.BlockSize +
                     _dataManager.CurrentFuncLocalsSize
                 );
-                _dataManager.Assembler.and(sp, ViskStack.NegStackAlign);
 
                 break;
             case ViskInstructionKind.Drop:
@@ -227,6 +205,10 @@ internal sealed class ViskCompiler
                 _dataManager.Assembler.pop(rbp);
                 _dataManager.Assembler.ret();
 
+                break;
+            case ViskInstructionKind.SetArg:
+                _dataManager.Assembler.mov(rax, __[rbp + arg1.As<int>() * 8 + 16]);
+                _dataManager.Assembler.mov(_dataManager.CurrentFuncLocals[arg0.As<string>()], rax);
                 break;
             default:
                 ThrowHelper.ThrowInvalidOperationException($"Unknown instruction: {instruction}");

@@ -19,5 +19,6 @@ public enum ViskInstructionKind
     GotoIfNotEquals,
     Dup,
     Cmp,
-    Drop
+    Drop,
+    SetArg
 }

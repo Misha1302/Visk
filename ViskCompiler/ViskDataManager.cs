@@ -46,6 +46,7 @@ internal class ViskDataManager
             .ToDictionary(tuple => tuple.key, tuple => tuple.value);
     }
 
+    [Pure]
     public Label DefineI64(long l)
     {
         var ind = _data.FindIndex(x => x.Item2 == l);

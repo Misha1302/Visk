@@ -56,6 +56,31 @@ internal sealed class ArgsManager
                 _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
     }
 
+    public void MoveArgs(int argsCount)
+    {
+        var regOfOffset = new RegOrOffset(_dataManager.Stack, _dataManager.Register);
+
+        var totalSize = argsCount * 8 + argsCount * 8 % 16;
+        _dataManager.Assembler.sub(rsp, totalSize);
+        var pointer = totalSize - 8;
+
+        for (var i = 0; i < argsCount; i++, pointer -= 8)
+            if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+            {
+                _dataManager.Assembler.mov(__[rsp + pointer], r!.Value);
+            }
+            else if (r is null && offset is null)
+            {
+                ThrowHelper.ThrowInvalidOperationException();
+            }
+            else
+            {
+                _dataManager.Assembler.mov(rax, offset!.Value);
+
+                _dataManager.Assembler.mov(__[rsp + pointer], rax);
+            }
+    }
+
     public void SaveRegs()
     {
         if (_stackChanged != 0)
@@ -85,5 +110,17 @@ internal sealed class ArgsManager
         }
 
         _stackChanged = 0;
+    }
+
+    public void SaveReturnValue(Type rt)
+    {
+        if (rt == typeof(void)) return;
+
+        if (rt != typeof(long))
+            ThrowHelper.ThrowInvalidOperationException("Unknown return type");
+
+        if (_dataManager.Register.CanGetNext)
+            _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+        else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
     }
 }

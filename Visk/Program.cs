@@ -9,7 +9,7 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 var module = new ViskModule("main");
 
 var fMain = module.AddFunction("main", 0, typeof(long));
-var fOther = module.AddFunction("other", 0, typeof(long));
+var fOther = module.AddFunction("other", 10, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
@@ -17,45 +17,43 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.Nop(),
     ViskInstruction.Nop(),
     
+    ViskInstruction.PushConst(1),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.PushConst(3),
+    ViskInstruction.PushConst(4),
+    ViskInstruction.PushConst(5),
+    ViskInstruction.PushConst(6),
+    ViskInstruction.PushConst(7),
+    ViskInstruction.PushConst(8),
+    ViskInstruction.PushConst(9),
+    ViskInstruction.PushConst(10),
     ViskInstruction.Call(fOther),
-    ViskInstruction.Nop(),
 
-    ViskInstruction.Call(fOther),
+    ViskInstruction.Ret(), 
+    
+    ViskInstruction.Nop(), 
     ViskInstruction.Nop(),
-
-    ViskInstruction.Call(fOther),
-    ViskInstruction.Nop(),
-
-    ViskInstruction.Add(),
-    ViskInstruction.Nop(),
-
-    ViskInstruction.Add(),
-    ViskInstruction.Nop(),
-
-    ViskInstruction.Ret(), ViskInstruction.Nop(), ViskInstruction.Nop()
+    ViskInstruction.Nop()
 });
 
 fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(0),
-    ViskInstruction.SetLocal("loc"),
+    ViskInstruction.SetArg("arg0", 0),
+    ViskInstruction.SetArg("arg1", 1),
+    ViskInstruction.SetArg("arg2", 2),
+    ViskInstruction.SetArg("arg3", 3),
+    ViskInstruction.SetArg("arg4", 4),
+    ViskInstruction.SetArg("arg5", 5),
+    ViskInstruction.SetArg("arg6", 6),
+    ViskInstruction.SetArg("arg7", 7),
+    ViskInstruction.SetArg("arg8", 8),
+    ViskInstruction.SetArg("arg9", 9),
 
-    ViskInstruction.SetLabel("Label"),
-
-    // ViskInstruction.LoadLocal("loc"),
-    // ViskInstruction.CallForeign(printLong),
-
-    ViskInstruction.LoadLocal("loc"),
-    ViskInstruction.PushConst(1),
-    ViskInstruction.Add(),
-    ViskInstruction.SetLocal("loc"),
-
-    ViskInstruction.LoadLocal("loc"),
-    ViskInstruction.PushConst(111_111),
-    ViskInstruction.Cmp(),
-    ViskInstruction.GotoIfNotEquals("Label"),
-
-    ViskInstruction.LoadLocal("loc"),
+    ViskInstruction.LoadLocal("arg0"),
+    ViskInstruction.LoadLocal("arg4"),
+    ViskInstruction.LoadLocal("arg9"),
+    ViskInstruction.IMul(),
+    ViskInstruction.IMul(),
     ViskInstruction.Ret()
 });
 

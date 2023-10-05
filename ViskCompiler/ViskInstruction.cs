@@ -15,6 +15,7 @@ public sealed class ViskInstruction
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
             [ViskInstructionKind.Cmp] = (2, 1),
+            [ViskInstructionKind.SetArg] = (1, 0),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
             [ViskInstructionKind.IMul] = (2, 1),
@@ -83,4 +84,6 @@ public sealed class ViskInstruction
     public static ViskInstruction Cmp() => new(ViskInstructionKind.Cmp);
 
     public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
+
+    public static ViskInstruction SetArg(string name, int argInd) => new(ViskInstructionKind.SetArg, name, argInd);
 }

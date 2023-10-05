@@ -78,7 +78,7 @@ public sealed class ViskFunction
         void Max(int args, int output)
         {
             size += output;
-            max = Math.Max(max, size - ViskRegister.Registers.Length);
+            max = Math.Max(max + args, size - ViskRegister.Registers.Length);
             size -= args;
         }
     }
@@ -88,7 +88,7 @@ public sealed class ViskFunction
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var x in RawInstructions)
         {
-            if (x.InstructionKind != ViskInstructionKind.SetLocal)
+            if (x.InstructionKind is not ViskInstructionKind.SetLocal and not ViskInstructionKind.SetArg)
                 continue;
 
             // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
