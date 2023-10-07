@@ -2,6 +2,7 @@
 using Visk;
 using ViskCompiler;
 
+// ReSharper disable UnusedVariable
 var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
 var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));

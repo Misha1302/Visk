@@ -150,7 +150,7 @@ internal abstract class ViskCompilerBase
 
     [Pure]
     private static InstructionArgs GetArgs(ViskInstruction instruction, ViskFunction func) =>
-        new(instruction.Arguments!, func);
+        new(instruction.Arguments, func);
 
     protected virtual void LogicNeg(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
@@ -160,9 +160,6 @@ internal abstract class ViskCompilerBase
         private readonly IReadOnlyList<object?> _args;
         public readonly ViskFunction Function;
 
-        public object? Arg0 => _args[0];
-        public object? Arg1 => _args[1];
-        public object? Arg2 => _args[2];
 
         public object this[int index] =>
             _args[index] ?? ViskThrowHelper.ThrowInvalidOperationException("Argument is null");
