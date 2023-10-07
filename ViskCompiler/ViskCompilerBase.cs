@@ -1,5 +1,6 @@
 ﻿namespace ViskCompiler;
 
+using System.Diagnostics.Contracts;
 using Iced.Intel;
 
 internal abstract class ViskCompilerBase
@@ -61,7 +62,7 @@ internal abstract class ViskCompilerBase
 
     private void CompileInstruction(ViskInstruction instruction, ViskFunction func)
     {
-        GetArgs(instruction, out var arg0, out var arg1, out var arg2);
+        var args = GetArgs(instruction, func);
 
         var act = instruction.InstructionKind switch
         {
@@ -84,76 +85,92 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Ret => Ret,
             ViskInstructionKind.SetArg => SetArg,
             ViskInstructionKind.LogicNeg => LogicNeg,
-            _ => ViskThrowHelper.ThrowInvalidOperationException<Action<object?, object?, object?, ViskFunction>>(
+            _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
         };
 
-        act(arg0, arg1, arg2, func);
+        act(args);
     }
 
-    protected virtual void PushConst(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void PushConst(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Add(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Add(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Sub(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Sub(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Ret(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Ret(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void CallForeign(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void CallForeign(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     // ReSharper disable once InconsistentNaming
-    protected virtual void IMul(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void IMul(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void SetLabel(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void SetLabel(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Goto(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Goto(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Prolog(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Prolog(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void SetLocal(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void LoadLocal(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void LoadLocal(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Nop(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Nop(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Call(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Call(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void GotoIfNotEquals(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void GotoIfNotEquals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Dup(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Dup(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Cmp(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Cmp(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Drop(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void Drop(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void SetArg(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+    protected virtual void SetArg(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    private static void GetArgs(ViskInstruction instruction, out object? o, out object? o1, out object? o2)
+    [Pure]
+    private static InstructionArgs GetArgs(ViskInstruction instruction, ViskFunction func) =>
+        new(instruction.Arguments!, func);
+
+    protected virtual void LogicNeg(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected readonly struct InstructionArgs
     {
-        o = instruction.Arguments.Count > 0 ? instruction.Arguments[0] : null;
-        o1 = instruction.Arguments.Count > 1 ? instruction.Arguments[1] : null;
-        o2 = instruction.Arguments.Count > 2 ? instruction.Arguments[2] : null;
-    }
+        private readonly IReadOnlyList<object?> _args;
+        public readonly ViskFunction Function;
 
-    protected virtual void LogicNeg(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
-        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+        public object? Arg0 => _args[0];
+        public object? Arg1 => _args[1];
+        public object? Arg2 => _args[2];
+
+        public object this[int index] =>
+            _args[index] ?? ViskThrowHelper.ThrowInvalidOperationException("Argument is null");
+
+        public InstructionArgs(IReadOnlyList<object?> args, ViskFunction function)
+        {
+            _args = args;
+            Function = function;
+        }
+    }
 }

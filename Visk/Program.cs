@@ -15,36 +15,35 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
     ViskInstruction.Call(fOther),
-    ViskInstruction.Ret(),
+    ViskInstruction.Ret()
 });
 
-fOther.RawInstructions.AddRange(new List<ViskInstruction>()
+fOther.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
     ViskInstruction.SetArg("l"),
-    
+
     ViskInstruction.LoadLocal("l"),
     ViskInstruction.PushConst(10),
     ViskInstruction.Cmp(),
     ViskInstruction.LogicNeg(),
     ViskInstruction.GotoIfNotEquals("m"),
-    
+
     ViskInstruction.LoadLocal("l"),
     ViskInstruction.CallForeign(printLong),
     ViskInstruction.LoadLocal("l"),
     ViskInstruction.PushConst(1),
     ViskInstruction.Add(),
     ViskInstruction.Call(fOther),
-    
+
     ViskInstruction.SetLabel("m"),
 
     ViskInstruction.LoadLocal("l"),
-    ViskInstruction.Ret(),
+    ViskInstruction.Ret()
 });
 
 
 var image = new ViskImage(module);
-image.Compile();
 var executor = image.Compile();
 var asmDelegate = executor.GetDelegate();
 
