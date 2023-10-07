@@ -37,7 +37,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     {
         Push(0);
         Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp, false);
-        DataManager.Assembler.jne(DataManager.GetLabel(arg0.As<string>()));
+        DataManager.Assembler.je(DataManager.GetLabel(arg0.As<string>()));
     }
 
     protected override void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
@@ -86,12 +86,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
             DataManager.Register.Previous();
             var oldValue = DataManager.Register.Current();
             var assemblerRegister8 = DataManager.Register.Next8();
-            DataManager.Assembler.setne(assemblerRegister8);
+            DataManager.Assembler.sete(assemblerRegister8);
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
         }
         else
         {
-            DataManager.Assembler.setne(al);
+            DataManager.Assembler.sete(al);
             DataManager.Assembler.movzx(rax, al);
             DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
         }

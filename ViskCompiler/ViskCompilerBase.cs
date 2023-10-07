@@ -5,7 +5,7 @@ using Iced.Intel;
 internal abstract class ViskCompilerBase
 {
     private const string NotImplemented = "Not implemented operation";
-    protected readonly ViskDataManager DataManager;
+    protected ViskDataManager DataManager;
 
     protected ViskCompilerBase(ViskModule module)
     {
@@ -38,9 +38,11 @@ internal abstract class ViskCompilerBase
 
     private void CompileFunctions()
     {
-        var mainFunc = DataManager.Module.Functions.First(x => x.IsMain);
+        var mainFunc = DataManager.Module.Functions.FirstOrDefault(x => x.IsMain);
 
-        CompileFunction(mainFunc);
+        if (mainFunc != null)
+            CompileFunction(mainFunc);
+        else throw new InvalidOperationException("The main func was not found");
 
         foreach (var function in DataManager.Module.Functions)
         {

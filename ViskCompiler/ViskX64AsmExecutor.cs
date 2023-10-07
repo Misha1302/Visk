@@ -5,7 +5,7 @@ using Iced.Intel;
 
 public sealed partial class ViskX64AsmExecutor
 {
-    public delegate long StdAsmDelegate();
+    public delegate long StandardCallingConventionAsmDelegate();
 
     public enum AllocationType
     {
@@ -27,7 +27,7 @@ public sealed partial class ViskX64AsmExecutor
     [LibraryImport("kernel32.dll")]
     private static partial nint VirtualAlloc(nint lpAddress, int dwSize, uint flAllocationType, uint flProtect);
 
-    public StdAsmDelegate GetDelegate()
+    public StandardCallingConventionAsmDelegate GetDelegate()
     {
         var stream = new MemoryStream();
         var streamCodeWriter = new StreamCodeWriter(stream);
@@ -37,7 +37,7 @@ public sealed partial class ViskX64AsmExecutor
             (uint)ProtectionType.PageExecuteReadwrite);
         Marshal.Copy(stream.ToArray(), 0, mem, (int)stream.Length);
 
-        return Marshal.GetDelegateForFunctionPointer<StdAsmDelegate>(mem);
+        return Marshal.GetDelegateForFunctionPointer<StandardCallingConventionAsmDelegate>(mem);
     }
 
     public override string ToString() => new ViskDecompiler(_asm).ToString();
