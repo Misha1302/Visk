@@ -42,38 +42,40 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void LogicNeg(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        DataManager.Assembler.mov(rax, 0);
-        var useStack = false;
-        // ReSharper disable once AssignmentInConditionalExpression
-        if (useStack = !DataManager.Stack.IsEmpty())
-            DataManager.Assembler.cmp(DataManager.Stack.GetPrevious(), rax);
-        else DataManager.Assembler.cmp(DataManager.Register.Previous(), rax);
-        
-
-        DataManager.Assembler.sete(al);
-
-        if (useStack)
-        {
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-            DataManager.Assembler.movzx(rax, al);
-        }
-        else DataManager.Assembler.movzx(DataManager.Register.Next(), al);
+        PreviousStackOrReg(
+            () =>
+            {
+                DataManager.Assembler.mov(rax, 0);
+                DataManager.Assembler.cmp(DataManager.Stack.GetPrevious(), rax);
+                DataManager.Assembler.sete(al);
+                DataManager.Assembler.movzx(rax, al);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+            },
+            () =>
+            {
+                DataManager.Assembler.cmp(DataManager.Register.Previous(), 0);
+                DataManager.Assembler.sete(al);
+                DataManager.Assembler.movzx(DataManager.Register.Next(), al);
+            }
+        );
     }
 
     protected override void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        if (!DataManager.Stack.IsEmpty())
-        {
-            DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-            DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
-        }
-        else
-        {
-            DataManager.Assembler.mov(
-                DataManager.CurrentFuncLocals[arg0.As<string>()],
-                DataManager.Register.Previous()
-            );
-        }
+        PreviousStackOrReg(
+            () =>
+            {
+                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                DataManager.Assembler.mov(DataManager.CurrentFuncLocals[arg0.As<string>()], rax);
+            },
+            () =>
+            {
+                DataManager.Assembler.mov(
+                    DataManager.CurrentFuncLocals[arg0.As<string>()],
+                    DataManager.Register.Previous()
+                );
+            }
+        );
     }
 
     protected override void LoadLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
@@ -101,19 +103,19 @@ internal sealed class ViskCompiler : ViskCompilerBase
     {
         Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp);
 
-        if (DataManager.Register.CanGetNext)
+        if (!DataManager.Register.CanGetNext)
+        {
+            DataManager.Assembler.sete(al);
+            DataManager.Assembler.movzx(rax, al);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+        }
+        else
         {
             DataManager.Register.Previous();
             var oldValue = DataManager.Register.Current();
             var assemblerRegister8 = DataManager.Register.Next8();
             DataManager.Assembler.sete(assemblerRegister8);
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
-        }
-        else
-        {
-            DataManager.Assembler.sete(al);
-            DataManager.Assembler.movzx(rax, al);
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
         }
     }
 
@@ -187,17 +189,19 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void Drop(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        if (!DataManager.Stack.IsEmpty())
-            DataManager.Stack.GetPrevious();
-        else DataManager.Register.Previous();
+        PreviousStackOrReg(
+            () => DataManager.Stack.GetPrevious(),
+            () => DataManager.Register.Previous()
+        );
     }
 
     protected override void Ret(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
-        if (!DataManager.Stack.IsEmpty())
-            DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-        else if (DataManager.Register.CanGetPrevious)
-            DataManager.Assembler.mov(rax, DataManager.Register.Previous());
+        PreviousStackOrReg(
+            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
+            () => DataManager.Assembler.mov(rax, DataManager.Register.Previous()),
+            () => { }
+        );
 
         DataManager.Assembler.mov(rsp, rbp);
         DataManager.Assembler.pop(rbp);
@@ -216,43 +220,60 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     private void Push(long number)
     {
-        if (DataManager.Register.CanGetNext)
-        {
-            DataManager.Assembler.mov(
-                DataManager.Register.Next(),
-                __[DataManager.DefineI64(number)]
-            );
-        }
-        else
-        {
-            DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-        }
+        NextStackOrReg(
+            () =>
+            {
+                DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+            },
+            () =>
+            {
+                DataManager.Assembler.mov(
+                    DataManager.Register.Next(),
+                    __[DataManager.DefineI64(number)]
+                );
+            }
+        );
     }
 
     private void Operate(Action<AssemblerRegister64, AssemblerMemoryOperand> mm,
         Action<AssemblerRegister64, AssemblerRegister64> rr, bool saveResult = true)
     {
-        if (!DataManager.Stack.IsEmpty())
-        {
-            var src = DataManager.Stack.GetPrevious();
-            if (!DataManager.Stack.IsEmpty())
+        PreviousStackOrReg(
+            () =>
             {
-                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-                mm(rax, src);
+                var src = DataManager.Stack.GetPrevious();
+                PreviousStackOrReg(
+                    () =>
+                    {
+                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                        mm(rax, src);
 
-                if (saveResult)
-                    DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-            }
-            else
+                        if (saveResult)
+                            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+                    },
+                    () => mm(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), src)
+                );
+            },
+            () =>
             {
-                mm(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), src);
+                var srcReg = DataManager.Register.Previous();
+                rr(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), srcReg);
             }
-        }
-        else
-        {
-            var srcReg = DataManager.Register.Previous();
-            rr(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), srcReg);
-        }
+        );
+    }
+
+    private void PreviousStackOrReg(Action stack, Action reg, Action? onError = null)
+    {
+        if (!DataManager.Stack.IsEmpty()) stack();
+        else if (DataManager.Register.CanGetPrevious) reg();
+        else if (onError != null) onError();
+        else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
+    }
+
+    private void NextStackOrReg(Action stack, Action reg)
+    {
+        if (DataManager.Register.CanGetNext) reg();
+        else stack();
     }
 }
