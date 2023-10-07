@@ -40,6 +40,26 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.je(DataManager.GetLabel(arg0.As<string>()));
     }
 
+    protected override void LogicNeg(object? arg0, object? arg1, object? arg2, ViskFunction func)
+    {
+        DataManager.Assembler.mov(rax, 0);
+        var useStack = false;
+        // ReSharper disable once AssignmentInConditionalExpression
+        if (useStack = !DataManager.Stack.IsEmpty())
+            DataManager.Assembler.cmp(DataManager.Stack.GetPrevious(), rax);
+        else DataManager.Assembler.cmp(DataManager.Register.Previous(), rax);
+        
+
+        DataManager.Assembler.sete(al);
+
+        if (useStack)
+        {
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+            DataManager.Assembler.movzx(rax, al);
+        }
+        else DataManager.Assembler.movzx(DataManager.Register.Next(), al);
+    }
+
     protected override void SetLocal(object? arg0, object? arg1, object? arg2, ViskFunction func)
     {
         if (!DataManager.Stack.IsEmpty())

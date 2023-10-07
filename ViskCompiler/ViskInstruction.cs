@@ -12,6 +12,7 @@ public sealed class ViskInstruction
         new()
         {
             [ViskInstructionKind.PushConst] = (0, 1),
+            [ViskInstructionKind.LogicNeg] = (1, 1),
             [ViskInstructionKind.Add] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
@@ -89,4 +90,6 @@ public sealed class ViskInstruction
     [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
     [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
+
+    public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
 }

@@ -5,7 +5,7 @@ using Iced.Intel;
 internal abstract class ViskCompilerBase
 {
     private const string NotImplemented = "Not implemented operation";
-    protected ViskDataManager DataManager;
+    protected readonly ViskDataManager DataManager;
 
     protected ViskCompilerBase(ViskModule module)
     {
@@ -83,6 +83,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Drop => Drop,
             ViskInstructionKind.Ret => Ret,
             ViskInstructionKind.SetArg => SetArg,
+            ViskInstructionKind.LogicNeg => LogicNeg,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<object?, object?, object?, ViskFunction>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -152,4 +153,7 @@ internal abstract class ViskCompilerBase
         o1 = instruction.Arguments.Count > 1 ? instruction.Arguments[1] : null;
         o2 = instruction.Arguments.Count > 2 ? instruction.Arguments[2] : null;
     }
+
+    protected virtual void LogicNeg(object? arg0, object? arg1, object? arg2, ViskFunction func) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 }

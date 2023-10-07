@@ -20,5 +20,6 @@ public enum ViskInstructionKind
     Dup,
     Cmp,
     Drop,
-    SetArg
+    SetArg,
+    LogicNeg
 }
