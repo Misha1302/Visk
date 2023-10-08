@@ -15,31 +15,25 @@ var fOther = module.AddFunction("other", 1, typeof(long));
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
-    ViskInstruction.Call(fOther),
-    ViskInstruction.Ret()
-});
+    ViskInstruction.SetLocal("i"),
+    
+    
+    ViskInstruction.SetLabel("l"),
 
-fOther.RawInstructions.AddRange(new List<ViskInstruction>
-{
-    ViskInstruction.PushConst(0),
-    ViskInstruction.SetArg("l"),
-
-    ViskInstruction.LoadLocal("l"),
-    ViskInstruction.PushConst(10),
-    ViskInstruction.Cmp(),
-    ViskInstruction.LogicNeg(),
-    ViskInstruction.GotoIfNotEquals("m"),
-
-    ViskInstruction.LoadLocal("l"),
-    ViskInstruction.CallForeign(printLong),
-    ViskInstruction.LoadLocal("l"),
+    // ViskInstruction.LoadLocal("i"),
+    // ViskInstruction.CallForeign(printLong),
+    
+    ViskInstruction.LoadLocal("i"),
     ViskInstruction.PushConst(1),
     ViskInstruction.Add(),
-    ViskInstruction.Call(fOther),
-
-    ViskInstruction.SetLabel("m"),
-
-    ViskInstruction.LoadLocal("l"),
+    ViskInstruction.SetLocal("i"),
+    
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.PushConst(1_000_000_000),
+    ViskInstruction.Cmp(),
+    ViskInstruction.GotoIfFalse("l"),
+    
+    
     ViskInstruction.Ret()
 });
 
@@ -53,7 +47,7 @@ Console.WriteLine(executor.ToString());
 Console.WriteLine(new string('-', Console.WindowWidth));
 
 var sw = new Stopwatch();
-for (var i = 0; i < 1; i++)
+for (var i = 0; i < 5; i++)
 {
     sw.Restart();
 

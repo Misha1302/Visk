@@ -33,11 +33,18 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.jmp(DataManager.GetLabel(args[0].As<string>()));
     }
 
-    protected override void GotoIfNotEquals(InstructionArgs args)
+    protected override void GotoIfFalse(InstructionArgs args)
     {
-        Push(0);
-        Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp, false);
+        CmpValueAndZero();
+
         DataManager.Assembler.je(DataManager.GetLabel(args[0].As<string>()));
+    }
+
+    protected override void GotoIfTrue(InstructionArgs args)
+    {
+        CmpValueAndZero();
+
+        DataManager.Assembler.jne(DataManager.GetLabel(args[0].As<string>()));
     }
 
     protected override void LogicNeg(InstructionArgs args)
@@ -275,5 +282,18 @@ internal sealed class ViskCompiler : ViskCompilerBase
     {
         if (DataManager.Register.CanGetNext) reg();
         else stack();
+    }
+    
+
+    private void CmpValueAndZero()
+    {
+        PreviousStackOrReg(
+            () =>
+            {
+                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                DataManager.Assembler.cmp(rax, 0);
+            },
+            () => { DataManager.Assembler.cmp(DataManager.Register.Previous(), 0); }
+        );
     }
 }

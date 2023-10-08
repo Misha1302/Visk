@@ -16,10 +16,11 @@ public enum ViskInstructionKind
     LoadLocal,
     Nop,
     Call,
-    GotoIfNotEquals,
+    GotoIfFalse,
     Dup,
     Cmp,
     Drop,
     SetArg,
-    LogicNeg
+    LogicNeg,
+    GotoIfTrue
 }

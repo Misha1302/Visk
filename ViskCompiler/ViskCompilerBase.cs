@@ -70,7 +70,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Add => Add,
             ViskInstructionKind.SetLabel => SetLabel,
             ViskInstructionKind.Goto => Goto,
-            ViskInstructionKind.GotoIfNotEquals => GotoIfNotEquals,
+            ViskInstructionKind.GotoIfFalse => GotoIfFalse,
             ViskInstructionKind.SetLocal => SetLocal,
             ViskInstructionKind.LoadLocal => LoadLocal,
             ViskInstructionKind.Nop => Nop,
@@ -85,6 +85,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Ret => Ret,
             ViskInstructionKind.SetArg => SetArg,
             ViskInstructionKind.LogicNeg => LogicNeg,
+            ViskInstructionKind.GotoIfTrue => GotoIfTrue,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -94,6 +95,9 @@ internal abstract class ViskCompilerBase
     }
 
     protected virtual void PushConst(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void GotoIfTrue(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Add(InstructionArgs args) =>
@@ -133,7 +137,7 @@ internal abstract class ViskCompilerBase
     protected virtual void Call(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void GotoIfNotEquals(InstructionArgs args) =>
+    protected virtual void GotoIfFalse(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Dup(InstructionArgs args) =>

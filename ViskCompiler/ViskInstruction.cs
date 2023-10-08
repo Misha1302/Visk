@@ -24,7 +24,8 @@ public sealed class ViskInstruction
             [ViskInstructionKind.SetLabel] = (0, 0),
             [ViskInstructionKind.Goto] = (0, 0),
             [ViskInstructionKind.Drop] = (1, 0),
-            [ViskInstructionKind.GotoIfNotEquals] = (1, 0),
+            [ViskInstructionKind.GotoIfFalse] = (1, 0),
+            [ViskInstructionKind.GotoIfTrue] = (1, 0),
             [ViskInstructionKind.Prolog] = (0, 0),
             [ViskInstructionKind.SetLocal] = (0, 0),
             [ViskInstructionKind.LoadLocal] = (0, 1),
@@ -68,8 +69,11 @@ public sealed class ViskInstruction
 
     [Pure] public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
 
-    [Pure] public static ViskInstruction GotoIfNotEquals(string label) =>
-        new(ViskInstructionKind.GotoIfNotEquals, label);
+    [Pure] public static ViskInstruction GotoIfFalse(string label) =>
+        new(ViskInstructionKind.GotoIfFalse, label);
+
+    [Pure] public static ViskInstruction GotoIfTrue(string label) =>
+        new(ViskInstructionKind.GotoIfTrue, label);
 
     [Pure] public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 

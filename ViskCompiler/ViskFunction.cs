@@ -32,6 +32,11 @@ public sealed class ViskFunction
 
     private List<ViskInstruction> Prepare(List<ViskInstruction> instructions)
     {
+        if (instructions.Count != 0 && instructions[0].InstructionKind == ViskInstructionKind.Nop)
+            instructions.RemoveAt(0);
+        if (instructions.Count == 0)
+            instructions.Add(ViskInstruction.Nop());
+
         CheckAllArgsNotNull();
         Locals = GetLocals();
         MaxStackSize = GetMaxStackSize();
