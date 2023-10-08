@@ -114,8 +114,6 @@ internal sealed class ViskCompiler : ViskCompilerBase
         }
         else
         {
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-
             if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
             {
                 DataManager.Assembler.mov(
