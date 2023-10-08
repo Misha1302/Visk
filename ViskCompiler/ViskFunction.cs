@@ -8,7 +8,7 @@ public sealed class ViskFunction
     public readonly bool IsMain;
 
     public readonly List<ViskInstruction> RawInstructions = new();
-    private Dictionary<string, int> _locals = new();
+    private List<string> _locals = new();
 
 
     public ViskFunction(string name, int argsCount, Type returnType, bool isMain = false)
@@ -20,10 +20,10 @@ public sealed class ViskFunction
         IsMain = isMain;
     }
 
-    public IReadOnlyDictionary<string, int> Locals
+    public IReadOnlyList<string> Locals
     {
         get => _locals;
-        private set => _locals = (Dictionary<string, int>)value;
+        private set => _locals = (List<string>)value;
     }
 
     public List<ViskInstruction> TotalInstructions => Prepare(RawInstructions);
@@ -91,7 +91,7 @@ public sealed class ViskFunction
         }
     }
 
-    private IReadOnlyDictionary<string, int> GetLocals()
+    private List<string> GetLocals()
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var x in RawInstructions)
@@ -99,9 +99,8 @@ public sealed class ViskFunction
             if (x.InstructionKind is not ViskInstructionKind.SetLocal and not ViskInstructionKind.SetArg)
                 continue;
 
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            var args = x.Arguments ?? ViskThrowHelper.ThrowInvalidOperationException<List<object>>();
-            _locals.TryAdd((string)args[0], (_locals.Count + 1) * 8);
+            if (!_locals.Contains(x.Arguments[0].As<string>()))
+                _locals.Add((string)x.Arguments[0]);
         }
 
         return _locals;

@@ -28,23 +28,16 @@ internal sealed class ViskDataManager
 
     public int CurrentFuncMaxStackSize { get; private set; }
 
-    public IReadOnlyDictionary<string, AssemblerMemoryOperand> CurrentFuncLocals { get; private set; } = null!;
-    public int CurrentFuncLocalsSize => CurrentFuncLocals.Count * 8;
+    public ViskLocals CurrentFuncLocals { get; private set; } = null!;
 
-    public void NewFunc(int stackSize, IReadOnlyDictionary<string, int> locals)
+    public void NewFunc(int stackSize, IReadOnlyList<string> locals)
     {
         CurrentFuncMaxStackSize = stackSize * 8;
         Stack = new ViskStack(this);
         Register.Reset();
         ViskArgsManager.Reset();
 
-        CurrentFuncLocals = locals
-            .Select(x => (
-                    key: x.Key,
-                    value: FuncStackManager.GetMemoryLocal(x.Value)
-                )
-            )
-            .ToDictionary(tuple => tuple.key, tuple => tuple.value);
+        CurrentFuncLocals = new ViskLocals(locals, FuncStackManager);
     }
 
     [Pure]

@@ -7,10 +7,10 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskRegister
 {
     public static readonly ImmutableArray<AssemblerRegister64> Registers =
-        ImmutableArray.Create(rbx, r10, r11, r12, r13, r14, r15);
+        ImmutableArray.Create(rbx, r10, r11, r12, r13, r14);
 
     public static readonly ImmutableArray<AssemblerRegister8> Registers8 =
-        ImmutableArray.Create(bl, r10b, r11b, r12b, r13b, r14b, r15b);
+        ImmutableArray.Create(bl, r10b, r11b, r12b, r13b, r14b);
 
     public int CurIndex { get; private set; }
 

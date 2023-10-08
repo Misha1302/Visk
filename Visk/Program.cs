@@ -16,24 +16,24 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(0),
     ViskInstruction.SetLocal("i"),
-    
-    
+
+
     ViskInstruction.SetLabel("l"),
 
     // ViskInstruction.LoadLocal("i"),
     // ViskInstruction.CallForeign(printLong),
-    
+
     ViskInstruction.LoadLocal("i"),
     ViskInstruction.PushConst(1),
     ViskInstruction.Add(),
     ViskInstruction.SetLocal("i"),
-    
+
     ViskInstruction.LoadLocal("i"),
     ViskInstruction.PushConst(1_000_000_000),
     ViskInstruction.Cmp(),
     ViskInstruction.GotoIfFalse("l"),
-    
-    
+
+
     ViskInstruction.Ret()
 });
 

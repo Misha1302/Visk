@@ -72,15 +72,27 @@ internal sealed class ViskCompiler : ViskCompilerBase
         PreviousStackOrReg(
             () =>
             {
-                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-                DataManager.Assembler.mov(DataManager.CurrentFuncLocals[args[0].As<string>()], rax);
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+                {
+                    DataManager.Assembler.mov(reg!.Value, DataManager.Stack.GetPrevious());
+                }
+                else
+                {
+                    DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                    DataManager.Assembler.mov(mem!.Value, rax);
+                }
             },
             () =>
             {
-                DataManager.Assembler.mov(
-                    DataManager.CurrentFuncLocals[args[0].As<string>()],
-                    DataManager.Register.Previous()
-                );
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+                {
+                    DataManager.Assembler.mov(reg!.Value, DataManager.Register.Previous());
+                }
+                else
+                {
+                    DataManager.Assembler.mov(rax, DataManager.Register.Previous());
+                    DataManager.Assembler.mov(mem!.Value, rax);
+                }
             }
         );
     }
@@ -89,15 +101,36 @@ internal sealed class ViskCompiler : ViskCompilerBase
     {
         if (DataManager.Register.CanGetNext)
         {
-            DataManager.Assembler.mov(
-                DataManager.Register.Next(),
-                DataManager.CurrentFuncLocals[args[0].As<string>()]
-            );
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+                DataManager.Assembler.mov(
+                    DataManager.Register.Next(),
+                    reg!.Value
+                );
+            else
+                DataManager.Assembler.mov(
+                    DataManager.Register.Next(),
+                    mem!.Value
+                );
         }
         else
         {
-            DataManager.Assembler.mov(rax, DataManager.CurrentFuncLocals[args[0].As<string>()]);
             DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+            {
+                DataManager.Assembler.mov(
+                    DataManager.Stack.GetNext(),
+                    reg!.Value
+                );
+            }
+            else
+            {
+                DataManager.Assembler.mov(rax, mem!.Value);
+                DataManager.Assembler.mov(
+                    DataManager.Stack.GetNext(),
+                    rax
+                );
+            }
         }
     }
 
@@ -190,7 +223,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
         var totalSize = DataManager.Stack.MaxStackSize +
                         ViskRegister.Registers.Length * ViskStack.BlockSize +
-                        DataManager.CurrentFuncLocalsSize;
+                        DataManager.CurrentFuncLocals.Size;
         DataManager.Assembler.sub(rsp, totalSize + totalSize % 16);
     }
 
@@ -217,12 +250,23 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void SetArg(InstructionArgs args)
     {
-        DataManager.Assembler.mov(rax,
-            DataManager.FuncStackManager.GetMemoryArg(
-                DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize
-            )
-        );
-        DataManager.Assembler.mov(DataManager.CurrentFuncLocals[args[0].As<string>()], rax);
+        if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+        {
+            DataManager.Assembler.mov(reg!.Value,
+                DataManager.FuncStackManager.GetMemoryArg(
+                    DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize
+                )
+            );
+        }
+        else
+        {
+            DataManager.Assembler.mov(rax,
+                DataManager.FuncStackManager.GetMemoryArg(
+                    DataManager.ViskArgsManager.NextArgIndex() * ViskStack.BlockSize + FuncPrologSize
+                )
+            );
+            DataManager.Assembler.mov(mem!.Value, rax);
+        }
     }
 
     private void Push(long number)
@@ -283,7 +327,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
         if (DataManager.Register.CanGetNext) reg();
         else stack();
     }
-    
+
 
     private void CmpValueAndZero()
     {
