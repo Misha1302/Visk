@@ -22,7 +22,7 @@ internal sealed class ViskFunctionStackManager
 
     [Pure]
     public AssemblerMemoryOperand GetMemoryLocal(int offset) => __[
-        rbp - _dataManager.CurrentFuncMaxStackSize - ViskRegister.Registers.Length * ViskStack.BlockSize - offset
+        rbp - _dataManager.CurrentFuncMaxStackSize - ViskRegister.PublicRegisters.Length * ViskStack.BlockSize - offset
     ];
 
     [Pure]

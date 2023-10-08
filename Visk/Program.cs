@@ -34,6 +34,7 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.GotoIfFalse("l"),
 
 
+    ViskInstruction.LoadLocal("i"),
     ViskInstruction.Ret()
 });
 

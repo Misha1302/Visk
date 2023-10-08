@@ -9,6 +9,7 @@ internal sealed class ViskArgsManager
     private readonly ViskDataManager _dataManager;
     private int _stackChanged;
     private int _regsCount;
+    private int _localsCount;
     private int _index;
 
     public ViskArgsManager(ViskDataManager dataManager)
@@ -90,13 +91,22 @@ internal sealed class ViskArgsManager
         if (_stackChanged != 0)
             ViskThrowHelper.ThrowInvalidOperationException("You must to move args after call this method");
 
-        for (var index = 0; index < _dataManager.Register.CurIndex; index++)
+        _regsCount = _dataManager.Register.CurIndex;
+        for (var index = 0; index < _regsCount; index++)
         {
-            var register = ViskRegister.Registers[index];
+            var register = ViskRegister.PublicRegisters[index];
             _dataManager.Assembler.mov(_dataManager.FuncStackManager.GetMemoryToSaveReg(index), register);
         }
 
-        _regsCount = _dataManager.Register.CurIndex;
+        _localsCount = Math.Min(_dataManager.CurrentFuncLocals.Locals.Count, ViskRegister.LocalsRegisters.Length);
+        for (var index = 0; index < _localsCount; index++)
+        {
+            var register = ViskRegister.LocalsRegisters[index];
+            _dataManager.Assembler.mov(
+                _dataManager.FuncStackManager.GetMemoryToSaveReg(_regsCount + index),
+                register
+            );
+        }
     }
 
     public void LoadRegs()
@@ -104,9 +114,19 @@ internal sealed class ViskArgsManager
         if (_stackChanged != 0)
             _dataManager.Assembler.add(rsp, _stackChanged);
 
+
+        for (var index = _localsCount - 1; index >= 0; index--)
+        {
+            var register = ViskRegister.LocalsRegisters[index];
+            _dataManager.Assembler.mov(
+                register,
+                _dataManager.FuncStackManager.GetMemoryToSaveReg(_regsCount + index)
+            );
+        }
+
         for (var index = _regsCount - 1; index >= 0; index--)
         {
-            var register = ViskRegister.Registers[index];
+            var register = ViskRegister.PublicRegisters[index];
             _dataManager.Assembler.mov(register, _dataManager.FuncStackManager.GetMemoryToSaveReg(index));
         }
 

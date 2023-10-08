@@ -78,7 +78,7 @@ public sealed class ViskFunction
                     break;
             }
 
-            max = Math.Max(max, size - ViskRegister.Registers.Length);
+            max = Math.Max(max, size - ViskRegister.PublicRegisters.Length);
         }
 
         return max;
@@ -86,7 +86,7 @@ public sealed class ViskFunction
         void Max(int args, int output)
         {
             size += output;
-            max = Math.Max(max + args, size - ViskRegister.Registers.Length);
+            max = Math.Max(max + args, size - ViskRegister.PublicRegisters.Length);
             size -= args;
         }
     }

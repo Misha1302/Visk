@@ -222,7 +222,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
 
         var totalSize = DataManager.Stack.MaxStackSize +
-                        ViskRegister.Registers.Length * ViskStack.BlockSize +
+                        ViskRegister.PublicRegisters.Length * ViskStack.BlockSize +
+                        ViskRegister.LocalsRegisters.Length * ViskStack.BlockSize +
                         DataManager.CurrentFuncLocals.Size;
         DataManager.Assembler.sub(rsp, totalSize + totalSize % 16);
     }
