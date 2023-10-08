@@ -14,23 +14,24 @@ var fOther = module.AddFunction("other", 1, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(0),
+    ViskInstruction.PushConst(int.MaxValue),
     ViskInstruction.SetLocal("i"),
 
 
     ViskInstruction.SetLabel("l"),
-
-    // ViskInstruction.LoadLocal("i"),
-    // ViskInstruction.CallForeign(printLong),
+    
+    
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.CallForeign(printLong),
 
     ViskInstruction.LoadLocal("i"),
-    ViskInstruction.PushConst(1),
-    ViskInstruction.Add(),
+    ViskInstruction.PushConst(2),
+    ViskInstruction.IDiv(),
     ViskInstruction.SetLocal("i"),
-
+    
     ViskInstruction.LoadLocal("i"),
-    ViskInstruction.PushConst(1_000_000_000),
-    ViskInstruction.Cmp(),
+    ViskInstruction.PushConst(0),
+    ViskInstruction.Equals(),
     ViskInstruction.GotoIfFalse("l"),
 
 

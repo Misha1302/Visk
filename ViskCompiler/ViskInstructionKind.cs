@@ -18,9 +18,11 @@ public enum ViskInstructionKind
     Call,
     GotoIfFalse,
     Dup,
-    Cmp,
+    Equals,
     Drop,
     SetArg,
     LogicNeg,
-    GotoIfTrue
+    GotoIfTrue,
+    IDiv,
+    NotEquals
 }

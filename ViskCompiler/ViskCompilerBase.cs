@@ -74,10 +74,12 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.SetLocal => SetLocal,
             ViskInstructionKind.LoadLocal => LoadLocal,
             ViskInstructionKind.Nop => Nop,
-            ViskInstructionKind.Cmp => Cmp,
             ViskInstructionKind.Dup => Dup,
             ViskInstructionKind.IMul => IMul,
+            ViskInstructionKind.IDiv => IDiv,
             ViskInstructionKind.Sub => Sub,
+            ViskInstructionKind.Equals => Equals,
+            ViskInstructionKind.NotEquals => NotEquals,
             ViskInstructionKind.CallForeign => CallForeign,
             ViskInstructionKind.Call => Call,
             ViskInstructionKind.Prolog => Prolog,
@@ -104,6 +106,10 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Sub(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    // ReSharper disable once InconsistentNaming
+    protected virtual void IDiv(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Ret(InstructionArgs args) =>
@@ -143,7 +149,10 @@ internal abstract class ViskCompilerBase
     protected virtual void Dup(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void Cmp(InstructionArgs args) =>
+    protected virtual void Equals(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+    
+    protected virtual void NotEquals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Drop(InstructionArgs args) =>

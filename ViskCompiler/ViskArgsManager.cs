@@ -51,11 +51,18 @@ internal sealed class ViskArgsManager
         var min = Math.Min(argsCount, _argsRegisters.Length);
         for (var j = min - 1; j >= 0; j--)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
-                _dataManager.Assembler.mov(_argsRegisters[j], r!.Value);
+            {
+                // ignore, 'cause all instruction will be like 'mov rcx, rcx' or 'mov rdx, rdx'
+                // _dataManager.Assembler.mov(_argsRegisters[j], r!.Value);
+            }
             else if (r is null && offset is null)
+            {
                 ViskThrowHelper.ThrowInvalidOperationException();
+            }
             else
+            {
                 _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
+            }
     }
 
     // it's stdcall i guess?
@@ -70,8 +77,7 @@ internal sealed class ViskArgsManager
         for (var i = 0; i < argsCount; i++, pointer -= 8)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
             {
-                // ignore, 'cause all instruction will be like 'mov rcx, rcx' or 'mov rdx, rdx'
-                // _dataManager.Assembler.mov(__[rsp + pointer], r!.Value);
+                _dataManager.Assembler.mov(__[rsp + pointer], r!.Value);
             }
             else if (r is null && offset is null)
             {

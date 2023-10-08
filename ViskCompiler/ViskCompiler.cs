@@ -137,9 +137,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.nop();
     }
 
-    protected override void Cmp(InstructionArgs args)
+    private void Cmp()
     {
         Operate(DataManager.Assembler.cmp, DataManager.Assembler.cmp);
+    }
+
+    protected override void Equals(InstructionArgs args)
+    {
+        Cmp();
 
         if (!DataManager.Register.CanGetNext)
         {
@@ -153,6 +158,26 @@ internal sealed class ViskCompiler : ViskCompilerBase
             var oldValue = DataManager.Register.Current();
             var assemblerRegister8 = DataManager.Register.Next8();
             DataManager.Assembler.sete(assemblerRegister8);
+            DataManager.Assembler.movzx(oldValue, assemblerRegister8);
+        }
+    }
+
+    protected override void NotEquals(InstructionArgs args)
+    {
+        Cmp();
+
+        if (!DataManager.Register.CanGetNext)
+        {
+            DataManager.Assembler.setne(al);
+            DataManager.Assembler.movzx(rax, al);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
+        }
+        else
+        {
+            DataManager.Register.Previous();
+            var oldValue = DataManager.Register.Current();
+            var assemblerRegister8 = DataManager.Register.Next8();
+            DataManager.Assembler.setne(assemblerRegister8);
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
         }
     }
@@ -184,6 +209,36 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Sub(InstructionArgs args)
     {
         Operate(DataManager.Assembler.sub, DataManager.Assembler.sub);
+    }
+
+    protected override void IDiv(InstructionArgs args)
+    {
+        DataManager.Assembler.cqo();
+
+        PreviousStackOrReg(
+            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
+            () => DataManager.Assembler.mov(rax, DataManager.Register.Previous())
+        );
+
+        PreviousStackOrReg(
+            () =>
+            {
+                var mem = DataManager.Stack.GetPrevious();
+                DataManager.Assembler.mov(rdi, mem);
+                DataManager.Assembler.xchg(rdi, rax);
+                DataManager.Assembler.idiv(rdi);
+            },
+            () =>
+            {
+                var r = DataManager.Register.Previous();
+                DataManager.Assembler.xchg(r, rax);
+                DataManager.Assembler.idiv(r);
+            });
+
+        NextStackOrReg(
+            () => DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax),
+            () => DataManager.Assembler.mov(DataManager.Register.Next(), rax)
+        );
     }
 
     protected override void CallForeign(InstructionArgs args)

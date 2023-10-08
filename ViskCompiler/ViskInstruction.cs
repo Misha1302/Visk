@@ -16,7 +16,9 @@ public sealed class ViskInstruction
             [ViskInstructionKind.Add] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
-            [ViskInstructionKind.Cmp] = (2, 1),
+            [ViskInstructionKind.Equals] = (2, 1),
+            [ViskInstructionKind.NotEquals] = (2, 1),
+            [ViskInstructionKind.IDiv] = (2, 1),
             [ViskInstructionKind.SetArg] = (1, 0),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
@@ -89,11 +91,15 @@ public sealed class ViskInstruction
 
     [Pure] public static ViskInstruction Dup() => new(ViskInstructionKind.Dup);
 
-    [Pure] public static ViskInstruction Cmp() => new(ViskInstructionKind.Cmp);
+    [Pure] public static ViskInstruction Equals() => new(ViskInstructionKind.Equals);
 
     [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
     [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
 
-    public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
+    [Pure] public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
+
+    // ReSharper disable once InconsistentNaming
+    [Pure] public static ViskInstruction IDiv() => new(ViskInstructionKind.IDiv);
+    [Pure] public static ViskInstruction NotEquals() => new(ViskInstructionKind.NotEquals);
 }
