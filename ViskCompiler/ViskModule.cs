@@ -5,9 +5,9 @@ public sealed class ViskModule
     private readonly List<ViskFunction> _functions = new();
     public readonly string MainFuncName;
 
-    public ViskModule(string? mainFuncNameName)
+    public ViskModule(string? mainFuncName)
     {
-        MainFuncName = mainFuncNameName ?? "main";
+        MainFuncName = mainFuncName ?? "main";
     }
 
     public IReadOnlyList<ViskFunction> Functions => _functions;

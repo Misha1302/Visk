@@ -5,7 +5,7 @@ using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskCompiler : ViskCompilerBase
 {
-    private const int FuncPrologSize = 16;
+    private const int FuncPrologSize = 8 + 8 + 8 + 8;
 
     public ViskCompiler(ViskModule module) : base(module)
     {
@@ -211,7 +211,6 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void IDiv(InstructionArgs args)
     {
-        DataManager.Assembler.cqo();
 
         PreviousStackOrReg(
             () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
@@ -224,12 +223,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 var mem = DataManager.Stack.GetPrevious();
                 DataManager.Assembler.mov(rdi, mem);
                 DataManager.Assembler.xchg(rdi, rax);
+                DataManager.Assembler.cqo();
                 DataManager.Assembler.idiv(rdi);
             },
             () =>
             {
                 var r = DataManager.Register.Previous();
                 DataManager.Assembler.xchg(r, rax);
+                DataManager.Assembler.cqo();
                 DataManager.Assembler.idiv(r);
             });
 
@@ -267,6 +268,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.Label(ref label);
 
         DataManager.Assembler.push(rbp);
+        DataManager.Assembler.push(rdi);
+        DataManager.Assembler.push(rsi);
         DataManager.Assembler.mov(rbp, rsp);
 
         DataManager.NewFunc(args.Function.MaxStackSize, args.Function.Locals);
@@ -296,6 +299,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
         );
 
         DataManager.Assembler.mov(rsp, rbp);
+        DataManager.Assembler.pop(rsi);
+        DataManager.Assembler.pop(rdi);
         DataManager.Assembler.pop(rbp);
         DataManager.Assembler.ret();
     }

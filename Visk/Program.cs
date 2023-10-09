@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using TestProject1;
 using Visk;
 using ViskCompiler;
 
@@ -10,32 +11,21 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 var module = new ViskModule("main");
 
 var fMain = module.AddFunction("main", 0, typeof(long));
-var fOther = module.AddFunction("other", 1, typeof(long));
 
 fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
-    ViskInstruction.PushConst(int.MaxValue),
-    ViskInstruction.SetLocal("i"),
-
-
-    ViskInstruction.SetLabel("l"),
-    
-    
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.CallForeign(printLong),
-
-    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.PushConst(1),
     ViskInstruction.PushConst(2),
-    ViskInstruction.IDiv(),
-    ViskInstruction.SetLocal("i"),
-    
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.PushConst(0),
-    ViskInstruction.Equals(),
-    ViskInstruction.GotoIfFalse("l"),
+    ViskInstruction.PushConst(3),
+    ViskInstruction.PushConst(4),
+    ViskInstruction.PushConst(5),
+    ViskInstruction.PushConst(6),
+    ViskInstruction.PushConst(7),
+    ViskInstruction.PushConst(8),
+    ViskInstruction.PushConst(9),
+    ViskInstruction.PushConst(10),
+    ViskInstruction.CallForeign(Tests.BigMethodInfo),
 
-
-    ViskInstruction.LoadLocal("i"),
     ViskInstruction.Ret()
 });
 

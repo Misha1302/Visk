@@ -52,8 +52,8 @@ internal sealed class ViskArgsManager
         for (var j = min - 1; j >= 0; j--)
             if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
             {
-                // ignore, 'cause all instruction will be like 'mov rcx, rcx' or 'mov rdx, rdx'
-                // _dataManager.Assembler.mov(_argsRegisters[j], r!.Value);
+                if (_argsRegisters[j] != r!.Value)
+                    _dataManager.Assembler.mov(_argsRegisters[j], r.Value);
             }
             else if (r is null && offset is null)
             {
