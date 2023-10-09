@@ -145,30 +145,24 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Equals(InstructionArgs args)
     {
         Cmp();
-
-        if (!DataManager.Register.CanGetNext)
-        {
-            DataManager.Assembler.sete(al);
-            DataManager.Assembler.movzx(rax, al);
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-        }
-        else
-        {
-            DataManager.Register.Previous();
-            var oldValue = DataManager.Register.Current();
-            var assemblerRegister8 = DataManager.Register.Next8();
-            DataManager.Assembler.sete(assemblerRegister8);
-            DataManager.Assembler.movzx(oldValue, assemblerRegister8);
-        }
+        SaveFlagsAsBool(false);
     }
 
     protected override void NotEquals(InstructionArgs args)
     {
         Cmp();
+        SaveFlagsAsBool(true);
+    }
+    
 
+    private void SaveFlagsAsBool(bool invert)
+    {
         if (!DataManager.Register.CanGetNext)
         {
-            DataManager.Assembler.setne(al);
+            if (!invert)
+                DataManager.Assembler.sete(al);
+            else DataManager.Assembler.setne(al);
+            
             DataManager.Assembler.movzx(rax, al);
             DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
         }
@@ -177,7 +171,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
             DataManager.Register.Previous();
             var oldValue = DataManager.Register.Current();
             var assemblerRegister8 = DataManager.Register.Next8();
-            DataManager.Assembler.setne(assemblerRegister8);
+            
+            if (!invert)
+                DataManager.Assembler.sete(assemblerRegister8);
+            else DataManager.Assembler.setne(assemblerRegister8);
+            
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
         }
     }
