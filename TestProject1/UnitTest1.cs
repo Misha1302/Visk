@@ -5,8 +5,11 @@ using ViskCompiler;
 
 public class Tests
 {
-    public static readonly MethodInfo SmallMethodInfo = typeof(Tests).GetMethod(nameof(SmallMethod))!;
-    public static readonly MethodInfo BigMethodInfo = typeof(Tests).GetMethod(nameof(BigMethod))!;
+    public static readonly MethodInfo SmallMethodInfo =
+        typeof(Tests).GetMethod(nameof(SmallMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    public static readonly MethodInfo BigMethodInfo =
+        typeof(Tests).GetMethod(nameof(BigMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
     [SetUp]
     public void Setup()
@@ -393,77 +396,6 @@ public class Tests
     public void Test13()
     {
         var result = ExecuteFunctions(
-            module =>
-            {
-                var mf = module.AddFunction("main", 0, typeof(long));
-                var of = module.AddFunction("other", 10, typeof(long));
-
-                mf.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.PushConst(1),
-                        ViskInstruction.PushConst(2),
-                        ViskInstruction.PushConst(3),
-                        ViskInstruction.PushConst(4),
-                        ViskInstruction.PushConst(5),
-                        ViskInstruction.PushConst(6),
-                        ViskInstruction.PushConst(7),
-                        ViskInstruction.PushConst(8),
-                        ViskInstruction.PushConst(9),
-                        ViskInstruction.PushConst(10),
-                        ViskInstruction.Call(of),
-
-                        ViskInstruction.Ret()
-                    }
-                );
-
-                of.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.SetArg("arg0"),
-                        ViskInstruction.SetArg("arg1"),
-                        ViskInstruction.SetArg("arg2"),
-                        ViskInstruction.SetArg("arg3"),
-                        ViskInstruction.SetArg("arg4"),
-                        ViskInstruction.SetArg("arg5"),
-                        ViskInstruction.SetArg("arg6"),
-                        ViskInstruction.SetArg("arg7"),
-                        ViskInstruction.SetArg("arg8"),
-                        ViskInstruction.SetArg("arg9"),
-
-                        ViskInstruction.LoadLocal("arg0"),
-                        ViskInstruction.LoadLocal("arg1"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg2"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg3"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg4"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg5"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg6"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg7"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg8"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg9"),
-                        ViskInstruction.IMul(),
-
-                        ViskInstruction.Ret()
-                    }
-                );
-            }
-        );
-
-        Assert.That(result, Is.EqualTo(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * 10));
-    }
-
-    [Test]
-    public void Test14()
-    {
-        var result = ExecuteFunctions(
             new List<ViskInstruction>
             {
                 ViskInstruction.PushConst(1),
@@ -486,7 +418,7 @@ public class Tests
     }
 
     [Test]
-    public void Test15()
+    public void Test14()
     {
         var result = ExecuteFunctions(
             new List<ViskInstruction>
@@ -501,6 +433,56 @@ public class Tests
         );
 
         Assert.That(result, Is.EqualTo(1 / 2 * 3));
+    }
+
+    [Test]
+    public void Test15()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", 0, typeof(long));
+                var of = module.AddFunction("other", 1, typeof(long));
+
+                mf.RawInstructions.AddRange(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(6),
+                        ViskInstruction.Call(of),
+
+                        ViskInstruction.Ret()
+                    }
+                );
+
+                of.RawInstructions.AddRange(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.SetArg("arg"),
+
+                        ViskInstruction.LoadLocal("arg"),
+                        ViskInstruction.PushConst(100),
+                        ViskInstruction.Equals(),
+                        ViskInstruction.GotoIfTrue("endOfRecursion"),
+
+                        ViskInstruction.LoadLocal("arg"),
+                        ViskInstruction.PushConst(1),
+                        ViskInstruction.Add(),
+                        ViskInstruction.SetLocal("arg"),
+                        
+                        ViskInstruction.LoadLocal("arg"),
+                        ViskInstruction.Call(of),
+                        ViskInstruction.SetLocal("arg"),
+
+                        ViskInstruction.SetLabel("endOfRecursion"),
+
+                        ViskInstruction.LoadLocal("arg"),
+                        ViskInstruction.Ret()
+                    }
+                );
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(100));
     }
 
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
@@ -530,9 +512,9 @@ public class Tests
         return asmDelegate();
     }
 
-    public static long SmallMethod(long l0, long l1, long l2) => l0 / l1 * l2;
+    private static long SmallMethod(long l0, long l1, long l2) => l0 / l1 * l2;
 
-    public static long BigMethod(
+    private static long BigMethod(
         long l0, long l1, long l2, long l3, long l4, long l5, long l6, long l7, long l8, long l9
     ) => l0 * l1 * l2 * l3 * l4 / l5 * l6 * l7 * l8 * l9;
 }
