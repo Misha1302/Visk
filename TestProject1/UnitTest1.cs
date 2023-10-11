@@ -8,6 +8,9 @@ public class Tests
     public static readonly MethodInfo SmallMethodInfo =
         typeof(Tests).GetMethod(nameof(SmallMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
+    public static readonly MethodInfo VoidMethodInfo =
+        typeof(Tests).GetMethod(nameof(VoidMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
+
     public static readonly MethodInfo BigMethodInfo =
         typeof(Tests).GetMethod(nameof(BigMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
@@ -468,7 +471,7 @@ public class Tests
                         ViskInstruction.PushConst(1),
                         ViskInstruction.Add(),
                         ViskInstruction.SetLocal("arg"),
-                        
+
                         ViskInstruction.LoadLocal("arg"),
                         ViskInstruction.Call(of),
                         ViskInstruction.SetLocal("arg"),
@@ -483,6 +486,40 @@ public class Tests
         );
 
         Assert.That(result, Is.EqualTo(100));
+    }
+    
+
+    [Test]
+    public void Test16()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.CallForeign(VoidMethodInfo),
+
+                ViskInstruction.PushConst(-1),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(-1));
+    }
+    
+
+    [Test]
+    public void Test17()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(-1),
+                ViskInstruction.CallForeign(VoidMethodInfo),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(-1));
     }
 
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
@@ -517,4 +554,6 @@ public class Tests
     private static long BigMethod(
         long l0, long l1, long l2, long l3, long l4, long l5, long l6, long l7, long l8, long l9
     ) => l0 * l1 * l2 * l3 * l4 / l5 * l6 * l7 * l8 * l9;
+
+    private static void VoidMethod() => Console.WriteLine("hi from void method");
 }
