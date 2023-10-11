@@ -17,7 +17,9 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(1),
     ViskInstruction.PushConst(2),
     ViskInstruction.Add(),
-
+    ViskInstruction.CallForeign(printLong),
+    
+    ViskInstruction.PushConst(123),
     ViskInstruction.Ret()
 });
 

@@ -2,10 +2,7 @@ namespace ViskCompiler;
 
 public sealed class ViskFunction
 {
-    public readonly string Name;
-    public readonly int ArgsCount;
-    public readonly Type ReturnType;
-    public readonly bool IsMain;
+    public readonly ViskFunctionInfo Info;
 
     public readonly List<ViskInstruction> RawInstructions = new();
     private List<string> _locals = new();
@@ -13,11 +10,7 @@ public sealed class ViskFunction
 
     public ViskFunction(string name, int argsCount, Type returnType, bool isMain = false)
     {
-        ArgsCount = argsCount;
-        ReturnType = returnType;
-        Name = name;
-
-        IsMain = isMain;
+        Info = new ViskFunctionInfo(name, argsCount, returnType, isMain);
     }
 
     public IReadOnlyList<string> Locals
@@ -70,7 +63,7 @@ public sealed class ViskFunction
                     break;
                 case ViskInstructionKind.Call:
                     var f = i.Arguments[0].As<ViskFunction>();
-                    Max(f.ArgsCount, f.ReturnType != typeof(void) ? 1 : 0);
+                    Max(f.Info.ArgsCount, f.Info.ReturnType != typeof(void) ? 1 : 0);
                     break;
                 default:
                     var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];

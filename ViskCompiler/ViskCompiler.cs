@@ -254,17 +254,17 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Call(InstructionArgs args)
     {
         DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.MoveArgs(args[0].As<ViskFunction>().ArgsCount);
+        DataManager.ViskArgsManager.MoveArgs(args[0].As<ViskFunction>().Info.ArgsCount);
 
-        DataManager.Assembler.call(DataManager.GetLabel(args[0].As<ViskFunction>().Name));
+        DataManager.Assembler.call(DataManager.GetLabel(args[0].As<ViskFunction>().Info.Name));
 
         DataManager.ViskArgsManager.LoadRegs();
-        DataManager.ViskArgsManager.SaveReturnValue(args[0].As<ViskFunction>().ReturnType);
+        DataManager.ViskArgsManager.SaveReturnValue(args[0].As<ViskFunction>().Info.ReturnType);
     }
 
     protected override void Prolog(InstructionArgs args)
     {
-        var label = DataManager.GetLabel(args.Function.Name);
+        var label = DataManager.GetLabel(args.Function.Info.Name);
         DataManager.Assembler.Label(ref label);
 
         DataManager.Assembler.push(rbp);

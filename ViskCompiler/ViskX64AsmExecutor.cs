@@ -18,10 +18,12 @@ public sealed partial class ViskX64AsmExecutor
     }
 
     private readonly Assembler _asm;
+    private readonly ViskDebugInfo _debugInfo;
 
-    public ViskX64AsmExecutor(Assembler asm)
+    public ViskX64AsmExecutor(Assembler asm, ViskDebugInfo debugInfo)
     {
         _asm = asm;
+        _debugInfo = debugInfo;
     }
 
     [LibraryImport("kernel32.dll")]
@@ -40,5 +42,5 @@ public sealed partial class ViskX64AsmExecutor
         return Marshal.GetDelegateForFunctionPointer<StandardCallingConventionAsmDelegate>(mem);
     }
 
-    public override string ToString() => new ViskDecompiler(_asm).ToString();
+    public override string ToString() => new ViskDecompiler(_asm, _debugInfo).ToString();
 }

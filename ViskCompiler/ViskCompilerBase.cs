@@ -17,7 +17,7 @@ internal abstract class ViskCompilerBase
     {
         CompileInternal();
 
-        return new ViskX64AsmExecutor(DataManager.Assembler);
+        return new ViskX64AsmExecutor(DataManager.Assembler, DataManager.DebugInfo);
     }
 
     private void CompileInternal()
@@ -39,7 +39,7 @@ internal abstract class ViskCompilerBase
 
     private void CompileFunctions()
     {
-        var mainFunc = DataManager.Module.Functions.FirstOrDefault(x => x.IsMain);
+        var mainFunc = DataManager.Module.Functions.FirstOrDefault(x => x.Info.IsMain);
 
         if (mainFunc != null)
             CompileFunction(mainFunc);
@@ -56,6 +56,9 @@ internal abstract class ViskCompilerBase
 
     private void CompileFunction(ViskFunction func)
     {
+        func.Info.AssemblerInstructionIndex = DataManager.Assembler.Instructions.Count;
+        DataManager.DebugInfo.Functions.Add(func.Info);
+
         foreach (var instruction in func.TotalInstructions)
             CompileInstruction(instruction, func);
     }
@@ -63,6 +66,9 @@ internal abstract class ViskCompilerBase
     private void CompileInstruction(ViskInstruction instruction, ViskFunction func)
     {
         var args = GetArgs(instruction, func);
+
+        instruction.AssemblerInstructionIndex = DataManager.Assembler.Instructions.Count;
+        DataManager.DebugInfo.Instructions.Add(instruction);
 
         var act = instruction.InstructionKind switch
         {
@@ -151,7 +157,7 @@ internal abstract class ViskCompilerBase
 
     protected virtual void Equals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
-    
+
     protected virtual void NotEquals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 

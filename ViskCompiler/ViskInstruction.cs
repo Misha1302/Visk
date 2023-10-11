@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [DebuggerDisplay("{InstructionKind} {Arguments.Count > 0 ? Arguments[0] : \"\"}")]
-public sealed class ViskInstruction
+public sealed class ViskInstruction : IAssemblerPositionable
 {
     public static readonly Dictionary<ViskInstructionKind, (int args, int output)> InstructionCharacteristics =
         new()
@@ -36,14 +36,14 @@ public sealed class ViskInstruction
         };
 
     public readonly List<object> Arguments;
+    public readonly ViskInstructionKind InstructionKind;
+    public int AssemblerInstructionIndex { get; set; }
 
     private ViskInstruction(ViskInstructionKind instructionKind, params object[]? arguments)
     {
         InstructionKind = instructionKind;
         Arguments = new List<object>(arguments ?? Array.Empty<object>());
     }
-
-    public ViskInstructionKind InstructionKind { get; }
 
 
     [Pure] public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
@@ -55,9 +55,10 @@ public sealed class ViskInstruction
 
         RuntimeHelpers.PrepareMethod(m.MethodHandle);
 
+        // m.Name - debug info
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType
+            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType, m.Name
         );
     }
 

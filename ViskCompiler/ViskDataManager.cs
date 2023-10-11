@@ -13,6 +13,7 @@ internal sealed class ViskDataManager
     public readonly ViskRegister Register = new();
     public readonly ViskFunctionStackManager FuncStackManager;
     public readonly ViskArgsManager ViskArgsManager;
+    public readonly ViskDebugInfo DebugInfo = new();
 
     public ViskDataManager(Assembler? assembler, ViskModule? module)
     {
