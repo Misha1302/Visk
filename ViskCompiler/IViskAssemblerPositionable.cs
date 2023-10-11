@@ -1,6 +1,6 @@
 namespace ViskCompiler;
 
-public interface IAssemblerPositionable
+public interface IViskAssemblerPositionable
 {
     public int AssemblerInstructionIndex { get; }
 }

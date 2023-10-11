@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [DebuggerDisplay("{InstructionKind} {Arguments.Count > 0 ? Arguments[0] : \"\"}")]
-public sealed class ViskInstruction : IAssemblerPositionable
+public sealed class ViskInstruction : IViskAssemblerPositionable
 {
     public static readonly Dictionary<ViskInstructionKind, (int args, int output)> InstructionCharacteristics =
         new()

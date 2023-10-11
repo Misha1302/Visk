@@ -1,6 +1,6 @@
 ﻿namespace ViskCompiler;
 
-public sealed class ViskFunctionInfo : IAssemblerPositionable
+public sealed class ViskFunctionInfo : IViskAssemblerPositionable
 {
     public readonly string Name;
     public readonly int ArgsCount;

@@ -32,7 +32,7 @@ public sealed class ViskDecompiler
             var function = _viskDebugInfo.Functions.Find(x => x.AssemblerInstructionIndex == index);
             if (function != null)
                 sb.AppendLine(
-                    $"; {function.Name} {function.ArgsCount} {function.ReturnType.Name} {function.IsMain}"
+                    $"; {function.Name} {function.ArgsCount} {function.ReturnType} {function.IsMain}"
                 );
 
             var instruction = _viskDebugInfo.Instructions.Find(x => x.AssemblerInstructionIndex == index);

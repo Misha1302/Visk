@@ -22,4 +22,9 @@ public static class ViskExtensions
 
     [Pure]
     public static int AsI32(this object? o) => (int)AsI64(o);
+
+    public static void SaveFile(this string? text, string fileName) => File.WriteAllText(fileName, text);
+
+    public static async void SaveFileAsync(this string? text, string fileName) =>
+        await File.WriteAllTextAsync(fileName, text);
 }

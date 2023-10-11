@@ -27,12 +27,14 @@ var image = new ViskImage(module);
 var executor = image.Compile();
 var asmDelegate = executor.GetDelegate();
 
+var assemblerString = executor.ToString();
 Console.WriteLine(new string('-', Console.WindowWidth));
-Console.WriteLine(executor.ToString());
+Console.WriteLine(assemblerString);
 Console.WriteLine(new string('-', Console.WindowWidth));
+assemblerString.SaveFileAsync("debugInfo.txt");
 
 var sw = new Stopwatch();
-for (var i = 0; i < 5; i++)
+for (var i = 0; i < 1; i++)
 {
     sw.Restart();
 
