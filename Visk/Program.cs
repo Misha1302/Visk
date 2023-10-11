@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using TestProject;
 using Visk;
 using ViskCompiler;
 
@@ -18,7 +17,7 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
     ViskInstruction.PushConst(2),
     ViskInstruction.Add(),
     ViskInstruction.CallForeign(printLong),
-    
+
     ViskInstruction.PushConst(123),
     ViskInstruction.Ret()
 });

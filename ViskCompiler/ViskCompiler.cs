@@ -153,7 +153,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
         Cmp();
         SaveFlagsAsBool(true);
     }
-    
+
 
     private void SaveFlagsAsBool(bool invert)
     {
@@ -162,7 +162,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
             if (!invert)
                 DataManager.Assembler.sete(al);
             else DataManager.Assembler.setne(al);
-            
+
             DataManager.Assembler.movzx(rax, al);
             DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
         }
@@ -171,11 +171,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
             DataManager.Register.Previous();
             var oldValue = DataManager.Register.Current();
             var assemblerRegister8 = DataManager.Register.Next8();
-            
+
             if (!invert)
                 DataManager.Assembler.sete(assemblerRegister8);
             else DataManager.Assembler.setne(assemblerRegister8);
-            
+
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
         }
     }
@@ -211,7 +211,6 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void IDiv(InstructionArgs args)
     {
-
         PreviousStackOrReg(
             () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
             () => DataManager.Assembler.mov(rax, DataManager.Register.Previous())

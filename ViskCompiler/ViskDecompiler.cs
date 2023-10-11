@@ -26,7 +26,7 @@ public sealed class ViskDecompiler
         var directivesCount = 0;
 
         const int instructionOffset = 3;
-        
+
         for (var index = 0; index < _asm.Instructions.Count; index++)
         {
             var function = _viskDebugInfo.Functions.Find(x => x.AssemblerInstructionIndex == index);

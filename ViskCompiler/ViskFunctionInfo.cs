@@ -6,7 +6,6 @@ public sealed class ViskFunctionInfo : IAssemblerPositionable
     public readonly int ArgsCount;
     public readonly Type ReturnType;
     public readonly bool IsMain;
-    public int AssemblerInstructionIndex { get; set; }
 
     public ViskFunctionInfo(string name, int argsCount, Type returnType, bool isMain)
     {
@@ -15,4 +14,6 @@ public sealed class ViskFunctionInfo : IAssemblerPositionable
         ReturnType = returnType;
         IsMain = isMain;
     }
+
+    public int AssemblerInstructionIndex { get; set; }
 }

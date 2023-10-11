@@ -37,13 +37,14 @@ public sealed class ViskInstruction : IAssemblerPositionable
 
     public readonly List<object> Arguments;
     public readonly ViskInstructionKind InstructionKind;
-    public int AssemblerInstructionIndex { get; set; }
 
     private ViskInstruction(ViskInstructionKind instructionKind, params object[]? arguments)
     {
         InstructionKind = instructionKind;
         Arguments = new List<object>(arguments ?? Array.Empty<object>());
     }
+
+    public int AssemblerInstructionIndex { get; set; }
 
 
     [Pure] public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
