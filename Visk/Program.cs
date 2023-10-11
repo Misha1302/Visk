@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using TestProject1;
+using TestProject;
 using Visk;
 using ViskCompiler;
 
@@ -16,15 +16,7 @@ fMain.RawInstructions.AddRange(new List<ViskInstruction>
 {
     ViskInstruction.PushConst(1),
     ViskInstruction.PushConst(2),
-    ViskInstruction.PushConst(3),
-    ViskInstruction.PushConst(4),
-    ViskInstruction.PushConst(5),
-    ViskInstruction.PushConst(6),
-    ViskInstruction.PushConst(7),
-    ViskInstruction.PushConst(8),
-    ViskInstruction.PushConst(9),
-    ViskInstruction.PushConst(10),
-    ViskInstruction.CallForeign(Tests.BigMethodInfo),
+    ViskInstruction.Add(),
 
     ViskInstruction.Ret()
 });

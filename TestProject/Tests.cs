@@ -1,17 +1,17 @@
-namespace TestProject1;
+namespace TestProject;
 
 using System.Reflection;
 using ViskCompiler;
 
-public class Tests
+public sealed class Tests
 {
-    public static readonly MethodInfo SmallMethodInfo =
+    private static readonly MethodInfo _smallMethodInfo =
         typeof(Tests).GetMethod(nameof(SmallMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static readonly MethodInfo VoidMethodInfo =
+    private static readonly MethodInfo _voidMethodInfo =
         typeof(Tests).GetMethod(nameof(VoidMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-    public static readonly MethodInfo BigMethodInfo =
+    private static readonly MethodInfo _bigMethodInfo =
         typeof(Tests).GetMethod(nameof(BigMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
     [SetUp]
@@ -411,7 +411,7 @@ public class Tests
                 ViskInstruction.PushConst(8),
                 ViskInstruction.PushConst(9),
                 ViskInstruction.PushConst(10),
-                ViskInstruction.CallForeign(BigMethodInfo),
+                ViskInstruction.CallForeign(_bigMethodInfo),
 
                 ViskInstruction.Ret()
             }
@@ -429,7 +429,7 @@ public class Tests
                 ViskInstruction.PushConst(1),
                 ViskInstruction.PushConst(2),
                 ViskInstruction.PushConst(3),
-                ViskInstruction.CallForeign(SmallMethodInfo),
+                ViskInstruction.CallForeign(_smallMethodInfo),
 
                 ViskInstruction.Ret()
             }
@@ -487,7 +487,7 @@ public class Tests
 
         Assert.That(result, Is.EqualTo(100));
     }
-    
+
 
     [Test]
     public void Test16()
@@ -495,7 +495,7 @@ public class Tests
         var result = ExecuteFunctions(
             new List<ViskInstruction>
             {
-                ViskInstruction.CallForeign(VoidMethodInfo),
+                ViskInstruction.CallForeign(_voidMethodInfo),
 
                 ViskInstruction.PushConst(-1),
                 ViskInstruction.Ret()
@@ -504,7 +504,7 @@ public class Tests
 
         Assert.That(result, Is.EqualTo(-1));
     }
-    
+
 
     [Test]
     public void Test17()
@@ -513,7 +513,7 @@ public class Tests
             new List<ViskInstruction>
             {
                 ViskInstruction.PushConst(-1),
-                ViskInstruction.CallForeign(VoidMethodInfo),
+                ViskInstruction.CallForeign(_voidMethodInfo),
 
                 ViskInstruction.Ret()
             }

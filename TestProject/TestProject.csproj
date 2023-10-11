@@ -6,6 +6,18 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <AssemblyName>TestProject</AssemblyName>
+
+        <RootNamespace>TestProject</RootNamespace>
+
+        <PackageId>TestProject</PackageId>
+
+        <Authors>TestProject</Authors>
+
+        <Company>TestProject</Company>
+
+        <Product>TestProject</Product>
     </PropertyGroup>
 
     <ItemGroup>
