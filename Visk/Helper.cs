@@ -28,10 +28,25 @@ public static class Helper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void PrintDouble(double d, long l)
+    public static void PrintDouble(double d)
     {
         Console.WriteLine(d);
-        Console.WriteLine(l);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void PrintDoubles(double d, double d1, double d2, double d3, double d4, double d5, double d6,
+        double d7, double d8, double d9)
+    {
+        Console.WriteLine(d);
+        Console.WriteLine(d1);
+        Console.WriteLine(d2);
+        Console.WriteLine(d3);
+        Console.WriteLine(d4);
+        Console.WriteLine(d5);
+        Console.WriteLine(d6);
+        Console.WriteLine(d7);
+        Console.WriteLine(d8);
+        Console.WriteLine(d9);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -25,5 +25,9 @@ public enum ViskInstructionKind
     GotoIfTrue,
     IDiv,
     NotEquals,
-    PushConstD
+    PushConstD,
+    AddD,
+    SubD,
+    MulD,
+    DivD
 }

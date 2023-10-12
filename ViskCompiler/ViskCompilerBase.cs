@@ -74,6 +74,10 @@ internal abstract class ViskCompilerBase
         {
             ViskInstructionKind.PushConst => PushConst,
             ViskInstructionKind.Add => Add,
+            ViskInstructionKind.AddD => AddD,
+            ViskInstructionKind.SubD => SubD,
+            ViskInstructionKind.MulD => MulD,
+            ViskInstructionKind.DivD => DivD,
             ViskInstructionKind.SetLabel => SetLabel,
             ViskInstructionKind.Goto => Goto,
             ViskInstructionKind.GotoIfFalse => GotoIfFalse,
@@ -113,6 +117,18 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Add(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void AddD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void SubD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void MulD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void DivD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Sub(InstructionArgs args) =>

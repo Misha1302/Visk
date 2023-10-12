@@ -15,6 +15,10 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.PushConstD] = (0, 1),
             [ViskInstructionKind.LogicNeg] = (1, 1),
             [ViskInstructionKind.Add] = (2, 1),
+            [ViskInstructionKind.AddD] = (2, 1),
+            [ViskInstructionKind.SubD] = (2, 1),
+            [ViskInstructionKind.MulD] = (2, 1),
+            [ViskInstructionKind.DivD] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
             [ViskInstructionKind.Equals] = (2, 1),
@@ -69,6 +73,10 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     }
 
     [Pure] public static ViskInstruction Add() => new(ViskInstructionKind.Add);
+    [Pure] public static ViskInstruction AddD() => new(ViskInstructionKind.AddD);
+    [Pure] public static ViskInstruction SubD() => new(ViskInstructionKind.SubD);
+    [Pure] public static ViskInstruction MulD() => new(ViskInstructionKind.MulD);
+    [Pure] public static ViskInstruction DivD() => new(ViskInstructionKind.DivD);
     [Pure] public static ViskInstruction Sub() => new(ViskInstructionKind.Sub);
 
     // ReSharper disable once InconsistentNaming
