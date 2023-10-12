@@ -256,8 +256,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", 0, typeof(long));
-                var of = module.AddFunction("other", 0, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+                var of = module.AddFunction("other", new List<Type>(0), typeof(long));
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -292,8 +292,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", 0, typeof(long));
-                var of = module.AddFunction("other", 1, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+                var of = module.AddFunction("other", new List<Type> { typeof(long) }, typeof(long));
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -330,8 +330,10 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", 0, typeof(long));
-                var of = module.AddFunction("other", 10, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+                var of = module.AddFunction("other",
+                    Enumerable.Repeat(typeof(Type), 10).ToList(),
+                    typeof(long));
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -444,8 +446,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", 0, typeof(long));
-                var of = module.AddFunction("other", 1, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+                var of = module.AddFunction("other", new List<Type> { typeof(long) }, typeof(long));
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -525,7 +527,7 @@ public sealed class Tests
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
-        var mf = module.AddFunction("main", 0, typeof(long));
+        var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
 
         mf.RawInstructions.AddRange(instructions);
 

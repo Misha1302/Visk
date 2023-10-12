@@ -21,6 +21,19 @@ public static class ViskExtensions
     }
 
     [Pure]
+    public static double AsF64(this object? o)
+    {
+        return o switch
+        {
+            Half s => (double)s,
+            float l => l,
+            double i => i,
+            decimal b => (double)b,
+            _ => ViskThrowHelper.ThrowInvalidOperationException<int>("Obj is not double")
+        };
+    }
+
+    [Pure]
     public static int AsI32(this object? o) => (int)AsI64(o);
 
     public static void SaveFile(this string? text, string fileName) => File.WriteAllText(fileName, text);

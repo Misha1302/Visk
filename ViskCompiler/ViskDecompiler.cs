@@ -64,7 +64,9 @@ public sealed class ViskDecompiler
                     sb.Append(directivesCount.ToString().PadLeft(instructionOffset) + ". ");
                 }
 
-                sb.Append(ToPrintableStr(text));
+                if (kind == FormatterTextKind.Number)
+                    sb.Append(Convert.ToInt64(text.Replace("h", ""), 16));
+                else sb.Append(ToPrintableStr(text));
             }
 
             sb.AppendLine();

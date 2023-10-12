@@ -8,9 +8,9 @@ public sealed class ViskFunction
     private List<string> _locals = new();
 
 
-    public ViskFunction(string name, int argsCount, Type returnType, bool isMain = false)
+    public ViskFunction(string name, List<Type> parameters, Type returnType, bool isMain = false)
     {
-        Info = new ViskFunctionInfo(name, argsCount, returnType, isMain);
+        Info = new ViskFunctionInfo(name, parameters, returnType, isMain);
     }
 
     public IReadOnlyList<string> Locals
@@ -59,11 +59,11 @@ public sealed class ViskFunction
             switch (i.InstructionKind)
             {
                 case ViskInstructionKind.CallForeign:
-                    Max((int)i.Arguments[1], i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
+                    Max(i.Arguments[1].As<List<Type>>().Count, i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
                     break;
                 case ViskInstructionKind.Call:
                     var f = i.Arguments[0].As<ViskFunction>();
-                    Max(f.Info.ArgsCount, f.Info.ReturnType != typeof(void) ? 1 : 0);
+                    Max(f.Info.Params.Count, f.Info.ReturnType != typeof(void) ? 1 : 0);
                     break;
                 default:
                     var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];

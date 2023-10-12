@@ -24,5 +24,6 @@ public enum ViskInstructionKind
     LogicNeg,
     GotoIfTrue,
     IDiv,
-    NotEquals
+    NotEquals,
+    PushConstD
 }

@@ -94,6 +94,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.SetArg => SetArg,
             ViskInstructionKind.LogicNeg => LogicNeg,
             ViskInstructionKind.GotoIfTrue => GotoIfTrue,
+            ViskInstructionKind.PushConstD => PushConstD,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -103,6 +104,9 @@ internal abstract class ViskCompilerBase
     }
 
     protected virtual void PushConst(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+    
+    protected virtual void PushConstD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void GotoIfTrue(InstructionArgs args) =>

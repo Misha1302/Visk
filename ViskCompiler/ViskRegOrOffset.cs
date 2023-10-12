@@ -13,20 +13,23 @@ internal sealed class ViskRegOrOffset
         _register = register;
     }
 
-    public bool GetRegisterOrOffset(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset) =>
-        StackAtFirst(out register64, out offset);
-
-    private bool StackAtFirst(out AssemblerRegister64? register64, out AssemblerMemoryOperand? offset)
+    public void GetRegisterOrOffset(Type curType,
+        out AssemblerRegister64? register64, out AssemblerRegisterXMM? registerXmm, out AssemblerMemoryOperand? offset)
     {
+        register64 = null;
+        registerXmm = null;
+        offset = null;
+
         if (!_dataInStack.IsEmpty())
         {
             offset = _dataInStack.GetPrevious();
-            register64 = null;
-            return false;
+            return;
         }
 
-        offset = null;
-        register64 = _register.Previous();
-        return true;
+        if (curType == typeof(long))
+            register64 = _register.Previous();
+        else if (curType == typeof(double))
+            registerXmm = _register.PreviousD();
+        else ViskThrowHelper.ThrowInvalidOperationException($"Unknown type {curType}");
     }
 }

@@ -17,6 +17,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
         Push(args[0].AsI64());
     }
 
+    protected override void PushConstD(InstructionArgs args)
+    {
+        Push(args[0].AsF64());
+    }
+
     protected override void Add(InstructionArgs args)
     {
         Operate(DataManager.Assembler.add, DataManager.Assembler.add);
@@ -233,7 +238,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 DataManager.Assembler.idiv(r);
             });
 
-        NextStackOrReg(
+        NextStackOrRegX64(
             () => DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax),
             () => DataManager.Assembler.mov(DataManager.Register.Next(), rax)
         );
@@ -242,7 +247,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void CallForeign(InstructionArgs args)
     {
         DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.ForeignMoveArgs(args[1].AsI32());
+        DataManager.ViskArgsManager.ForeignMoveArgs(args[1].As<List<Type>>());
 
         DataManager.Assembler.call((ulong)args[0].As<nint>());
 
@@ -253,7 +258,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Call(InstructionArgs args)
     {
         DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.MoveArgs(args[0].As<ViskFunction>().Info.ArgsCount);
+        DataManager.ViskArgsManager.MoveArgs(args[0].As<ViskFunction>().Info.Params);
 
         DataManager.Assembler.call(DataManager.GetLabel(args[0].As<ViskFunction>().Info.Name));
 
@@ -277,6 +282,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
         var totalSize = DataManager.Stack.MaxStackSize +
                         ViskRegister.PublicRegisters.Length * ViskStack.BlockSize +
                         ViskRegister.LocalsRegisters.Length * ViskStack.BlockSize +
+                        ViskRegister.PublicRegistersD.Length * ViskStack.BlockSize +
+                        ViskRegister.LocalsRegistersD.Length * ViskStack.BlockSize +
                         DataManager.CurrentFuncLocals.Size;
         DataManager.Assembler.sub(rsp, totalSize + totalSize % 16);
     }
@@ -327,18 +334,28 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     private void Push(long number)
     {
-        NextStackOrReg(
+        NextStackOrRegX64(
             () =>
             {
                 DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
                 DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
             },
+            () => { DataManager.Assembler.mov(DataManager.Register.Next(), __[DataManager.DefineI64(number)]); }
+        );
+    }
+
+    private void Push(double number)
+    {
+        NextStackOrRegXmm(
             () =>
             {
-                DataManager.Assembler.mov(
-                    DataManager.Register.Next(),
-                    __[DataManager.DefineI64(number)]
-                );
+                DataManager.Assembler.movq(xmm0, __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
+                DataManager.Assembler.movq(DataManager.Stack.GetNext(), xmm0);
+            },
+            () =>
+            {
+                DataManager.Assembler.movq(DataManager.Register.NextD(),
+                    __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
             }
         );
     }
@@ -378,9 +395,15 @@ internal sealed class ViskCompiler : ViskCompilerBase
         else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
     }
 
-    private void NextStackOrReg(Action stack, Action reg)
+    private void NextStackOrRegX64(Action stack, Action reg)
     {
         if (DataManager.Register.CanGetNext) reg();
+        else stack();
+    }
+
+    private void NextStackOrRegXmm(Action stack, Action xmm)
+    {
+        if (DataManager.Register.CanGetNextD) xmm();
         else stack();
     }
 

@@ -6,6 +6,8 @@ using static Iced.Intel.AssemblerRegisters;
 internal sealed class ViskArgsManager
 {
     private static readonly AssemblerRegister64[] _argsRegisters = { rcx, rdx, r8, r9 };
+    private static readonly AssemblerRegisterXMM[] _argsRegistersD = { xmm0, xmm1, xmm2, xmm3 };
+
     private readonly ViskDataManager _dataManager;
     private int _stackChanged;
     private int _regsCount;
@@ -17,13 +19,13 @@ internal sealed class ViskArgsManager
         _dataManager = dataManager;
     }
 
-    public void ForeignMoveArgs(int argsCount)
+    public void ForeignMoveArgs(List<Type> args)
     {
         var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
 
-        if (argsCount >= _argsRegisters.Length)
+        if (args.Count >= _argsRegisters.Length)
         {
-            var size = (argsCount - _argsRegisters.Length) * 8;
+            var size = (args.Count - _argsRegisters.Length) * 8;
             var maxSize = 32 + size;
 
             var delta = maxSize + (ViskStack.PosStackAlign - maxSize % ViskStack.PosStackAlign);
@@ -32,63 +34,74 @@ internal sealed class ViskArgsManager
                 _dataManager.Assembler.sub(rsp, delta);
 
             var i = maxSize - 8;
-            for (var j = 0; j < argsCount - _argsRegisters.Length; j++, i -= 8)
-                if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+            for (var j = 0; j < args.Count - _argsRegisters.Length; j++, i -= 8)
+            {
+                regOfOffset.GetRegisterOrOffset(args[j], out var r, out var xmm, out var offset);
+
+                if (r is not null)
                 {
-                    _dataManager.Assembler.mov(__[rsp + i], r!.Value);
+                    _dataManager.Assembler.mov(__[rsp + i], r.Value);
                 }
-                else if (r is null && offset is null)
+                else if (xmm is not null)
                 {
-                    ViskThrowHelper.ThrowInvalidOperationException();
+                    _dataManager.Assembler.movq(__[rsp + i], xmm.Value);
                 }
                 else
                 {
                     _dataManager.Assembler.mov(rax, offset!.Value);
                     _dataManager.Assembler.mov(__[rsp + i], rax);
                 }
+            }
         }
 
-        var min = Math.Min(argsCount, _argsRegisters.Length);
+        var min = Math.Min(args.Count, _argsRegisters.Length);
         for (var j = min - 1; j >= 0; j--)
-            if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
-            {
-                if (_argsRegisters[j] != r!.Value)
-                    _dataManager.Assembler.mov(_argsRegisters[j], r.Value);
-            }
-            else if (r is null && offset is null)
-            {
-                ViskThrowHelper.ThrowInvalidOperationException();
-            }
-            else
-            {
-                _dataManager.Assembler.mov(_argsRegisters[j], offset!.Value);
-            }
-    }
+        {
+            regOfOffset.GetRegisterOrOffset(args[j], out var r, out var xmm, out var offset);
 
-    // it's stdcall i guess?
-    public void MoveArgs(int argsCount)
-    {
-        var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
-
-        var totalSize = argsCount * 8 + argsCount * 8 % 16;
-        _dataManager.Assembler.sub(rsp, totalSize);
-        var pointer = argsCount * 8 - 8;
-
-        for (var i = 0; i < argsCount; i++, pointer -= 8)
-            if (regOfOffset.GetRegisterOrOffset(out var r, out var offset))
+            if (r is not null)
             {
-                _dataManager.Assembler.mov(__[rsp + pointer], r!.Value);
+                _dataManager.Assembler.mov(_argsRegisters[j], r.Value);
             }
-            else if (r is null && offset is null)
+            else if (xmm is not null)
             {
-                ViskThrowHelper.ThrowInvalidOperationException();
+                _dataManager.Assembler.movq(_argsRegistersD[j], xmm.Value);
             }
             else
             {
                 _dataManager.Assembler.mov(rax, offset!.Value);
+                _dataManager.Assembler.mov(_argsRegisters[j], rax);
+            }
+        }
+    }
 
+    // it's stdcall i guess?
+    public void MoveArgs(List<Type> args)
+    {
+        var regOfOffset = new ViskRegOrOffset(_dataManager.Stack, _dataManager.Register);
+
+        var totalSize = args.Count * 8 + args.Count * 8 % 16;
+        _dataManager.Assembler.sub(rsp, totalSize);
+        var pointer = args.Count * 8 - 8;
+
+        for (var i = 0; i < args.Count; i++, pointer -= 8)
+        {
+            regOfOffset.GetRegisterOrOffset(args[i], out var r, out var xmm, out var offset);
+
+            if (r is not null)
+            {
+                _dataManager.Assembler.mov(__[rsp + pointer], r.Value);
+            }
+            else if (xmm is not null)
+            {
+                _dataManager.Assembler.movq(__[rsp + pointer], xmm.Value);
+            }
+            else
+            {
+                _dataManager.Assembler.mov(rax, offset!.Value);
                 _dataManager.Assembler.mov(__[rsp + pointer], rax);
             }
+        }
 
         _stackChanged = totalSize;
     }

@@ -12,6 +12,7 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
         new()
         {
             [ViskInstructionKind.PushConst] = (0, 1),
+            [ViskInstructionKind.PushConstD] = (0, 1),
             [ViskInstructionKind.LogicNeg] = (1, 1),
             [ViskInstructionKind.Add] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
@@ -47,7 +48,8 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     public int AssemblerInstructionIndex { get; set; }
 
 
-    [Pure] public static ViskInstruction PushConst(int n) => new(ViskInstructionKind.PushConst, n);
+    [Pure] public static ViskInstruction PushConst(long n) =>
+        new(ViskInstructionKind.PushConst, n);
 
     [Pure] public static ViskInstruction CallForeign(MethodInfo? m)
     {
@@ -59,7 +61,10 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
         // m.Name - debug info
         return new ViskInstruction(
             ViskInstructionKind.CallForeign,
-            m.MethodHandle.GetFunctionPointer(), m.GetParameters().Length, m.ReturnType, m.Name
+            m.MethodHandle.GetFunctionPointer(),
+            m.GetParameters().Select(x => x.ParameterType).ToList(),
+            m.ReturnType,
+            m.Name
         );
     }
 
@@ -104,4 +109,6 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     // ReSharper disable once InconsistentNaming
     [Pure] public static ViskInstruction IDiv() => new(ViskInstructionKind.IDiv);
     [Pure] public static ViskInstruction NotEquals() => new(ViskInstructionKind.NotEquals);
+
+    [Pure] public static ViskInstruction PushConstD(double d) => new(ViskInstructionKind.PushConstD, d);
 }

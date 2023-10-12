@@ -28,6 +28,13 @@ public static class Helper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void PrintDouble(double d, long l)
+    {
+        Console.WriteLine(d);
+        Console.WriteLine(l);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void PrintSmt()
     {
         Console.WriteLine("Smt");
