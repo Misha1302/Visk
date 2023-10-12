@@ -97,7 +97,7 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
-    [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name, -1);
+    [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name);
 
     [Pure] public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
 

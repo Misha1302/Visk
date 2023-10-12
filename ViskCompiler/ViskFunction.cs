@@ -98,4 +98,6 @@ public sealed class ViskFunction
 
         return _locals;
     }
+
+    public override string? ToString() => Info.ToString();
 }

@@ -16,4 +16,6 @@ public sealed class ViskFunctionInfo : IViskAssemblerPositionable
     }
 
     public int AssemblerInstructionIndex { get; set; }
+
+    public override string ToString() => $"{Name} {ArgsCount} {ReturnType} {IsMain}";
 }
