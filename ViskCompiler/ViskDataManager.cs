@@ -35,7 +35,7 @@ internal sealed class ViskDataManager
 
     public ViskLocals CurrentFuncLocals { get; private set; } = null!;
 
-    public void NewFunc(int stackSize, IReadOnlyList<string> locals)
+    public void NewFunc(int stackSize, IReadOnlyList<ViskLocal> locals)
     {
         CurrentFuncMaxStackSize = stackSize * 8;
         Stack = new ViskStack(this);

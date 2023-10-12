@@ -83,6 +83,8 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.GotoIfFalse => GotoIfFalse,
             ViskInstructionKind.SetLocal => SetLocal,
             ViskInstructionKind.LoadLocal => LoadLocal,
+            ViskInstructionKind.LoadLocalD => LoadLocalD,
+            ViskInstructionKind.SetLocalD => SetLocalD,
             ViskInstructionKind.Nop => Nop,
             ViskInstructionKind.Dup => Dup,
             ViskInstructionKind.IMul => IMul,
@@ -161,6 +163,12 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void LoadLocal(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LoadLocalD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void SetLocalD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Nop(InstructionArgs args) =>

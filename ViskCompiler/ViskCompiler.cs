@@ -97,7 +97,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
         PreviousStackOrRegX64(
             () =>
             {
-                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
                     DataManager.Assembler.mov(reg!.Value, DataManager.Stack.GetPrevious());
                 }
@@ -109,7 +109,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
             },
             () =>
             {
-                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
                     DataManager.Assembler.mov(reg!.Value, DataManager.Register.Previous());
                 }
@@ -122,11 +122,41 @@ internal sealed class ViskCompiler : ViskCompilerBase
         );
     }
 
+    protected override void SetLocalD(InstructionArgs args)
+    {
+        PreviousStackOrRegD(
+            () =>
+            {
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                {
+                    DataManager.Assembler.movq(xmm!.Value, DataManager.Stack.GetPrevious());
+                }
+                else
+                {
+                    DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                    DataManager.Assembler.mov(mem!.Value, rax);
+                }
+            },
+            () =>
+            {
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                {
+                    DataManager.Assembler.movq(xmm!.Value, DataManager.Register.PreviousD());
+                }
+                else
+                {
+                    DataManager.Assembler.movq(rax, DataManager.Register.PreviousD());
+                    DataManager.Assembler.mov(mem!.Value, rax);
+                }
+            }
+        );
+    }
+
     protected override void LoadLocal(InstructionArgs args)
     {
         if (DataManager.Register.CanGetNext)
         {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 DataManager.Assembler.mov(
                     DataManager.Register.Next(),
                     reg!.Value
@@ -139,11 +169,46 @@ internal sealed class ViskCompiler : ViskCompilerBase
         }
         else
         {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
             {
                 DataManager.Assembler.mov(
                     DataManager.Stack.GetNext(),
                     reg!.Value
+                );
+            }
+            else
+            {
+                DataManager.Assembler.mov(rax, mem!.Value);
+                DataManager.Assembler.mov(
+                    DataManager.Stack.GetNext(),
+                    rax
+                );
+            }
+        }
+    }
+
+    protected override void LoadLocalD(InstructionArgs args)
+    {
+        if (DataManager.Register.CanGetNextD)
+        {
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                DataManager.Assembler.movq(
+                    DataManager.Register.NextD(),
+                    xmm!.Value
+                );
+            else
+                DataManager.Assembler.movq(
+                    DataManager.Register.NextD(),
+                    mem!.Value
+                );
+        }
+        else
+        {
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+            {
+                DataManager.Assembler.movq(
+                    DataManager.Stack.GetNext(),
+                    xmm!.Value
                 );
             }
             else
@@ -333,7 +398,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void SetArg(InstructionArgs args)
     {
-        if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out var mem))
+        if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
         {
             DataManager.Assembler.mov(reg!.Value,
                 DataManager.FuncStackManager.GetMemoryArg(

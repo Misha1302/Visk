@@ -35,7 +35,9 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.GotoIfTrue] = (1, 0),
             [ViskInstructionKind.Prolog] = (0, 0),
             [ViskInstructionKind.SetLocal] = (0, 0),
+            [ViskInstructionKind.SetLocalD] = (0, 0),
             [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.LoadLocalD] = (0, 1),
             [ViskInstructionKind.Dup] = (1, 2),
             [ViskInstructionKind.Nop] = (0, 0)
         };
@@ -119,4 +121,8 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     [Pure] public static ViskInstruction NotEquals() => new(ViskInstructionKind.NotEquals);
 
     [Pure] public static ViskInstruction PushConstD(double d) => new(ViskInstructionKind.PushConstD, d);
+
+    [Pure] public static ViskInstruction SetLocalD(string s) => new(ViskInstructionKind.SetLocalD, s);
+
+    [Pure] public static ViskInstruction LoadLocalD(string s) => new(ViskInstructionKind.LoadLocalD, s);
 }

@@ -16,29 +16,12 @@ var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.PushConstD(1),
-        ViskInstruction.PushConstD(3),
-        ViskInstruction.DivD(),
+        ViskInstruction.PushConstD(123.321),
+        ViskInstruction.SetLocalD("i"),
         
-        ViskInstruction.PushConstD(1.43),
-        ViskInstruction.PushConstD(2.32),
-        ViskInstruction.MulD(),
-
-        ViskInstruction.PushConstD(2),
-        ViskInstruction.PushConstD(2),
-        ViskInstruction.AddD(),
         
-        ViskInstruction.PushConstD(3),
-        ViskInstruction.PushConstD(4),
-        ViskInstruction.SubD(),
-        
-        ViskInstruction.PushConstD(4),
-        ViskInstruction.PushConstD(5),
-        ViskInstruction.PushConstD(6),
-        ViskInstruction.PushConstD(7),
-        ViskInstruction.PushConstD(8),
-        ViskInstruction.PushConstD(9),
-        ViskInstruction.CallForeign(printDoubles),
+        ViskInstruction.LoadLocalD("i"),
+        ViskInstruction.CallForeign(printDouble),
 
         ViskInstruction.PushConst(0),
         ViskInstruction.Ret()

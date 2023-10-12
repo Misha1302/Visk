@@ -5,7 +5,7 @@ public sealed class ViskFunction
     public readonly ViskFunctionInfo Info;
 
     public readonly List<ViskInstruction> RawInstructions = new();
-    private List<string> _locals = new();
+    private List<ViskLocal> _locals = new();
 
 
     public ViskFunction(string name, List<Type> parameters, Type returnType, bool isMain = false)
@@ -13,10 +13,10 @@ public sealed class ViskFunction
         Info = new ViskFunctionInfo(name, parameters, returnType, isMain);
     }
 
-    public IReadOnlyList<string> Locals
+    public IReadOnlyList<ViskLocal> Locals
     {
         get => _locals;
-        private set => _locals = (List<string>)value;
+        private set => _locals = (List<ViskLocal>)value;
     }
 
     public List<ViskInstruction> TotalInstructions => Prepare(RawInstructions);
@@ -84,20 +84,27 @@ public sealed class ViskFunction
         }
     }
 
-    private List<string> GetLocals()
+    private List<ViskLocal> GetLocals()
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var x in RawInstructions)
         {
-            if (x.InstructionKind is not ViskInstructionKind.SetLocal and not ViskInstructionKind.SetArg)
+            if (x.InstructionKind
+                is not ViskInstructionKind.SetLocal
+                and not ViskInstructionKind.SetArg
+                and not ViskInstructionKind.SetLocalD)
                 continue;
 
-            if (!_locals.Contains(x.Arguments[0].As<string>()))
-                _locals.Add((string)x.Arguments[0]);
+            var type = ViskInstructionKind.DoubleInstruction.HasFlag(x.InstructionKind)
+                ? typeof(double)
+                : typeof(long);
+
+            if (_locals.All(y => y.Name != x.Arguments[0].As<string>()))
+                _locals.Add(new ViskLocal(type, x.Arguments[0].As<string>()));
         }
 
         return _locals;
     }
 
-    public override string? ToString() => Info.ToString();
+    public override string ToString() => Info.ToString();
 }

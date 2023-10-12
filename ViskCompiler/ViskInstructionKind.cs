@@ -21,6 +21,7 @@ public enum ViskInstructionKind
     Equals,
     Drop,
     SetArg,
+    SetArgD,
     LogicNeg,
     GotoIfTrue,
     IDiv,
@@ -29,5 +30,8 @@ public enum ViskInstructionKind
     AddD,
     SubD,
     MulD,
-    DivD
+    DivD,
+    SetLocalD,
+    LoadLocalD,
+    DoubleInstruction = PushConstD | SetLocalD | LoadLocalD | SetArgD | AddD | SubD | MulD | DivD
 }
