@@ -16,5 +16,5 @@ public sealed class ViskImage
         init => _viskModule = value ?? ViskThrowHelper.ThrowInvalidOperationException<ViskModule>();
     }
 
-    public ViskX64AsmExecutor Compile() => new ViskCompiler(ViskModule).Compile();
+    public ViskX64AsmExecutor Compile(ViskSettings settings) => new ViskCompiler(ViskModule, settings).Compile();
 }

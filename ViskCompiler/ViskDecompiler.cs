@@ -7,9 +7,9 @@ using Iced.Intel;
 public sealed class ViskDecompiler
 {
     private readonly Assembler _asm;
-    private readonly ViskDebugInfo _viskDebugInfo;
+    private readonly IViskDebugInfo _viskDebugInfo;
 
-    public ViskDecompiler(Assembler asm, ViskDebugInfo viskDebugInfo)
+    public ViskDecompiler(Assembler asm, IViskDebugInfo viskDebugInfo)
     {
         _asm = asm;
         _viskDebugInfo = viskDebugInfo;
@@ -29,13 +29,13 @@ public sealed class ViskDecompiler
 
         for (var index = 0; index < _asm.Instructions.Count; index++)
         {
-            var function = _viskDebugInfo.Functions.Find(x => x.AssemblerInstructionIndex == index);
+            var function = _viskDebugInfo.GetFunction(index);
             if (function != null)
                 sb.AppendLine(
                     $"; {function}"
                 );
 
-            var instruction = _viskDebugInfo.Instructions.Find(x => x.AssemblerInstructionIndex == index);
+            var instruction = _viskDebugInfo.GetInstruction(index);
             if (instruction != null)
                 sb.AppendLine(
                     ";".PadLeft(maxDigits) +

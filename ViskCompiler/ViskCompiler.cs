@@ -7,7 +7,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 {
     private const int FuncPrologSize = 8 + 8 + 8 + 8;
 
-    public ViskCompiler(ViskModule module) : base(module)
+    public ViskCompiler(ViskModule module, ViskSettings settings) : base(module, settings)
     {
     }
 

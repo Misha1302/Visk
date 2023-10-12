@@ -8,9 +8,9 @@ internal abstract class ViskCompilerBase
     private const string NotImplemented = "Not implemented operation";
     protected readonly ViskDataManager DataManager;
 
-    protected ViskCompilerBase(ViskModule module)
+    protected ViskCompilerBase(ViskModule module, ViskSettings settings)
     {
-        DataManager = new ViskDataManager(new Assembler(64), module);
+        DataManager = new ViskDataManager(new Assembler(64), module, settings);
     }
 
     public ViskX64AsmExecutor Compile()
@@ -57,7 +57,7 @@ internal abstract class ViskCompilerBase
     private void CompileFunction(ViskFunction func)
     {
         func.Info.AssemblerInstructionIndex = DataManager.Assembler.Instructions.Count;
-        DataManager.DebugInfo.Functions.Add(func.Info);
+        DataManager.DebugInfo.AddFunction(func.Info);
 
         foreach (var instruction in func.TotalInstructions)
             CompileInstruction(instruction, func);
@@ -68,7 +68,7 @@ internal abstract class ViskCompilerBase
         var args = GetArgs(instruction, func);
 
         instruction.AssemblerInstructionIndex = DataManager.Assembler.Instructions.Count;
-        DataManager.DebugInfo.Instructions.Add(instruction);
+        DataManager.DebugInfo.AddInstruction(instruction);
 
         var act = instruction.InstructionKind switch
         {

@@ -70,7 +70,7 @@ of.RawInstructions.AddRange(
 );
 
 var image = new ViskImage(module);
-var executor = image.Compile();
+var executor = image.Compile(new ViskSettings(CompilationMode.Release));
 var asmDelegate = executor.GetDelegate();
 
 var assemblerString = executor.ToString();

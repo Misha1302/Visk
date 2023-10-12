@@ -530,7 +530,7 @@ public sealed class Tests
         mf.RawInstructions.AddRange(instructions);
 
         var image = new ViskImage(module);
-        var executor = image.Compile();
+        var executor = image.Compile(new ViskSettings(CompilationMode.Release));
         var asmDelegate = executor.GetDelegate();
 
         return asmDelegate();
@@ -543,7 +543,7 @@ public sealed class Tests
         builder(module);
 
         var image = new ViskImage(module);
-        var executor = image.Compile();
+        var executor = image.Compile(new ViskSettings(CompilationMode.Release));
         var asmDelegate = executor.GetDelegate();
 
         return asmDelegate();

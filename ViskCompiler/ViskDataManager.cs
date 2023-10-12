@@ -13,14 +13,18 @@ internal sealed class ViskDataManager
     public readonly ViskRegister Register = new();
     public readonly ViskFunctionStackManager FuncStackManager;
     public readonly ViskArgsManager ViskArgsManager;
-    public readonly ViskDebugInfo DebugInfo = new();
+    public readonly IViskDebugInfo DebugInfo;
 
-    public ViskDataManager(Assembler? assembler, ViskModule? module)
+    public ViskDataManager(Assembler? assembler, ViskModule? module, ViskSettings viskSettings)
     {
         Assembler = assembler ?? ViskThrowHelper.ThrowInvalidOperationException<Assembler>();
         Module = module ?? ViskThrowHelper.ThrowInvalidOperationException<ViskModule>();
         FuncStackManager = new ViskFunctionStackManager(this);
         ViskArgsManager = new ViskArgsManager(this);
+
+        if (viskSettings.CompilationMode == CompilationMode.Debug)
+            DebugInfo = new ViskDebugInfo();
+        else DebugInfo = new ViskDebugInfoPlug();
     }
 
     public ViskStack Stack { get; private set; } = null!;

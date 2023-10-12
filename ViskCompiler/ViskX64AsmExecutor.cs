@@ -18,9 +18,9 @@ public sealed partial class ViskX64AsmExecutor
     }
 
     private readonly Assembler _asm;
-    private readonly ViskDebugInfo _debugInfo;
+    private readonly IViskDebugInfo _debugInfo;
 
-    public ViskX64AsmExecutor(Assembler asm, ViskDebugInfo debugInfo)
+    public ViskX64AsmExecutor(Assembler asm, IViskDebugInfo debugInfo)
     {
         _asm = asm;
         _debugInfo = debugInfo;
