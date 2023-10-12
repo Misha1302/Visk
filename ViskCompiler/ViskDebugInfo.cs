@@ -17,11 +17,13 @@ public sealed class ViskDebugInfo : IViskDebugInfo
 
     public ViskInstruction? GetInstruction(int assemblerIndex)
     {
-        return _instructions.Find(x => x.AssemblerInstructionIndex == assemblerIndex);
+        var index = _instructions.BinarySearch(x => x.AssemblerInstructionIndex - assemblerIndex);
+        return index >= 0 ? _instructions[index] : null;
     }
 
     public ViskFunctionInfo? GetFunction(int assemblerIndex)
     {
-        return _functions.Find(x => x.AssemblerInstructionIndex == assemblerIndex);
+        var index = _functions.BinarySearch(x => x.AssemblerInstructionIndex - assemblerIndex);
+        return index >= 0 ? _functions[index] : null;
     }
 }

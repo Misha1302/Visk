@@ -27,4 +27,29 @@ public static class ViskExtensions
 
     public static async void SaveFileAsync(this string? text, string fileName) =>
         await File.WriteAllTextAsync(fileName, text);
+
+    public static int BinarySearch<T>(this IList<T> list, Func<T, int> comparer)
+    {
+        var min = 0;
+        var max = list.Count - 1;
+
+        while (min <= max)
+        {
+            var mid = (min + max) / 2;
+            var comparison = comparer(list[mid]);
+            switch (comparison)
+            {
+                case 0:
+                    return mid;
+                case < 0:
+                    min = mid + 1;
+                    break;
+                default:
+                    max = mid - 1;
+                    break;
+            }
+        }
+
+        return ~min;
+    }
 }
