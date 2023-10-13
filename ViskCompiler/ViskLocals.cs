@@ -33,7 +33,8 @@ internal sealed class ViskLocals
 
     public int Size => Locals.Count * ViskStack.BlockSize + ViskStack.BlockSize;
 
-    public bool GetLocalPos(string name, out AssemblerRegister64? regPos, out AssemblerRegisterXMM? xmmPos, out AssemblerMemoryOperand? memPos)
+    public bool GetLocalPos(string name, out AssemblerRegister64? regPos, out AssemblerRegisterXMM? xmmPos,
+        out AssemblerMemoryOperand? memPos)
     {
         regPos = Locals.FirstOrDefault(x => x.name == name).pos?.Value0;
         xmmPos = Locals.FirstOrDefault(x => x.name == name).pos?.Value1;

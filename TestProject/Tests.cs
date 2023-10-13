@@ -332,7 +332,7 @@ public sealed class Tests
             {
                 var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
                 var of = module.AddFunction("other",
-                    Enumerable.Repeat(typeof(Type), 10).ToList(),
+                    Enumerable.Repeat(typeof(long), 10).ToList(),
                     typeof(long));
 
                 mf.RawInstructions.AddRange(
@@ -532,7 +532,7 @@ public sealed class Tests
         mf.RawInstructions.AddRange(instructions);
 
         var image = new ViskImage(module);
-        var executor = image.Compile(new ViskSettings(CompilationMode.Release));
+        var executor = image.Compile(new ViskSettings(ViskCompilationMode.Release));
         var asmDelegate = executor.GetDelegate();
 
         return asmDelegate();
@@ -545,7 +545,7 @@ public sealed class Tests
         builder(module);
 
         var image = new ViskImage(module);
-        var executor = image.Compile(new ViskSettings(CompilationMode.Release));
+        var executor = image.Compile(new ViskSettings(ViskCompilationMode.Release));
         var asmDelegate = executor.GetDelegate();
 
         return asmDelegate();

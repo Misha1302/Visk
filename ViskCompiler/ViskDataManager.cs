@@ -22,7 +22,7 @@ internal sealed class ViskDataManager
         FuncStackManager = new ViskFunctionStackManager(this);
         ViskArgsManager = new ViskArgsManager(this);
 
-        if (viskSettings.CompilationMode == CompilationMode.Debug)
+        if (viskSettings.ViskCompilationMode == ViskCompilationMode.Debug)
             DebugInfo = new ViskDebugInfo();
         else DebugInfo = new ViskDebugInfoPlug();
     }

@@ -10,26 +10,42 @@ var printDoubles = typeof(Helper).GetMethod(nameof(Helper.PrintDoubles));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
-
 var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
-
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.PushConstD(123.321),
-        ViskInstruction.SetLocalD("i"),
-        
-        
-        ViskInstruction.LoadLocalD("i"),
-        ViskInstruction.CallForeign(printDouble),
+        ViskInstruction.PushConstD(1.2),
+        ViskInstruction.SetLocalD("a"),
+        ViskInstruction.PushConstD(1.5),
+        ViskInstruction.SetLocalD("b"),
 
-        ViskInstruction.PushConst(0),
+        ViskInstruction.LoadLocalD("a"),
+        ViskInstruction.LoadLocalD("b"),
+        ViskInstruction.AddD(),
+
+        ViskInstruction.LoadLocalD("a"),
+        ViskInstruction.LoadLocalD("b"),
+        ViskInstruction.MulD(),
+
+        ViskInstruction.LoadLocalD("a"),
+        ViskInstruction.LoadLocalD("b"),
+        ViskInstruction.SubD(),
+
+        ViskInstruction.LoadLocalD("a"),
+        ViskInstruction.LoadLocalD("b"),
+        ViskInstruction.DivD(),
+
+        ViskInstruction.CallForeign(printDouble), // div
+        ViskInstruction.CallForeign(printDouble), // sub
+        ViskInstruction.CallForeign(printDouble), // mul
+        ViskInstruction.CallForeign(printDouble), // add
+
         ViskInstruction.Ret()
     }
 );
 
 var image = new ViskImage(module);
-var executor = image.Compile(new ViskSettings(CompilationMode.Debug));
+var executor = image.Compile(new ViskSettings(ViskCompilationMode.Debug));
 var asmDelegate = executor.GetDelegate();
 
 var assemblerString = executor.ToString();

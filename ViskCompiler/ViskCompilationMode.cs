@@ -1,6 +1,6 @@
 ﻿namespace ViskCompiler;
 
-public enum CompilationMode
+public enum ViskCompilationMode
 {
     Debug,
     Release

@@ -1,3 +1,3 @@
 ﻿namespace ViskCompiler;
 
-public record ViskSettings(CompilationMode CompilationMode);
+public record ViskSettings(ViskCompilationMode ViskCompilationMode);

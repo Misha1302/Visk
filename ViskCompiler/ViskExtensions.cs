@@ -33,6 +33,13 @@ public static class ViskExtensions
         };
     }
 
+    public static void ChooseViskType(this Type type, Action x64, Action xmm)
+    {
+        if (type == typeof(long)) x64();
+        else if (type == typeof(double)) xmm();
+        else ViskThrowHelper.ThrowInvalidOperationException("Unknown type");
+    }
+
     [Pure]
     public static int AsI32(this object? o) => (int)AsI64(o);
 
@@ -41,6 +48,7 @@ public static class ViskExtensions
     public static async void SaveFileAsync(this string? text, string fileName) =>
         await File.WriteAllTextAsync(fileName, text);
 
+    [Pure]
     public static int BinarySearch<T>(this IList<T> list, Func<T, int> comparer)
     {
         var min = 0;

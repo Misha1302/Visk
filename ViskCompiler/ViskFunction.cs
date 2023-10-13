@@ -92,6 +92,7 @@ public sealed class ViskFunction
             if (x.InstructionKind
                 is not ViskInstructionKind.SetLocal
                 and not ViskInstructionKind.SetArg
+                and not ViskInstructionKind.SetArgD
                 and not ViskInstructionKind.SetLocalD)
                 continue;
 

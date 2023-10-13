@@ -111,7 +111,7 @@ internal abstract class ViskCompilerBase
 
     protected virtual void PushConst(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
-    
+
     protected virtual void PushConstD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 

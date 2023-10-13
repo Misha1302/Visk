@@ -99,11 +99,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
             {
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
-                    DataManager.Assembler.mov(reg!.Value, DataManager.Stack.GetPrevious());
+                    DataManager.Assembler.mov(reg!.Value, DataManager.Register.Previous());
                 }
                 else
                 {
-                    DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                    DataManager.Assembler.mov(rax, DataManager.Register.Previous());
                     DataManager.Assembler.mov(mem!.Value, rax);
                 }
             },
@@ -111,11 +111,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
             {
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
-                    DataManager.Assembler.mov(reg!.Value, DataManager.Register.Previous());
+                    DataManager.Assembler.mov(reg!.Value, DataManager.Stack.GetPrevious());
                 }
                 else
                 {
-                    DataManager.Assembler.mov(rax, DataManager.Register.Previous());
+                    DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
                     DataManager.Assembler.mov(mem!.Value, rax);
                 }
             }
@@ -124,102 +124,100 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void SetLocalD(InstructionArgs args)
     {
-        PreviousStackOrRegD(
-            () =>
+        PreviousStackOrRegD(() =>
+        {
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
             {
-                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
-                {
-                    DataManager.Assembler.movq(xmm!.Value, DataManager.Stack.GetPrevious());
-                }
+                DataManager.Assembler.movq(xmm!.Value, DataManager.Register.PreviousD());
+            }
+            else
+            {
+                DataManager.Assembler.movq(rax, DataManager.Register.PreviousD());
+                DataManager.Assembler.mov(mem!.Value, rax);
+            }
+        }, () =>
+        {
+            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+            {
+                DataManager.Assembler.movq(xmm!.Value, DataManager.Stack.GetPrevious());
+            }
+            else
+            {
+                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                DataManager.Assembler.mov(mem!.Value, rax);
+            }
+        });
+    }
+
+    protected override void LoadLocal(InstructionArgs args)
+    {
+        NextStackOrRegX64(() =>
+            {
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
+                    DataManager.Assembler.mov(
+                        DataManager.Register.Next(),
+                        reg!.Value
+                    );
                 else
-                {
-                    DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-                    DataManager.Assembler.mov(mem!.Value, rax);
-                }
+                    DataManager.Assembler.mov(
+                        DataManager.Register.Next(),
+                        mem!.Value
+                    );
             },
             () =>
             {
-                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
-                    DataManager.Assembler.movq(xmm!.Value, DataManager.Register.PreviousD());
+                    DataManager.Assembler.mov(
+                        DataManager.Stack.GetNext(),
+                        reg!.Value
+                    );
                 }
                 else
                 {
-                    DataManager.Assembler.movq(rax, DataManager.Register.PreviousD());
-                    DataManager.Assembler.mov(mem!.Value, rax);
+                    DataManager.Assembler.mov(rax, mem!.Value);
+                    DataManager.Assembler.mov(
+                        DataManager.Stack.GetNext(),
+                        rax
+                    );
                 }
             }
         );
     }
 
-    protected override void LoadLocal(InstructionArgs args)
-    {
-        if (DataManager.Register.CanGetNext)
-        {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
-                DataManager.Assembler.mov(
-                    DataManager.Register.Next(),
-                    reg!.Value
-                );
-            else
-                DataManager.Assembler.mov(
-                    DataManager.Register.Next(),
-                    mem!.Value
-                );
-        }
-        else
-        {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
-            {
-                DataManager.Assembler.mov(
-                    DataManager.Stack.GetNext(),
-                    reg!.Value
-                );
-            }
-            else
-            {
-                DataManager.Assembler.mov(rax, mem!.Value);
-                DataManager.Assembler.mov(
-                    DataManager.Stack.GetNext(),
-                    rax
-                );
-            }
-        }
-    }
-
     protected override void LoadLocalD(InstructionArgs args)
     {
-        if (DataManager.Register.CanGetNextD)
-        {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
-                DataManager.Assembler.movq(
-                    DataManager.Register.NextD(),
-                    xmm!.Value
-                );
-            else
-                DataManager.Assembler.movq(
-                    DataManager.Register.NextD(),
-                    mem!.Value
-                );
-        }
-        else
-        {
-            if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+        NextStackOrRegXmm(() =>
             {
-                DataManager.Assembler.movq(
-                    DataManager.Stack.GetNext(),
-                    xmm!.Value
-                );
-            }
-            else
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                    DataManager.Assembler.movq(
+                        DataManager.Register.NextD(),
+                        xmm!.Value
+                    );
+                else
+                    DataManager.Assembler.movq(
+                        DataManager.Register.NextD(),
+                        mem!.Value
+                    );
+            }, () =>
             {
-                DataManager.Assembler.mov(rax, mem!.Value);
-                DataManager.Assembler.mov(
-                    DataManager.Stack.GetNext(),
-                    rax
-                );
+                if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
+                {
+                    DataManager.Assembler.movq(
+                        DataManager.Stack.GetNext(),
+                        xmm!.Value
+                    );
+                }
+                else
+                {
+                    DataManager.Assembler.mov(rax, mem!.Value);
+                    DataManager.Assembler.mov(
+                        DataManager.Stack.GetNext(),
+                        rax
+                    );
+                }
             }
-        }
+        );
     }
 
     protected override void Nop(InstructionArgs args)
@@ -302,11 +300,18 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void IDiv(InstructionArgs args)
     {
         PreviousStackOrRegX64(
-            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
-            () => DataManager.Assembler.mov(rax, DataManager.Register.Previous())
+            () => DataManager.Assembler.mov(rax, DataManager.Register.Previous()),
+            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious())
         );
 
         PreviousStackOrRegX64(
+            () =>
+            {
+                var r = DataManager.Register.Previous();
+                DataManager.Assembler.xchg(r, rax);
+                DataManager.Assembler.cqo();
+                DataManager.Assembler.idiv(r);
+            },
             () =>
             {
                 var mem = DataManager.Stack.GetPrevious();
@@ -314,18 +319,11 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 DataManager.Assembler.xchg(rdi, rax);
                 DataManager.Assembler.cqo();
                 DataManager.Assembler.idiv(rdi);
-            },
-            () =>
-            {
-                var r = DataManager.Register.Previous();
-                DataManager.Assembler.xchg(r, rax);
-                DataManager.Assembler.cqo();
-                DataManager.Assembler.idiv(r);
             });
 
         NextStackOrRegX64(
-            () => DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax),
-            () => DataManager.Assembler.mov(DataManager.Register.Next(), rax)
+            () => DataManager.Assembler.mov(DataManager.Register.Next(), rax),
+            () => DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax)
         );
     }
 
@@ -384,8 +382,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Ret(InstructionArgs args)
     {
         PreviousStackOrRegX64(
-            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
             () => DataManager.Assembler.mov(rax, DataManager.Register.Previous()),
+            () => DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious()),
             () => { }
         );
 
@@ -420,12 +418,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
     private void Push(long number)
     {
         NextStackOrRegX64(
+            () => { DataManager.Assembler.mov(DataManager.Register.Next(), __[DataManager.DefineI64(number)]); },
             () =>
             {
                 DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
                 DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-            },
-            () => { DataManager.Assembler.mov(DataManager.Register.Next(), __[DataManager.DefineI64(number)]); }
+            }
         );
     }
 
@@ -434,13 +432,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
         NextStackOrRegXmm(
             () =>
             {
-                DataManager.Assembler.movq(xmm0, __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
-                DataManager.Assembler.movq(DataManager.Stack.GetNext(), xmm0);
+                DataManager.Assembler.movq(DataManager.Register.NextD(),
+                    __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
             },
             () =>
             {
-                DataManager.Assembler.movq(DataManager.Register.NextD(),
-                    __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
+                DataManager.Assembler.movq(xmm0, __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
+                DataManager.Assembler.movq(DataManager.Stack.GetNext(), xmm0);
             }
         );
     }
@@ -451,8 +449,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
         PreviousStackOrRegX64(
             () =>
             {
+                var srcReg = DataManager.Register.Previous();
+                rr(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), srcReg);
+            },
+            () =>
+            {
                 var src = DataManager.Stack.GetPrevious();
                 PreviousStackOrRegX64(
+                    () => mm(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), src),
                     () =>
                     {
                         DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
@@ -460,14 +464,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
                         if (saveResult)
                             DataManager.Assembler.mov(DataManager.Stack.GetNext(), rax);
-                    },
-                    () => mm(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), src)
+                    }
                 );
-            },
-            () =>
-            {
-                var srcReg = DataManager.Register.Previous();
-                rr(saveResult ? DataManager.Register.BackValue() : DataManager.Register.Previous(), srcReg);
             }
         );
     }
@@ -475,31 +473,26 @@ internal sealed class ViskCompiler : ViskCompilerBase
     private void OperateD(Action<AssemblerRegisterXMM, AssemblerMemoryOperand> mm,
         Action<AssemblerRegisterXMM, AssemblerRegisterXMM> rr, bool saveResult = true)
     {
-        PreviousStackOrRegD(
-            () =>
-            {
-                var src = DataManager.Stack.GetPrevious();
-                PreviousStackOrRegD(
-                    () =>
-                    {
-                        DataManager.Assembler.movq(xmm0, DataManager.Stack.GetPrevious());
-                        mm(xmm0, src);
+        PreviousStackOrRegD(() =>
+        {
+            var srcReg = DataManager.Register.PreviousD();
+            rr(saveResult ? DataManager.Register.BackValueD() : DataManager.Register.PreviousD(), srcReg);
+        }, () =>
+        {
+            var src = DataManager.Stack.GetPrevious();
+            PreviousStackOrRegD(
+                () => mm(saveResult ? DataManager.Register.BackValueD() : DataManager.Register.PreviousD(), src), () =>
+                {
+                    DataManager.Assembler.movq(xmm0, DataManager.Stack.GetPrevious());
+                    mm(xmm0, src);
 
-                        if (saveResult)
-                            DataManager.Assembler.movq(DataManager.Stack.GetNext(), xmm0);
-                    },
-                    () => mm(saveResult ? DataManager.Register.BackValueD() : DataManager.Register.PreviousD(), src)
-                );
-            },
-            () =>
-            {
-                var srcReg = DataManager.Register.PreviousD();
-                rr(saveResult ? DataManager.Register.BackValueD() : DataManager.Register.PreviousD(), srcReg);
-            }
-        );
+                    if (saveResult)
+                        DataManager.Assembler.movq(DataManager.Stack.GetNext(), xmm0);
+                });
+        });
     }
 
-    private void PreviousStackOrRegX64(Action stack, Action reg, Action? onError = null)
+    private void PreviousStackOrRegX64(Action reg, Action stack, Action? onError = null)
     {
         if (!DataManager.Stack.IsEmpty()) stack();
         else if (DataManager.Register.CanGetPrevious) reg();
@@ -507,7 +500,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
         else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
     }
 
-    private void PreviousStackOrRegD(Action stack, Action reg, Action? onError = null)
+    private void PreviousStackOrRegD(Action reg, Action stack, Action? onError = null)
     {
         if (!DataManager.Stack.IsEmpty()) stack();
         else if (DataManager.Register.CanGetPreviousD) reg();
@@ -515,13 +508,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
         else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
     }
 
-    private void NextStackOrRegX64(Action stack, Action reg)
+    private void NextStackOrRegX64(Action reg, Action stack)
     {
         if (DataManager.Register.CanGetNext) reg();
         else stack();
     }
 
-    private void NextStackOrRegXmm(Action stack, Action xmm)
+    private void NextStackOrRegXmm(Action xmm, Action stack)
     {
         if (DataManager.Register.CanGetNextD) xmm();
         else stack();
@@ -531,12 +524,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
     private void CmpValueAndZero()
     {
         PreviousStackOrRegX64(
+            () => { DataManager.Assembler.cmp(DataManager.Register.Previous(), 0); },
             () =>
             {
                 DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
                 DataManager.Assembler.cmp(rax, 0);
-            },
-            () => { DataManager.Assembler.cmp(DataManager.Register.Previous(), 0); }
+            }
         );
     }
 }
