@@ -11,6 +11,9 @@ public sealed class Tests
     private static readonly MethodInfo _voidMethodInfo =
         typeof(Tests).GetMethod(nameof(VoidMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
+    private static readonly MethodInfo _doubleToLongMethodInfo =
+        typeof(Tests).GetMethod(nameof(DoubleToLong), BindingFlags.NonPublic | BindingFlags.Static)!;
+
     private static readonly MethodInfo _bigMethodInfo =
         typeof(Tests).GetMethod(nameof(BigMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
@@ -524,6 +527,172 @@ public sealed class Tests
         Assert.That(result, Is.EqualTo(-1));
     }
 
+
+    [Test]
+    public void Test18()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321)));
+    }
+
+
+    [Test]
+    public void Test19()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.AddD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 + 123.123)));
+    }
+
+
+    [Test]
+    public void Test20()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.MulD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 * 123.123)));
+    }
+
+
+    [Test]
+    public void Test21()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.SubD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 - 123.123)));
+    }
+
+
+    [Test]
+    public void Test22()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.DivD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 / 123.123)));
+    }
+
+
+    [Test]
+    public void Test23()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.DivD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 / 123.123)));
+    }
+
+
+    [Test]
+    public void Test24()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.321),
+                ViskInstruction.PushConstD(123.123),
+                ViskInstruction.MulD(),
+                ViskInstruction.DivD(),
+                ViskInstruction.SubD(),
+                ViskInstruction.AddD(),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(123.321 + (123.321 - 123.321 / (123.321 * 123.123)))));
+    }
+
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
@@ -558,4 +727,6 @@ public sealed class Tests
     ) => l0 * l1 * l2 * l3 * l4 / l5 * l6 * l7 * l8 * l9;
 
     private static void VoidMethod() => Console.WriteLine("hi from void method");
+
+    private static long DoubleToLong(double value) => BitConverter.DoubleToInt64Bits(value);
 }

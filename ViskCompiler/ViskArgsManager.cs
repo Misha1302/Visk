@@ -74,17 +74,8 @@ internal sealed class ViskArgsManager
                 var jCopy = j;
 
                 args[j].ChooseViskType(
-                    () =>
-                    {
-                        _dataManager.Assembler.mov(rax, offset!.Value);
-                        _dataManager.Assembler.mov(_argsRegisters[jCopy], rax);
-                    },
-                    () =>
-                    {
-                        _dataManager.Assembler.movq(xmm0, offset!.Value);
-                        _dataManager.Assembler.movq(_argsRegisters[jCopy], xmm0);
-                    }
-                );
+                    () => _dataManager.Assembler.mov(_argsRegisters[jCopy], offset!.Value),
+                    () => _dataManager.Assembler.movq(_argsRegistersD[jCopy], offset!.Value));
             }
         }
     }
@@ -221,14 +212,24 @@ internal sealed class ViskArgsManager
 
     public void SaveReturnValue(Type rt)
     {
-        if (rt == typeof(void)) return;
+        if (rt == typeof(void))
+            return;
 
-        if (rt != typeof(long))
+        if (rt != typeof(long) && rt != typeof(double))
             ViskThrowHelper.ThrowInvalidOperationException("Unknown return type");
 
-        if (_dataManager.Register.CanGetNext)
-            _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
-        else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(), rax);
+        if (rt == typeof(long))
+        {
+            if (_dataManager.Register.CanGetNext)
+                _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+            else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(typeof(long)), rax);
+        }
+        else
+        {
+            if (_dataManager.Register.CanGetNext)
+                _dataManager.Assembler.movq(_dataManager.Register.NextD(), xmm0);
+            else _dataManager.Assembler.movq(_dataManager.Stack.GetNext(typeof(double)), xmm0);
+        }
     }
 
     public void Reset() => _index = 0;
