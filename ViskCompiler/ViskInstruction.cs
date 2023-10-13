@@ -57,7 +57,8 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     public int AssemblerInstructionIndex { get; set; }
 
-    public override string ToString() => $"{InstructionKind} {string.Join(", ", Arguments)}";
+    public override string ToString() =>
+        $"{InstructionKind} {string.Join(", ", Arguments.Select(x => x.ToStringRecursive()))}";
 
     [Pure] public static ViskInstruction PushConst(long n) =>
         new(ViskInstructionKind.PushConst, n);

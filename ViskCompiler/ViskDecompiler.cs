@@ -37,10 +37,7 @@ public sealed class ViskDecompiler
 
             var instruction = _viskDebugInfo.GetInstruction(index);
             if (instruction != null)
-                sb.AppendLine(
-                    ";".PadLeft(maxDigits) +
-                    $" {instruction.InstructionKind} {string.Join(", ", instruction.Arguments)}"
-                );
+                sb.AppendLine("; ".PadLeft(maxDigits) + instruction);
 
             var instr = _asm.Instructions[index];
 

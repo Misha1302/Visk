@@ -1,6 +1,7 @@
 ﻿namespace ViskCompiler;
 
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 public static class ViskExtensions
 {
@@ -38,6 +39,16 @@ public static class ViskExtensions
         if (type == typeof(long)) x64();
         else if (type == typeof(double)) xmm();
         else ViskThrowHelper.ThrowInvalidOperationException("Unknown type");
+    }
+
+    public static string ToStringRecursive(this object obj)
+    {
+        return obj switch
+        {
+            IEnumerable<object> enumerable => $"[{string.Join(", ", enumerable.Select(x => x.ToStringRecursive()))}]",
+            double d => d.ToString(CultureInfo.InvariantCulture),
+            _ => obj.ToString() ?? ViskThrowHelper.ThrowInvalidOperationException<string>("Obj returned null string")
+        };
     }
 
     [Pure]
