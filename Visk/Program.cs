@@ -11,36 +11,33 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
 var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+var of = module.AddFunction("other", new List<Type> { typeof(double) }, typeof(double));
+
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.PushConstD(1.2),
-        ViskInstruction.SetLocalD("a"),
-        ViskInstruction.PushConstD(1.5),
-        ViskInstruction.SetLocalD("b"),
+        ViskInstruction.PushConstD(123.321),
+        ViskInstruction.Call(of),
+        ViskInstruction.Call(of),
+        ViskInstruction.CallForeign(printDouble),
 
-        ViskInstruction.LoadLocalD("a"),
-        ViskInstruction.LoadLocalD("b"),
-        ViskInstruction.AddD(),
-
-        ViskInstruction.LoadLocalD("a"),
-        ViskInstruction.LoadLocalD("b"),
-        ViskInstruction.MulD(),
-
-        ViskInstruction.LoadLocalD("a"),
-        ViskInstruction.LoadLocalD("b"),
-        ViskInstruction.SubD(),
-
-        ViskInstruction.LoadLocalD("a"),
-        ViskInstruction.LoadLocalD("b"),
-        ViskInstruction.DivD(),
-
-        ViskInstruction.CallForeign(printDouble), // div
-        ViskInstruction.CallForeign(printDouble), // sub
-        ViskInstruction.CallForeign(printDouble), // mul
-        ViskInstruction.CallForeign(printDouble), // add
-
+        ViskInstruction.PushConst(0),
         ViskInstruction.Ret()
+    }
+);
+
+of.RawInstructions.AddRange(
+    new List<ViskInstruction>
+    {
+        ViskInstruction.SetArgD("i"),
+        
+        ViskInstruction.LoadLocalD("i"),
+        ViskInstruction.PushConstD(0.75),
+        ViskInstruction.DivD(),
+        ViskInstruction.CallForeign(printDouble),
+
+        ViskInstruction.LoadLocalD("i"),
+        ViskInstruction.RetD()
     }
 );
 

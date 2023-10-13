@@ -87,6 +87,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.SetLocalD => SetLocalD,
             ViskInstructionKind.Nop => Nop,
             ViskInstructionKind.Dup => Dup,
+            ViskInstructionKind.DupD => DupD,
             ViskInstructionKind.IMul => IMul,
             ViskInstructionKind.IDiv => IDiv,
             ViskInstructionKind.Sub => Sub,
@@ -96,8 +97,11 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.Call => Call,
             ViskInstructionKind.Prolog => Prolog,
             ViskInstructionKind.Drop => Drop,
+            ViskInstructionKind.DropD => DropD,
             ViskInstructionKind.Ret => Ret,
+            ViskInstructionKind.RetD => RetD,
             ViskInstructionKind.SetArg => SetArg,
+            ViskInstructionKind.SetArgD => SetArgD,
             ViskInstructionKind.LogicNeg => LogicNeg,
             ViskInstructionKind.GotoIfTrue => GotoIfTrue,
             ViskInstructionKind.PushConstD => PushConstD,
@@ -143,6 +147,9 @@ internal abstract class ViskCompilerBase
     protected virtual void Ret(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
+    protected virtual void RetD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
     protected virtual void CallForeign(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
@@ -183,6 +190,9 @@ internal abstract class ViskCompilerBase
     protected virtual void Dup(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
+    protected virtual void DupD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
     protected virtual void Equals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
@@ -192,7 +202,13 @@ internal abstract class ViskCompilerBase
     protected virtual void Drop(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
+    protected virtual void DropD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
     protected virtual void SetArg(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void SetArgD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     [Pure]

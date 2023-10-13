@@ -19,12 +19,16 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.SubD] = (2, 1),
             [ViskInstructionKind.MulD] = (2, 1),
             [ViskInstructionKind.DivD] = (2, 1),
+            [ViskInstructionKind.DupD] = (2, 1),
+            [ViskInstructionKind.DropD] = (2, 1),
             [ViskInstructionKind.Sub] = (2, 1),
             [ViskInstructionKind.Ret] = (1, 0),
+            [ViskInstructionKind.RetD] = (1, 0),
             [ViskInstructionKind.Equals] = (2, 1),
             [ViskInstructionKind.NotEquals] = (2, 1),
             [ViskInstructionKind.IDiv] = (2, 1),
             [ViskInstructionKind.SetArg] = (1, 0),
+            [ViskInstructionKind.SetArgD] = (1, 0),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
             [ViskInstructionKind.IMul] = (2, 1),
@@ -53,6 +57,7 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     public int AssemblerInstructionIndex { get; set; }
 
+    public override string ToString() => $"{InstructionKind} {string.Join(", ", Arguments)}";
 
     [Pure] public static ViskInstruction PushConst(long n) =>
         new(ViskInstructionKind.PushConst, n);
@@ -96,6 +101,8 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
+    [Pure] public static ViskInstruction RetD() => new(ViskInstructionKind.RetD);
+
     [Pure] public static ViskInstruction Prolog() => new(ViskInstructionKind.Prolog);
 
     [Pure] public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
@@ -108,11 +115,17 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Dup() => new(ViskInstructionKind.Dup);
 
+    [Pure] public static ViskInstruction DupD() => new(ViskInstructionKind.DupD);
+
     [Pure] public static ViskInstruction Equals() => new(ViskInstructionKind.Equals);
 
     [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
+    [Pure] public static ViskInstruction DropD() => new(ViskInstructionKind.DropD);
+
     [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name);
+
+    [Pure] public static ViskInstruction SetArgD(string name) => new(ViskInstructionKind.SetArgD, name);
 
     [Pure] public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
 
