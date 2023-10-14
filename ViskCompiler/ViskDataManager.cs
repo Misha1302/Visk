@@ -39,7 +39,8 @@ internal sealed class ViskDataManager
     {
         CurrentFuncMaxStackSize = stackSize * 8;
         Stack = new ViskStack(this);
-        Register.Reset();
+        Register.Rd.Reset();
+        Register.Rx64.Reset();
         ViskArgsManager.Reset();
 
         CurrentFuncLocals = new ViskLocals(locals, FuncStackManager);

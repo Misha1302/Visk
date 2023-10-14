@@ -27,9 +27,9 @@ internal sealed class ViskRegOrOffset
         }
 
         if (curType == typeof(long))
-            register64 = _register.Previous();
+            register64 = _register.Rx64.Previous();
         else if (curType == typeof(double))
-            registerXmm = _register.PreviousD();
+            registerXmm = _register.Rd.Previous();
         else ViskThrowHelper.ThrowInvalidOperationException($"Unknown type {curType}");
     }
 }

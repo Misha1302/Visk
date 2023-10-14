@@ -122,17 +122,17 @@ internal sealed class ViskArgsManager
 
     private void SaveX64()
     {
-        _regsCount = _dataManager.Register.CurIndex;
+        _regsCount = _dataManager.Register.Rx64.CurIndex;
         for (var index = 0; index < _regsCount; index++)
         {
             var register = ViskRegister.PublicRegisters[index];
             _dataManager.Assembler.mov(_dataManager.FuncStackManager.GetMemoryToSaveRegX64(index), register);
         }
 
-        _localsCount = Math.Min(_dataManager.CurrentFuncLocals.Locals.Count, ViskRegister.LocalsRegisters.Length);
+        _localsCount = Math.Min(_dataManager.CurrentFuncLocals.Locals.Count, ViskLocal.LocalsRegisters.Length);
         for (var index = 0; index < _localsCount; index++)
         {
-            var register = ViskRegister.LocalsRegisters[index];
+            var register = ViskLocal.LocalsRegisters[index];
             _dataManager.Assembler.mov(
                 _dataManager.FuncStackManager.GetMemoryToSaveRegX64(_regsCount + index),
                 register
@@ -142,17 +142,17 @@ internal sealed class ViskArgsManager
 
     private void SaveD()
     {
-        _regsCountD = _dataManager.Register.CurIndexD;
+        _regsCountD = _dataManager.Register.Rx64.CurIndexD;
         for (var index = 0; index < _regsCountD; index++)
         {
             var register = ViskRegister.PublicRegistersD[index];
             _dataManager.Assembler.movq(_dataManager.FuncStackManager.GetMemoryToSaveRegD(index), register);
         }
 
-        _localsCountD = Math.Min(_dataManager.CurrentFuncLocals.Locals.Count, ViskRegister.LocalsRegistersD.Length);
+        _localsCountD = Math.Min(_dataManager.CurrentFuncLocals.Locals.Count, ViskLocal.LocalsRegistersD.Length);
         for (var index = 0; index < _localsCountD; index++)
         {
-            var register = ViskRegister.LocalsRegistersD[index];
+            var register = ViskLocal.LocalsRegistersD[index];
             _dataManager.Assembler.movq(
                 _dataManager.FuncStackManager.GetMemoryToSaveRegD(_regsCountD + index),
                 register
@@ -184,7 +184,7 @@ internal sealed class ViskArgsManager
 
         for (var index = _localsCount - 1; index >= 0; index--)
         {
-            var register = ViskRegister.LocalsRegisters[index];
+            var register = ViskLocal.LocalsRegisters[index];
             _dataManager.Assembler.mov(
                 register,
                 _dataManager.FuncStackManager.GetMemoryToSaveRegX64(_regsCount + index)
@@ -202,7 +202,7 @@ internal sealed class ViskArgsManager
 
         for (var index = _localsCountD - 1; index >= 0; index--)
         {
-            var register = ViskRegister.LocalsRegistersD[index];
+            var register = ViskLocal.LocalsRegistersD[index];
             _dataManager.Assembler.movq(
                 register,
                 _dataManager.FuncStackManager.GetMemoryToSaveRegD(_regsCountD + index)
@@ -220,14 +220,14 @@ internal sealed class ViskArgsManager
 
         if (rt == typeof(long))
         {
-            if (_dataManager.Register.CanGetNext)
-                _dataManager.Assembler.mov(_dataManager.Register.Next(), rax);
+            if (_dataManager.Register.Rd.CanGetNext)
+                _dataManager.Assembler.mov(_dataManager.Register.Rx64.Next(), rax);
             else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(typeof(long)), rax);
         }
         else
         {
-            if (_dataManager.Register.CanGetNext)
-                _dataManager.Assembler.movq(_dataManager.Register.NextD(), xmm0);
+            if (_dataManager.Register.Rd.CanGetNext)
+                _dataManager.Assembler.movq(_dataManager.Register.Rd.Next(), xmm0);
             else _dataManager.Assembler.movq(_dataManager.Stack.GetNext(typeof(double)), xmm0);
         }
     }

@@ -30,7 +30,7 @@ of.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
         ViskInstruction.SetArgD("i"),
-        
+
         ViskInstruction.LoadLocalD("i"),
         ViskInstruction.PushConstD(0.75),
         ViskInstruction.DivD(),

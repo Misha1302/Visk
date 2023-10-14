@@ -8,14 +8,13 @@ internal sealed class ViskFunctionStackManager
 {
     private readonly ViskDataManager _dataManager;
     private readonly int _publicRegistersLength;
-    private readonly int _publicRegistersDLength;
     private readonly int _totalRegistersLength;
 
     internal ViskFunctionStackManager(ViskDataManager dataManager)
     {
         _publicRegistersLength = ViskRegister.PublicRegisters.Length * ViskStack.BlockSize;
-        _publicRegistersDLength = ViskRegister.PublicRegistersD.Length * ViskStack.BlockSize;
-        _totalRegistersLength = _publicRegistersLength + _publicRegistersDLength;
+        var publicRegistersDLength = ViskRegister.PublicRegistersD.Length * ViskStack.BlockSize;
+        _totalRegistersLength = _publicRegistersLength + publicRegistersDLength;
         _dataManager = dataManager;
     }
 

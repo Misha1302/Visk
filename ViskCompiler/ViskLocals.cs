@@ -10,14 +10,14 @@ internal sealed class ViskLocals
 
     public ViskLocals(IReadOnlyList<ViskLocal> locals, ViskFunctionStackManager funcStackManager)
     {
-        var min = Math.Min(ViskRegister.LocalsRegisters.Length, locals.Count);
+        var min = Math.Min(ViskLocal.LocalsRegisters.Length, locals.Count);
         for (var index = 0; index < min; index++)
         {
             var value = locals[index].Type == typeof(long)
                 ? new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(
-                    ViskRegister.LocalsRegisters[index])
+                    ViskLocal.LocalsRegisters[index])
                 : new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(
-                    ViskRegister.LocalsRegistersD[index]);
+                    ViskLocal.LocalsRegistersD[index]);
 
             Locals.Add((locals[index].Name, value));
         }
