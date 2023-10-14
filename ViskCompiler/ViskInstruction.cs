@@ -60,9 +60,6 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     public override string ToString() =>
         $"{InstructionKind} {string.Join(", ", Arguments.Select(x => x.ToStringRecursive()))}";
 
-    [Pure] public static ViskInstruction PushConst(long n) =>
-        new(ViskInstructionKind.PushConst, n);
-
     [Pure] public static ViskInstruction CallForeign(MethodInfo? m)
     {
         if (m is null)
@@ -80,11 +77,18 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
         );
     }
 
+    [Pure] public static ViskInstruction PushConst(long n) => new(ViskInstructionKind.PushConst, n);
+
     [Pure] public static ViskInstruction Add() => new(ViskInstructionKind.Add);
+
     [Pure] public static ViskInstruction AddD() => new(ViskInstructionKind.AddD);
+
     [Pure] public static ViskInstruction SubD() => new(ViskInstructionKind.SubD);
+
     [Pure] public static ViskInstruction MulD() => new(ViskInstructionKind.MulD);
+
     [Pure] public static ViskInstruction DivD() => new(ViskInstructionKind.DivD);
+
     [Pure] public static ViskInstruction Sub() => new(ViskInstructionKind.Sub);
 
     // ReSharper disable once InconsistentNaming
@@ -94,11 +98,9 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
 
-    [Pure] public static ViskInstruction GotoIfFalse(string label) =>
-        new(ViskInstructionKind.GotoIfFalse, label);
+    [Pure] public static ViskInstruction GotoIfFalse(string label) => new(ViskInstructionKind.GotoIfFalse, label);
 
-    [Pure] public static ViskInstruction GotoIfTrue(string label) =>
-        new(ViskInstructionKind.GotoIfTrue, label);
+    [Pure] public static ViskInstruction GotoIfTrue(string label) => new(ViskInstructionKind.GotoIfTrue, label);
 
     [Pure] public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 

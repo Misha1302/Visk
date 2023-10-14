@@ -12,9 +12,9 @@ public sealed class ViskModule
 
     public IReadOnlyList<ViskFunction> Functions => _functions;
 
-    public ViskFunction AddFunction(string name, List<Type> parameters, Type returnType)
+    public ViskFunction AddFunction(string name, List<Type>? parameters, Type returnType)
     {
-        var f = new ViskFunction(name, parameters, returnType, name == MainFuncName);
+        var f = new ViskFunction(name, parameters ?? new List<Type>(), returnType, name == MainFuncName);
         _functions.Add(f);
         return f;
     }

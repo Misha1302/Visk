@@ -14,6 +14,9 @@ public sealed class Tests
     private static readonly MethodInfo _doubleToLongMethodInfo =
         typeof(Tests).GetMethod(nameof(DoubleToLong), BindingFlags.NonPublic | BindingFlags.Static)!;
 
+    private static readonly MethodInfo _sum15DoublesMethodInfo =
+        typeof(Tests).GetMethod(nameof(Sum15Doubles), BindingFlags.NonPublic | BindingFlags.Static)!;
+
     private static readonly MethodInfo _bigMethodInfo =
         typeof(Tests).GetMethod(nameof(BigMethod), BindingFlags.NonPublic | BindingFlags.Static)!;
 
@@ -693,6 +696,302 @@ public sealed class Tests
         Assert.That(result, Is.EqualTo(DoubleToLong(123.321 + (123.321 - 123.321 / (123.321 * 123.123)))));
     }
 
+
+    [Test]
+    public void Test25()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
+                var of = module.AddFunction("other", new List<Type> { typeof(double) }, typeof(double));
+
+                mf.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.PushConstD(321.123),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.PushConstD(22.33),
+                    ViskInstruction.MulD(),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                    ViskInstruction.Ret()
+                });
+
+                of.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.SetArgD("i"),
+
+                    ViskInstruction.LoadLocalD("i"),
+                    ViskInstruction.PushConstD(2.1),
+                    ViskInstruction.DivD(),
+
+                    ViskInstruction.RetD()
+                });
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(321.123 / 2.1 / 2.1 * 22.33)));
+    }
+
+
+    [Test]
+    public void Test27()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
+                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+
+                mf.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.PushConstD(1),
+                    ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3),
+                    ViskInstruction.PushConstD(4),
+                    ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6),
+                    ViskInstruction.PushConstD(7),
+                    ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12),
+                    ViskInstruction.PushConstD(13),
+                    ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                    ViskInstruction.Ret()
+                });
+
+                of.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.SetArgD("i0"),
+                    ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"),
+                    ViskInstruction.SetArgD("i3"),
+                    ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"),
+                    ViskInstruction.SetArgD("i6"),
+                    ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"),
+                    ViskInstruction.SetArgD("i9"),
+                    ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"),
+                    ViskInstruction.SetArgD("i12"),
+                    ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"),
+                    
+                    ViskInstruction.LoadLocalD("i4"),
+                    ViskInstruction.RetD()
+                });
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(5)));
+    }
+
+
+    [Test]
+    public void Test28()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
+                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+
+                mf.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.PushConstD(1),
+                    ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3),
+                    ViskInstruction.PushConstD(4),
+                    ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6),
+                    ViskInstruction.PushConstD(7),
+                    ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12),
+                    ViskInstruction.PushConstD(13),
+                    ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                    ViskInstruction.Ret()
+                });
+
+                of.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.SetArgD("i0"),
+                    ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"),
+                    ViskInstruction.SetArgD("i3"),
+                    ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"),
+                    ViskInstruction.SetArgD("i6"),
+                    ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"),
+                    ViskInstruction.SetArgD("i9"),
+                    ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"),
+                    ViskInstruction.SetArgD("i12"),
+                    ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"),
+                    
+                    ViskInstruction.LoadLocalD("i14"),
+                    ViskInstruction.RetD()
+                });
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(15)));
+    }
+
+
+    [Test]
+    public void Test29()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
+                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+
+                mf.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.PushConstD(1),
+                    ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3),
+                    ViskInstruction.PushConstD(4),
+                    ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6),
+                    ViskInstruction.PushConstD(7),
+                    ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12),
+                    ViskInstruction.PushConstD(13),
+                    ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                    ViskInstruction.Ret()
+                });
+
+                of.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.SetArgD("i0"),
+                    ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"),
+                    ViskInstruction.SetArgD("i3"),
+                    ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"),
+                    ViskInstruction.SetArgD("i6"),
+                    ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"),
+                    ViskInstruction.SetArgD("i9"),
+                    ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"),
+                    ViskInstruction.SetArgD("i12"),
+                    ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"),
+                    
+                    ViskInstruction.LoadLocalD("i0"),
+                    ViskInstruction.RetD()
+                });
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(1)));
+    }
+
+
+    [Test]
+    public void Test30()
+    {
+        var result = ExecuteFunctions(
+            module =>
+            {
+                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
+                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+
+                mf.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                    ViskInstruction.Ret()
+                });
+
+                of.RawInstructions.AddRange(new[]
+                {
+                    ViskInstruction.SetArgD("i0"),
+                    ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"),
+                    ViskInstruction.SetArgD("i3"),
+                    ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"),
+                    ViskInstruction.SetArgD("i6"),
+                    ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"),
+                    ViskInstruction.SetArgD("i9"),
+                    ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"),
+                    ViskInstruction.SetArgD("i12"),
+                    ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"),
+
+                    ViskInstruction.LoadLocalD("i0"),
+                    ViskInstruction.LoadLocalD("i1"),
+                    ViskInstruction.LoadLocalD("i2"),
+                    ViskInstruction.LoadLocalD("i3"),
+                    ViskInstruction.LoadLocalD("i4"),
+                    ViskInstruction.LoadLocalD("i5"),
+                    ViskInstruction.LoadLocalD("i6"),
+                    ViskInstruction.LoadLocalD("i7"),
+                    ViskInstruction.LoadLocalD("i8"),
+                    ViskInstruction.LoadLocalD("i9"),
+                    ViskInstruction.LoadLocalD("i10"),
+                    ViskInstruction.LoadLocalD("i11"),
+                    ViskInstruction.LoadLocalD("i12"),
+                    ViskInstruction.LoadLocalD("i13"),
+                    ViskInstruction.LoadLocalD("i14"),
+
+                    ViskInstruction.CallForeign(_sum15DoublesMethodInfo),
+
+                    ViskInstruction.RetD()
+                });
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(150)));
+    }
+
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
@@ -725,6 +1024,11 @@ public sealed class Tests
     private static long BigMethod(
         long l0, long l1, long l2, long l3, long l4, long l5, long l6, long l7, long l8, long l9
     ) => l0 * l1 * l2 * l3 * l4 / l5 * l6 * l7 * l8 * l9;
+
+    private static double Sum15Doubles(
+        double l0, double l1, double l2, double l3, double l4, double l5, double l6, double l7, double l8, double l9,
+        double l10, double l11, double l12, double l13, double l14
+    ) => l0 + l1 + l2 + l3 + l4 + l5 + l6 + l7 + l8 + l9 + l10 + l11 + l12 + l13 + l14;
 
     private static void VoidMethod() => Console.WriteLine("hi from void method");
 
