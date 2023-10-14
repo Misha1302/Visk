@@ -37,5 +37,9 @@ public enum ViskInstructionKind : long
     LoadLocalD = 1L << 29,
     DupD = 1L << 30,
     DropD = 1L << 31,
-    RetD = 1L << 32
+    RetD = 1L << 32,
+    LessThan,
+    LessThanOrEquals,
+    GreaterThan,
+    GreaterThanOrEquals
 }

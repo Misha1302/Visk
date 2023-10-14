@@ -5,6 +5,7 @@ using ViskCompiler;
 // ReSharper disable UnusedVariable
 var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
 var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
+var inputLong = typeof(Helper).GetMethod(nameof(Helper.InputLong));
 var printDouble = typeof(Helper).GetMethod(nameof(Helper.PrintDouble));
 var printDoubles = typeof(Helper).GetMethod(nameof(Helper.PrintDoubles));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
@@ -16,12 +17,19 @@ var of = module.AddFunction("other", new List<Type> { typeof(double) }, typeof(d
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.PushConstD(123.321),
-        ViskInstruction.Call(of),
-        ViskInstruction.Call(of),
-        ViskInstruction.CallForeign(printDouble),
-
+        ViskInstruction.CallForeign(inputLong),
         ViskInstruction.PushConst(0),
+        ViskInstruction.LessThan(),
+        ViskInstruction.GotoIfFalse("else"),
+        
+        ViskInstruction.PushConst(-123),
+        ViskInstruction.Goto("end"),
+        
+        ViskInstruction.SetLabel("else"),
+        
+        ViskInstruction.PushConst(123),
+        
+        ViskInstruction.SetLabel("end"),
         ViskInstruction.Ret()
     }
 );

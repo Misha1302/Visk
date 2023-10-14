@@ -28,6 +28,9 @@ public static class Helper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static long InputLong() => long.Parse(Console.ReadLine() ?? throw new InvalidOperationException());
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void PrintDouble(double d)
     {
         Console.WriteLine(d.ToString("0.########"));

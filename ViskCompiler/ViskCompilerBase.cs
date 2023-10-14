@@ -105,6 +105,10 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.LogicNeg => LogicNeg,
             ViskInstructionKind.GotoIfTrue => GotoIfTrue,
             ViskInstructionKind.PushConstD => PushConstD,
+            ViskInstructionKind.LessThan => LessThan,
+            ViskInstructionKind.GreaterThan => GreaterThan,
+            ViskInstructionKind.GreaterThanOrEquals => GreaterThanOrEquals,
+            ViskInstructionKind.LessThanOrEquals => LessThanOrEquals,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -194,6 +198,18 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Equals(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LessThan(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void GreaterThan(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LessThanOrEquals(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void GreaterThanOrEquals(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void NotEquals(InstructionArgs args) =>

@@ -232,24 +232,42 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void Equals(InstructionArgs args)
     {
-        Cmp();
-        SaveFlagsAsBool(false);
+        CmpAsBool(DataManager.Assembler.sete);
+    }
+
+    protected override void LessThan(InstructionArgs args)
+    {
+        CmpAsBool(DataManager.Assembler.setl);
+    }
+
+    protected override void GreaterThan(InstructionArgs args)
+    {
+        CmpAsBool(DataManager.Assembler.setg);
+    }
+
+    protected override void LessThanOrEquals(InstructionArgs args)
+    {
+        CmpAsBool(DataManager.Assembler.setle);
+    }
+
+    protected override void GreaterThanOrEquals(InstructionArgs args)
+    {
+        CmpAsBool(DataManager.Assembler.setge);
     }
 
     protected override void NotEquals(InstructionArgs args)
     {
-        Cmp();
-        SaveFlagsAsBool(true);
+        CmpAsBool(DataManager.Assembler.setne);
     }
 
 
-    private void SaveFlagsAsBool(bool invert)
+    private void CmpAsBool(Action<AssemblerRegister8> act)
     {
+        Cmp();
+
         if (!DataManager.Register.Rx64.CanGetNext)
         {
-            if (!invert)
-                DataManager.Assembler.sete(al);
-            else DataManager.Assembler.setne(al);
+            act(al);
 
             DataManager.Assembler.movzx(rax, al);
             DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax);
@@ -260,9 +278,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
             var oldValue = DataManager.Register.Rx64.Current();
             var assemblerRegister8 = ViskRegister.PublicRegisters8[DataManager.Register.Rx64.Next()];
 
-            if (!invert)
-                DataManager.Assembler.sete(assemblerRegister8);
-            else DataManager.Assembler.setne(assemblerRegister8);
+            act(assemblerRegister8);
 
             DataManager.Assembler.movzx(oldValue, assemblerRegister8);
         }
