@@ -28,19 +28,14 @@ public sealed class Tests
     [Test]
     public void Test00()
     {
-        try
-        {
-            ExecuteFunctions(
-                new List<ViskInstruction>
-                {
-                    ViskInstruction.Ret()
-                }
-            );
-        }
-        catch
-        {
-            Assert.Pass();
-        }
+        ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.Pass();
     }
 
     [Test]
@@ -785,7 +780,7 @@ public sealed class Tests
                     ViskInstruction.SetArgD("i12"),
                     ViskInstruction.SetArgD("i13"),
                     ViskInstruction.SetArgD("i14"),
-                    
+
                     ViskInstruction.LoadLocalD("i4"),
                     ViskInstruction.RetD()
                 });
@@ -845,7 +840,7 @@ public sealed class Tests
                     ViskInstruction.SetArgD("i12"),
                     ViskInstruction.SetArgD("i13"),
                     ViskInstruction.SetArgD("i14"),
-                    
+
                     ViskInstruction.LoadLocalD("i14"),
                     ViskInstruction.RetD()
                 });
@@ -905,7 +900,7 @@ public sealed class Tests
                     ViskInstruction.SetArgD("i12"),
                     ViskInstruction.SetArgD("i13"),
                     ViskInstruction.SetArgD("i14"),
-                    
+
                     ViskInstruction.LoadLocalD("i0"),
                     ViskInstruction.RetD()
                 });
@@ -990,6 +985,76 @@ public sealed class Tests
         );
 
         Assert.That(result, Is.EqualTo(DoubleToLong(150)));
+    }
+
+    [Test]
+    public void Test31()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(5.321),
+                ViskInstruction.PushConstD(3.321),
+                ViskInstruction.DropD(),
+
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(5.321)));
+    }
+
+    [Test]
+    public void Test32()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(5.321),
+                ViskInstruction.DupD(),
+                ViskInstruction.MulD(),
+
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(5.321 * 5.321)));
+    }
+
+    [Test]
+    public void Test33()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(5),
+                ViskInstruction.Dup(),
+                ViskInstruction.IMul(),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(5 * 5));
+    }
+
+    [Test]
+    public void Test34()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(5),
+                ViskInstruction.PushConst(6),
+                ViskInstruction.Drop(),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(5));
     }
 
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)

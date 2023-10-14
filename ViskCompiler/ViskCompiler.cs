@@ -393,16 +393,16 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void Drop(InstructionArgs args)
     {
         PreviousStackOrRegX64(
-            () => DataManager.Stack.GetPrevious(),
-            () => DataManager.Register.Previous()
+            () => DataManager.Register.Previous(),
+            () => DataManager.Stack.GetPrevious()
         );
     }
 
     protected override void DropD(InstructionArgs args)
     {
         PreviousStackOrRegD(
-            () => DataManager.Stack.GetPrevious(),
-            () => DataManager.Register.PreviousD()
+            () => DataManager.Register.PreviousD(),
+            () => DataManager.Stack.GetPrevious()
         );
     }
 
