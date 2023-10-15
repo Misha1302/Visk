@@ -128,6 +128,9 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Equals() => new(ViskInstructionKind.Equals);
 
+    [Pure] public static ViskInstruction EqualsD() => new(ViskInstructionKind.EqualsD);
+    [Pure] public static ViskInstruction NotEqualsD() => new(ViskInstructionKind.NotEqualsD);
+
     [Pure] public static ViskInstruction Drop() => new(ViskInstructionKind.Drop);
 
     [Pure] public static ViskInstruction DropD() => new(ViskInstructionKind.DropD);

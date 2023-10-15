@@ -677,14 +677,24 @@ internal sealed class ViskCompiler : ViskCompilerBase
     private void CmpD(DoubleOperation operation)
     {
         AssemblerRegisterXMM xmm = default;
+
         OperateD(
             (r, m) => DataManager.Assembler.cmppd(xmm = r, m, (byte)operation),
             (r, r2) => DataManager.Assembler.cmppd(xmm = r, r2, (byte)operation)
         );
 
         NextStackOrRegX64(
-            () => DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.I64).X64, xmm),
-            () => DataManager.Assembler.movq(DataManager.Stack.GetNext(ViskConsts.I64), xmm)
-        );
+            () =>
+            {
+                var assemblerRegister64 = DataManager.Register.Next(ViskConsts.I64).X64;
+                DataManager.Assembler.movq(assemblerRegister64, xmm);
+                DataManager.Assembler.and(assemblerRegister64, 1);
+            },
+            () =>
+            {
+                var assemblerMemoryOperand = DataManager.Stack.GetNext(ViskConsts.I64);
+                DataManager.Assembler.movq(assemblerMemoryOperand, xmm);
+                DataManager.Assembler.and(assemblerMemoryOperand, 1);
+            });
     }
 }

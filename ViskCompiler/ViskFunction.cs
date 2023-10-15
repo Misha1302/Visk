@@ -59,11 +59,11 @@ public sealed class ViskFunction
             switch (i.InstructionKind)
             {
                 case ViskInstructionKind.CallForeign:
-                    Max(i.Arguments[1].As<List<Type>>().Count, i.Arguments[2].As<Type>() != typeof(void) ? 1 : 0);
+                    Max(i.Arguments[1].As<List<Type>>().Count, i.Arguments[2].As<Type>() != ViskConsts.None ? 1 : 0);
                     break;
                 case ViskInstructionKind.Call:
                     var f = i.Arguments[0].As<ViskFunction>();
-                    Max(f.Info.Params.Count, f.Info.ReturnType != typeof(void) ? 1 : 0);
+                    Max(f.Info.Params.Count, f.Info.ReturnType != ViskConsts.None ? 1 : 0);
                     break;
                 case ViskInstructionKind.IfTrue:
                     Max(1, GetMaxStackSize(i.Arguments[0].As<List<ViskInstruction>>()));

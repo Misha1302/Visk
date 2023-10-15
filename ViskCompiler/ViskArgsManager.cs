@@ -212,7 +212,7 @@ internal sealed class ViskArgsManager
 
     public void SaveReturnValue(Type rt)
     {
-        if (rt == typeof(void))
+        if (rt == ViskConsts.None)
             return;
 
         if (rt != ViskConsts.I64 && rt != ViskConsts.F64)

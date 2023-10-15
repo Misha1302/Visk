@@ -19,19 +19,8 @@ mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
         ViskInstruction.CallForeign(inputDouble),
-        ViskInstruction.PushConstD(0),
+        ViskInstruction.PushConstD(123),
         ViskInstruction.LessThanD(),
-
-        ViskInstruction.IfTrue(
-            new List<ViskInstruction>
-            {
-                ViskInstruction.PushConst(-123)
-            },
-            new List<ViskInstruction>
-            {
-                ViskInstruction.PushConst(123)
-            }
-        ),
 
         ViskInstruction.Ret()
     }
