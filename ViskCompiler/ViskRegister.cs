@@ -22,6 +22,8 @@ internal sealed class ViskRegister
             [rsi] = sil
         };
 
+    private readonly Stack<Type> _stack = new();
+
     public readonly ViskRegisterInternal<AssemblerRegister64> Rx64 = new(PublicRegisters);
     public readonly ViskRegisterInternal<AssemblerRegisterXMM> Rd = new(PublicRegistersD);
 
@@ -33,6 +35,36 @@ internal sealed class ViskRegister
 
     public ViskRegister()
     {
+    }
+
+    public ViskRegistersPair Next(Type t)
+    {
+        _stack.Push(t);
+        return RegisterOp(t, Rx64.Next, Rd.Next);
+    }
+
+    public ViskRegistersPair Previous() =>
+        RegisterOp(_stack.Pop(), Rx64.Previous, Rd.Previous);
+
+    public ViskRegistersPair BackValue() =>
+        RegisterOp(_stack.Peek(), Rx64.BackValue, Rd.BackValue);
+
+
+    private static ViskRegistersPair RegisterOp(
+        Type t,
+        Func<AssemblerRegister64> actX64,
+        Func<AssemblerRegisterXMM> actXmm
+    )
+    {
+        var x64 = default(AssemblerRegister64);
+        var d = default(AssemblerRegisterXMM);
+
+        t.ChooseViskType(
+            () => x64 = actX64(),
+            () => d = actXmm()
+        );
+
+        return new ViskRegistersPair(x64, d);
     }
 
     public ViskRegister Copy() => new(Rx64, Rd);

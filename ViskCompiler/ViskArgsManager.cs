@@ -220,14 +220,14 @@ internal sealed class ViskArgsManager
 
         if (rt == typeof(long))
         {
-            if (_dataManager.Register.Rd.CanGetNext)
-                _dataManager.Assembler.mov(_dataManager.Register.Rx64.Next(), rax);
+            if (_dataManager.Register.Rx64.CanGetNext)
+                _dataManager.Assembler.mov(_dataManager.Register.Next(typeof(long)).X64, rax);
             else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(typeof(long)), rax);
         }
         else
         {
             if (_dataManager.Register.Rd.CanGetNext)
-                _dataManager.Assembler.movq(_dataManager.Register.Rd.Next(), xmm0);
+                _dataManager.Assembler.movq(_dataManager.Register.Next(typeof(double)).Xmm, xmm0);
             else _dataManager.Assembler.movq(_dataManager.Stack.GetNext(typeof(double)), xmm0);
         }
     }
