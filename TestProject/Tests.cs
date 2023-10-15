@@ -1056,6 +1056,156 @@ public sealed class Tests
         Assert.That(result, Is.EqualTo(5));
     }
 
+    [Test]
+    public void Test35()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(5),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.LessThan(),
+
+                ViskInstruction.IfTrue(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(10)
+                    },
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(-10)
+                    }
+                ),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(10));
+    }
+
+    [Test]
+    public void Test36()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(10),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.LessThan(),
+
+                ViskInstruction.IfTrue(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(10)
+                    },
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(-10)
+                    }
+                ),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(-10));
+    }
+
+    [Test]
+    public void Test37()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(0),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.GreaterThan(),
+
+                ViskInstruction.IfTrue(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(10)
+                    },
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.LoadLocal("i"),
+                        ViskInstruction.PushConst(5),
+                        ViskInstruction.GreaterThan(),
+
+                        ViskInstruction.IfTrue(
+                            new List<ViskInstruction>
+                            {
+                                ViskInstruction.PushConst(5)
+                            },
+                            new List<ViskInstruction>
+                            {
+                                ViskInstruction.PushConst(0)
+                            }
+                        )
+                    }
+                ),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Test38()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(6),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.GreaterThan(),
+
+                ViskInstruction.IfTrue(
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.PushConst(10)
+                    },
+                    new List<ViskInstruction>
+                    {
+                        ViskInstruction.LoadLocal("i"),
+                        ViskInstruction.PushConst(5),
+                        ViskInstruction.GreaterThan(),
+
+                        ViskInstruction.IfTrue(
+                            new List<ViskInstruction>
+                            {
+                                ViskInstruction.PushConst(5)
+                            },
+                            new List<ViskInstruction>
+                            {
+                                ViskInstruction.PushConst(0)
+                            }
+                        )
+                    }
+                ),
+
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(5));
+    }
+
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
