@@ -6,6 +6,7 @@ using ViskCompiler;
 var printLongs = typeof(Helper).GetMethod(nameof(Helper.PrintLongs));
 var printLong = typeof(Helper).GetMethod(nameof(Helper.PrintLong));
 var inputLong = typeof(Helper).GetMethod(nameof(Helper.InputLong));
+var inputDouble = typeof(Helper).GetMethod(nameof(Helper.InputDouble));
 var printDouble = typeof(Helper).GetMethod(nameof(Helper.PrintDouble));
 var printDoubles = typeof(Helper).GetMethod(nameof(Helper.PrintDoubles));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
@@ -17,11 +18,11 @@ var of = module.AddFunction("other", new List<Type> { ViskConsts.F64 }, ViskCons
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.CallForeign(inputLong),
-        ViskInstruction.PushConst(0),
-        ViskInstruction.LessThan(),
+        ViskInstruction.CallForeign(inputDouble),
+        ViskInstruction.PushConstD(0),
+        ViskInstruction.LessThanD(),
 
-        ViskInstruction.IfFalse(
+        ViskInstruction.IfTrue(
             new List<ViskInstruction>
             {
                 ViskInstruction.PushConst(-123)
@@ -62,7 +63,7 @@ Console.WriteLine(new string('-', Console.WindowWidth));
 assemblerString.SaveFileAsync("debugInfo.txt");
 
 var sw = new Stopwatch();
-for (var i = 0; i < 1; i++)
+for (var i = 0; i < 5; i++)
 {
     sw.Restart();
 

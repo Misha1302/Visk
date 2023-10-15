@@ -257,38 +257,68 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void Equals(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.sete);
+        CmpAsBool(Cmp, DataManager.Assembler.sete);
     }
 
     protected override void LessThan(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.setl);
+        CmpAsBool(Cmp, DataManager.Assembler.setl);
     }
 
     protected override void GreaterThan(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.setg);
+        CmpAsBool(Cmp, DataManager.Assembler.setg);
     }
 
     protected override void LessThanOrEquals(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.setle);
+        CmpAsBool(Cmp, DataManager.Assembler.setle);
     }
 
     protected override void GreaterThanOrEquals(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.setge);
+        CmpAsBool(Cmp, DataManager.Assembler.setge);
     }
 
     protected override void NotEquals(InstructionArgs args)
     {
-        CmpAsBool(DataManager.Assembler.setne);
+        CmpAsBool(Cmp, DataManager.Assembler.setne);
+    }
+
+    protected override void EqualsD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.AreEqual);
+    }
+
+    protected override void LessThanD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.LessThan);
+    }
+
+    protected override void GreaterThanD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.GreaterThan);
+    }
+
+    protected override void LessThanOrEqualsD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.LessThanOrEquals);
+    }
+
+    protected override void GreaterThanOrEqualsD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.GreaterThanOrEquals);
+    }
+
+    protected override void NotEqualsD(InstructionArgs args)
+    {
+        CmpD(DoubleOperation.AreNotEquals);
     }
 
 
-    private void CmpAsBool(Action<AssemblerRegister8> act)
+    private void CmpAsBool(Action cmp, Action<AssemblerRegister8> act)
     {
-        Cmp();
+        cmp();
 
         if (!DataManager.Register.Rx64.CanGetNext)
         {
@@ -640,6 +670,21 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
                 DataManager.Assembler.cmp(rax, 0);
             }
+        );
+    }
+
+
+    private void CmpD(DoubleOperation operation)
+    {
+        AssemblerRegisterXMM xmm = default;
+        OperateD(
+            (r, m) => DataManager.Assembler.cmppd(xmm = r, m, (byte)operation),
+            (r, r2) => DataManager.Assembler.cmppd(xmm = r, r2, (byte)operation)
+        );
+
+        NextStackOrRegX64(
+            () => DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.I64).X64, xmm),
+            () => DataManager.Assembler.movq(DataManager.Stack.GetNext(ViskConsts.I64), xmm)
         );
     }
 }

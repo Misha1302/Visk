@@ -3,7 +3,9 @@ namespace ViskCompiler;
 // ReSharper disable InconsistentNaming
 public enum ViskInstructionKind : long
 {
-    DoubleInstruction = PushConstD | SetLocalD | LoadLocalD | SetArgD | AddD | SubD | MulD | DivD,
+    DoubleInstruction = PushConstD | SetLocalD | LoadLocalD | SetArgD | AddD | SubD | MulD | DivD | RetD | DupD |
+                        DropD | LessThanOrEqualsD | GreaterThanOrEqualsD | LessThanD | GreaterThanD | EqualsD |
+                        NotEqualsD,
 
 
     PushConst = 1L << 0,
@@ -42,5 +44,11 @@ public enum ViskInstructionKind : long
     LessThan = 1L << 33,
     LessThanOrEquals = 1L << 34,
     GreaterThan = 1L << 35,
-    GreaterThanOrEquals = 1L << 36
+    GreaterThanOrEquals = 1L << 36,
+    LessThanD = 1L << 37,
+    GreaterThanD = 1L << 38,
+    LessThanOrEqualsD = 1L << 39,
+    GreaterThanOrEqualsD = 1L << 40,
+    EqualsD = 1L << 41,
+    NotEqualsD = 1L << 42
 }

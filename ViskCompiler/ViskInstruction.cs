@@ -29,7 +29,13 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.GreaterThan] = (2, 1),
             [ViskInstructionKind.LessThanOrEquals] = (2, 1),
             [ViskInstructionKind.GreaterThanOrEquals] = (2, 1),
+            [ViskInstructionKind.LessThanD] = (2, 1),
+            [ViskInstructionKind.GreaterThanD] = (2, 1),
+            [ViskInstructionKind.LessThanOrEqualsD] = (2, 1),
+            [ViskInstructionKind.GreaterThanOrEqualsD] = (2, 1),
             [ViskInstructionKind.NotEquals] = (2, 1),
+            [ViskInstructionKind.NotEqualsD] = (2, 1),
+            [ViskInstructionKind.EqualsD] = (2, 1),
             [ViskInstructionKind.IDiv] = (2, 1),
             [ViskInstructionKind.SetArg] = (1, 0),
             [ViskInstructionKind.SetArgD] = (1, 0),
@@ -155,4 +161,9 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction IfFalse(List<ViskInstruction> ifBlock, List<ViskInstruction> elseBlock) =>
         new(ViskInstructionKind.IfFalse, ifBlock, elseBlock);
+
+    [Pure] public static ViskInstruction LessThanD() => new ViskInstruction(ViskInstructionKind.LessThanD);
+    [Pure] public static ViskInstruction GreaterThanD() => new ViskInstruction(ViskInstructionKind.GreaterThanD);
+    [Pure] public static ViskInstruction LessThanOrEqualsD() => new ViskInstruction(ViskInstructionKind.LessThanOrEqualsD);
+    [Pure] public static ViskInstruction GreaterThanOrEqualsD() => new ViskInstruction(ViskInstructionKind.GreaterThanOrEqualsD);
 }
