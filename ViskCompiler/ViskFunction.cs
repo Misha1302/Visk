@@ -106,8 +106,8 @@ public sealed class ViskFunction
                 continue;
 
             var type = ViskInstructionKind.DoubleInstruction.HasFlag(x.InstructionKind)
-                ? typeof(double)
-                : typeof(long);
+                ? ViskConsts.F64
+                : ViskConsts.I64;
 
             if (_locals.All(y => y.Name != x.Arguments[0].As<string>()))
                 _locals.Add(new ViskLocal(type, x.Arguments[0].As<string>()));

@@ -256,8 +256,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
-                var of = module.AddFunction("other", new List<Type>(0), typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
+                var of = module.AddFunction("other", new List<Type>(0), ViskConsts.I64);
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -292,8 +292,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
-                var of = module.AddFunction("other", new List<Type> { typeof(long) }, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
+                var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.I64);
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -330,10 +330,10 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
                 var of = module.AddFunction("other",
-                    Enumerable.Repeat(typeof(long), 10).ToList(),
-                    typeof(long));
+                    Enumerable.Repeat(ViskConsts.I64, 10).ToList(),
+                    ViskConsts.I64);
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -446,8 +446,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
-                var of = module.AddFunction("other", new List<Type> { typeof(long) }, typeof(long));
+                var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
+                var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.I64);
 
                 mf.RawInstructions.AddRange(
                     new List<ViskInstruction>
@@ -697,8 +697,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
-                var of = module.AddFunction("other", new List<Type> { typeof(double) }, typeof(double));
+                var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
+                var of = module.AddFunction("other", new List<Type> { ViskConsts.F64 }, ViskConsts.F64);
 
                 mf.RawInstructions.AddRange(new[]
                 {
@@ -736,8 +736,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
-                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+                var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
+                var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
                 mf.RawInstructions.AddRange(new[]
                 {
@@ -796,8 +796,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
-                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+                var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
+                var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
                 mf.RawInstructions.AddRange(new[]
                 {
@@ -856,8 +856,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
-                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+                var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
+                var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
                 mf.RawInstructions.AddRange(new[]
                 {
@@ -916,8 +916,8 @@ public sealed class Tests
         var result = ExecuteFunctions(
             module =>
             {
-                var mf = module.AddFunction("main", new List<Type>(), typeof(long));
-                var of = module.AddFunction("other", Enumerable.Repeat(typeof(double), 15).ToList(), typeof(double));
+                var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
+                var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
                 mf.RawInstructions.AddRange(new[]
                 {
@@ -1209,7 +1209,7 @@ public sealed class Tests
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
-        var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
+        var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
 
         mf.RawInstructions.AddRange(instructions);
 

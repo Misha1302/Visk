@@ -36,8 +36,8 @@ public static class ViskExtensions
 
     public static void ChooseViskType(this Type type, Action x64, Action xmm)
     {
-        if (type == typeof(long)) x64();
-        else if (type == typeof(double)) xmm();
+        if (type == ViskConsts.I64) x64();
+        else if (type == ViskConsts.F64) xmm();
         else ViskThrowHelper.ThrowInvalidOperationException("Unknown type");
     }
 

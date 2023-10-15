@@ -13,7 +13,7 @@ internal sealed class ViskLocals
         var min = Math.Min(ViskLocal.LocalsRegisters.Length, locals.Count);
         for (var index = 0; index < min; index++)
         {
-            var value = locals[index].Type == typeof(long)
+            var value = locals[index].Type == ViskConsts.I64
                 ? new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(
                     ViskLocal.LocalsRegisters[index])
                 : new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(

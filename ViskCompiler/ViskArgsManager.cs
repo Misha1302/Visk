@@ -215,20 +215,20 @@ internal sealed class ViskArgsManager
         if (rt == typeof(void))
             return;
 
-        if (rt != typeof(long) && rt != typeof(double))
+        if (rt != ViskConsts.I64 && rt != ViskConsts.F64)
             ViskThrowHelper.ThrowInvalidOperationException("Unknown return type");
 
-        if (rt == typeof(long))
+        if (rt == ViskConsts.I64)
         {
             if (_dataManager.Register.Rx64.CanGetNext)
-                _dataManager.Assembler.mov(_dataManager.Register.Next(typeof(long)).X64, rax);
-            else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(typeof(long)), rax);
+                _dataManager.Assembler.mov(_dataManager.Register.Next(ViskConsts.I64).X64, rax);
+            else _dataManager.Assembler.mov(_dataManager.Stack.GetNext(ViskConsts.I64), rax);
         }
         else
         {
             if (_dataManager.Register.Rd.CanGetNext)
-                _dataManager.Assembler.movq(_dataManager.Register.Next(typeof(double)).Xmm, xmm0);
-            else _dataManager.Assembler.movq(_dataManager.Stack.GetNext(typeof(double)), xmm0);
+                _dataManager.Assembler.movq(_dataManager.Register.Next(ViskConsts.F64).Xmm, xmm0);
+            else _dataManager.Assembler.movq(_dataManager.Stack.GetNext(ViskConsts.F64), xmm0);
         }
     }
 

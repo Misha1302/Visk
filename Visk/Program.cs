@@ -11,8 +11,8 @@ var printDoubles = typeof(Helper).GetMethod(nameof(Helper.PrintDoubles));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
-var mf = module.AddFunction("main", new List<Type>(0), typeof(long));
-var of = module.AddFunction("other", new List<Type> { typeof(double) }, typeof(double));
+var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
+var of = module.AddFunction("other", new List<Type> { ViskConsts.F64 }, ViskConsts.F64);
 
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>

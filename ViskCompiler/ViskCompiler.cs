@@ -106,13 +106,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 DataManager.Assembler.cmp(DataManager.Stack.GetPrevious(), rax);
                 DataManager.Assembler.sete(al);
                 DataManager.Assembler.movzx(rax, al);
-                DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
             },
             () =>
             {
                 DataManager.Assembler.cmp(DataManager.Register.Previous().X64, 0);
                 DataManager.Assembler.sete(al);
-                DataManager.Assembler.movzx(DataManager.Register.Next(typeof(long)).X64, al);
+                DataManager.Assembler.movzx(DataManager.Register.Next(ViskConsts.I64).X64, al);
             }
         );
     }
@@ -180,12 +180,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
             {
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                     DataManager.Assembler.mov(
-                        DataManager.Register.Next(typeof(long)).X64,
+                        DataManager.Register.Next(ViskConsts.I64).X64,
                         reg!.Value
                     );
                 else
                     DataManager.Assembler.mov(
-                        DataManager.Register.Next(typeof(long)).X64,
+                        DataManager.Register.Next(ViskConsts.I64).X64,
                         mem!.Value
                     );
             },
@@ -194,7 +194,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out var reg, out _, out var mem))
                 {
                     DataManager.Assembler.mov(
-                        DataManager.Stack.GetNext(typeof(long)),
+                        DataManager.Stack.GetNext(ViskConsts.I64),
                         reg!.Value
                     );
                 }
@@ -202,7 +202,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 {
                     DataManager.Assembler.mov(rax, mem!.Value);
                     DataManager.Assembler.mov(
-                        DataManager.Stack.GetNext(typeof(long)),
+                        DataManager.Stack.GetNext(ViskConsts.I64),
                         rax
                     );
                 }
@@ -216,12 +216,12 @@ internal sealed class ViskCompiler : ViskCompilerBase
             {
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
                     DataManager.Assembler.movq(
-                        DataManager.Register.Next(typeof(double)).Xmm,
+                        DataManager.Register.Next(ViskConsts.F64).Xmm,
                         xmm!.Value
                     );
                 else
                     DataManager.Assembler.movq(
-                        DataManager.Register.Next(typeof(double)).Xmm,
+                        DataManager.Register.Next(ViskConsts.F64).Xmm,
                         mem!.Value
                     );
             }, () =>
@@ -229,7 +229,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 if (DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out var xmm, out var mem))
                 {
                     DataManager.Assembler.movq(
-                        DataManager.Stack.GetNext(typeof(double)),
+                        DataManager.Stack.GetNext(ViskConsts.F64),
                         xmm!.Value
                     );
                 }
@@ -237,7 +237,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 {
                     DataManager.Assembler.mov(rax, mem!.Value);
                     DataManager.Assembler.mov(
-                        DataManager.Stack.GetNext(typeof(double)),
+                        DataManager.Stack.GetNext(ViskConsts.F64),
                         rax
                     );
                 }
@@ -295,13 +295,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
             act(al);
 
             DataManager.Assembler.movzx(rax, al);
-            DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax);
+            DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
         }
         else
         {
             DataManager.Register.Previous();
             var oldValue = DataManager.Register.Rx64.Current();
-            var assemblerRegister8 = ViskRegister.PublicRegisters8[DataManager.Register.Next(typeof(long)).X64];
+            var assemblerRegister8 = ViskRegister.PublicRegisters8[DataManager.Register.Next(ViskConsts.I64).X64];
 
             act(assemblerRegister8);
 
@@ -314,14 +314,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
         if (DataManager.Register.Rx64.CanGetNext)
         {
             var src = DataManager.Register.BackValue().X64;
-            var dst = DataManager.Register.Next(typeof(long)).X64;
+            var dst = DataManager.Register.Next(ViskConsts.I64).X64;
 
             DataManager.Assembler.mov(dst, src);
         }
         else
         {
             var src = DataManager.Stack.BackValue();
-            var dst = DataManager.Stack.GetNext(typeof(long));
+            var dst = DataManager.Stack.GetNext(ViskConsts.I64);
 
             DataManager.Assembler.mov(rax, src);
             DataManager.Assembler.mov(dst, rax);
@@ -333,14 +333,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
         if (DataManager.Register.Rd.CanGetNext)
         {
             var src = DataManager.Register.BackValue().Xmm;
-            var dst = DataManager.Register.Next(typeof(double)).Xmm;
+            var dst = DataManager.Register.Next(ViskConsts.F64).Xmm;
 
             DataManager.Assembler.movq(dst, src);
         }
         else
         {
             var src = DataManager.Stack.BackValue();
-            var dst = DataManager.Stack.GetNext(typeof(double));
+            var dst = DataManager.Stack.GetNext(ViskConsts.F64);
 
             DataManager.Assembler.movq(xmm0, src);
             DataManager.Assembler.movq(dst, xmm0);
@@ -382,8 +382,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
             });
 
         NextStackOrRegX64(
-            () => DataManager.Assembler.mov(DataManager.Register.Next(typeof(long)).X64, rax),
-            () => DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax)
+            () => DataManager.Assembler.mov(DataManager.Register.Next(ViskConsts.I64).X64, rax),
+            () => DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax)
         );
     }
 
@@ -524,13 +524,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
         NextStackOrRegX64(
             () =>
             {
-                DataManager.Assembler.mov(DataManager.Register.Next(typeof(long)).X64,
+                DataManager.Assembler.mov(DataManager.Register.Next(ViskConsts.I64).X64,
                     __[DataManager.DefineI64(number)]);
             },
             () =>
             {
                 DataManager.Assembler.mov(rax, __[DataManager.DefineI64(number)]);
-                DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
             }
         );
     }
@@ -540,13 +540,13 @@ internal sealed class ViskCompiler : ViskCompilerBase
         NextStackOrRegD(
             () =>
             {
-                DataManager.Assembler.movq(DataManager.Register.Next(typeof(double)).Xmm,
+                DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.F64).Xmm,
                     __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
             },
             () =>
             {
                 DataManager.Assembler.movq(xmm0, __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))]);
-                DataManager.Assembler.movq(DataManager.Stack.GetNext(typeof(double)), xmm0);
+                DataManager.Assembler.movq(DataManager.Stack.GetNext(ViskConsts.F64), xmm0);
             }
         );
     }
@@ -572,7 +572,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                         mm(rax, src);
 
                         if (saveResult)
-                            DataManager.Assembler.mov(DataManager.Stack.GetNext(typeof(long)), rax);
+                            DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
                     }
                 );
             }
@@ -597,14 +597,14 @@ internal sealed class ViskCompiler : ViskCompilerBase
                     mm(xmm0, src);
 
                     if (saveResult)
-                        DataManager.Assembler.movq(DataManager.Stack.GetNext(typeof(long)), xmm0);
+                        DataManager.Assembler.movq(DataManager.Stack.GetNext(ViskConsts.I64), xmm0);
                 });
         });
     }
 
     private void PreviousStackOrRegX64(Action reg, Action stack, Action? onError = null)
     {
-        if (!DataManager.Stack.IsEmpty() && DataManager.Stack.Stack[^1] == typeof(long)) stack();
+        if (!DataManager.Stack.IsEmpty() && DataManager.Stack.Stack[^1] == ViskConsts.I64) stack();
         else if (DataManager.Register.Rx64.CanGetPrevious) reg();
         else if (onError != null) onError();
         else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
@@ -612,7 +612,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     private void PreviousStackOrRegD(Action reg, Action stack, Action? onError = null)
     {
-        if (!DataManager.Stack.IsEmpty() && DataManager.Stack.Stack[^1] == typeof(double)) stack();
+        if (!DataManager.Stack.IsEmpty() && DataManager.Stack.Stack[^1] == ViskConsts.F64) stack();
         else if (DataManager.Register.Rd.CanGetPrevious) reg();
         else if (onError != null) onError();
         else ViskThrowHelper.ThrowInvalidOperationException("Stack and registers are already used");
