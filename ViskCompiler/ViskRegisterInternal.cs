@@ -42,4 +42,6 @@ internal sealed class ViskRegisterInternal<T>
     ];
 
     public T Current() => _publicRegisters[CurIndex];
+
+    public ViskRegisterInternal<T> Copy() => (ViskRegisterInternal<T>)MemberwiseClone();
 }

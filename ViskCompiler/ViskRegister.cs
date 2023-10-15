@@ -24,4 +24,16 @@ internal sealed class ViskRegister
 
     public readonly ViskRegisterInternal<AssemblerRegister64> Rx64 = new(PublicRegisters);
     public readonly ViskRegisterInternal<AssemblerRegisterXMM> Rd = new(PublicRegistersD);
+
+    private ViskRegister(ViskRegisterInternal<AssemblerRegister64> rx64, ViskRegisterInternal<AssemblerRegisterXMM> rd)
+    {
+        Rx64 = rx64.Copy();
+        Rd = rd.Copy();
+    }
+
+    public ViskRegister()
+    {
+    }
+
+    public ViskRegister Copy() => new(Rx64, Rd);
 }

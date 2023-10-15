@@ -58,18 +58,43 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.jmp(DataManager.GetLabel(args[0].As<string>()));
     }
 
-    protected override void GotoIfFalse(InstructionArgs args)
+    protected override void IfFalse(InstructionArgs args)
     {
-        CmpValueAndZero();
-
-        DataManager.Assembler.je(DataManager.GetLabel(args[0].As<string>()));
+        ConditionBranch(args, DataManager.Assembler.je);
     }
 
-    protected override void GotoIfTrue(InstructionArgs args)
+    protected override void IfTrue(InstructionArgs args)
     {
-        CmpValueAndZero();
+        ConditionBranch(args, DataManager.Assembler.jne);
+    }
 
-        DataManager.Assembler.jne(DataManager.GetLabel(args[0].As<string>()));
+    private void ConditionBranch(InstructionArgs args, Action<Label> condition)
+    {
+        DeconstructIfBlocks(args, out var ifBlock, out var elseBlock);
+
+        CmpValueWithZero();
+
+        var ifLabel = DataManager.GetLabel($"elseLabel_{Guid.NewGuid().ToString()}");
+        var endLabel = DataManager.GetLabel($"endLabel_{Guid.NewGuid().ToString()}");
+
+        DataManager.SaveState();
+
+        condition(ifLabel);
+        elseBlock.ForEach(x => CompileInstruction(x, args.Function));
+        DataManager.Assembler.jmp(endLabel);
+
+        DataManager.LoadState();
+        DataManager.Assembler.Label(ref ifLabel);
+        ifBlock.ForEach(x => CompileInstruction(x, args.Function));
+
+        DataManager.Assembler.Label(ref endLabel);
+    }
+
+    private static void DeconstructIfBlocks(InstructionArgs args, out List<ViskInstruction> ifBlock,
+        out List<ViskInstruction> elseBlock)
+    {
+        ifBlock = (List<ViskInstruction>)args[0];
+        elseBlock = (List<ViskInstruction>)args[1];
     }
 
     protected override void LogicNeg(InstructionArgs args)
@@ -602,7 +627,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     }
 
 
-    private void CmpValueAndZero()
+    private void CmpValueWithZero()
     {
         PreviousStackOrRegX64(
             () => { DataManager.Assembler.cmp(DataManager.Register.Rx64.Previous(), 0); },

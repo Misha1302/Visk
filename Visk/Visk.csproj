@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TestProject\TestProject.csproj"/>
         <ProjectReference Include="..\ViskCompiler\ViskCompiler.csproj"/>
     </ItemGroup>
 

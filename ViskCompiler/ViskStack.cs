@@ -12,7 +12,7 @@ internal sealed class ViskStack
     private readonly ViskDataManager _dataManager;
     public readonly int MaxStackSize;
 
-    private readonly Stack<Type> _stack = new();
+    private Stack<Type> _stack = new();
     private int _offset = MinValue;
 
     public ViskStack(ViskDataManager dataManager)
@@ -56,4 +56,11 @@ internal sealed class ViskStack
     }
 
     public AssemblerMemoryOperand BackValue() => BackValue(out _);
+
+    public ViskStack Copy()
+    {
+        var clone = (ViskStack)MemberwiseClone();
+        clone._stack = new Stack<Type>(_stack);
+        return clone;
+    }
 }

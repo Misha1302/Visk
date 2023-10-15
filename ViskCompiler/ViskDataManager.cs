@@ -10,10 +10,11 @@ internal sealed class ViskDataManager
 
     public readonly ViskModule Module;
     public readonly Assembler Assembler;
-    public readonly ViskRegister Register = new();
+    public ViskRegister Register = new();
     public readonly ViskFunctionStackManager FuncStackManager;
     public readonly ViskArgsManager ViskArgsManager;
     public readonly IViskDebugInfo DebugInfo;
+    private readonly Stack<State> _states = new();
 
     public ViskDataManager(Assembler? assembler, ViskModule? module, ViskSettings viskSettings)
     {
@@ -66,5 +67,33 @@ internal sealed class ViskDataManager
 
         _labels.Add(name, label = Assembler.CreateLabel(name));
         return label;
+    }
+
+    public void SaveState()
+    {
+        _states.Push(new State(Register, Stack));
+    }
+
+    public void LoadState()
+    {
+        (Register, Stack) = _states.Pop();
+    }
+
+    private sealed class State
+    {
+        private readonly ViskRegister _register;
+        private readonly ViskStack _stack;
+
+        public State(ViskRegister register, ViskStack stack)
+        {
+            _register = register.Copy();
+            _stack = stack.Copy();
+        }
+
+        public void Deconstruct(out ViskRegister register, out ViskStack stack)
+        {
+            register = _register;
+            stack = _stack;
+        }
     }
 }

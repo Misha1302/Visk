@@ -39,8 +39,8 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.SetLabel] = (0, 0),
             [ViskInstructionKind.Goto] = (0, 0),
             [ViskInstructionKind.Drop] = (1, 0),
-            [ViskInstructionKind.GotoIfFalse] = (1, 0),
-            [ViskInstructionKind.GotoIfTrue] = (1, 0),
+            [ViskInstructionKind.IfTrue] = (1, 100_000),
+            [ViskInstructionKind.IfFalse] = (1, 100_000),
             [ViskInstructionKind.Prolog] = (0, 0),
             [ViskInstructionKind.SetLocal] = (0, 0),
             [ViskInstructionKind.SetLocalD] = (0, 0),
@@ -102,10 +102,6 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction Goto(string label) => new(ViskInstructionKind.Goto, label);
 
-    [Pure] public static ViskInstruction GotoIfFalse(string label) => new(ViskInstructionKind.GotoIfFalse, label);
-
-    [Pure] public static ViskInstruction GotoIfTrue(string label) => new(ViskInstructionKind.GotoIfTrue, label);
-
     [Pure] public static ViskInstruction Ret() => new(ViskInstructionKind.Ret);
 
     [Pure] public static ViskInstruction RetD() => new(ViskInstructionKind.RetD);
@@ -150,4 +146,12 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     [Pure] public static ViskInstruction LessThanOrEquals() => new(ViskInstructionKind.LessThanOrEquals);
     [Pure] public static ViskInstruction GreaterThan() => new(ViskInstructionKind.GreaterThan);
     [Pure] public static ViskInstruction GreaterThanOrEquals() => new(ViskInstructionKind.GreaterThanOrEquals);
+
+    [Pure] public static ViskInstruction IfTrue(List<ViskInstruction> ifBlock, List<ViskInstruction>? elseBlock = null) =>
+        new(ViskInstructionKind.IfTrue, ifBlock, elseBlock ?? new List<ViskInstruction>());
+    
+    [Pure] public static ViskInstruction IfTrue(params ViskInstruction[] ifBlock) => IfTrue(ifBlock.ToList());
+    
+    [Pure] public static ViskInstruction IfFalse(List<ViskInstruction> ifBlock, List<ViskInstruction> elseBlock) =>
+        new(ViskInstructionKind.IfFalse, ifBlock, elseBlock);
 }

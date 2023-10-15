@@ -32,7 +32,7 @@ public sealed class ViskFunction
 
         CheckAllArgsNotNull();
         Locals = GetLocals();
-        MaxStackSize = GetMaxStackSize();
+        MaxStackSize = GetMaxStackSize(RawInstructions);
         var instr = ViskInstruction.Prolog();
 
         if (instructions[0].InstructionKind != ViskInstructionKind.Prolog)
@@ -49,12 +49,12 @@ public sealed class ViskFunction
             ViskThrowHelper.ThrowInvalidOperationException("Some arg is null");
     }
 
-    private int GetMaxStackSize()
+    private int GetMaxStackSize(List<ViskInstruction> viskInstructions)
     {
         var size = 0;
         var max = 0;
 
-        foreach (var i in RawInstructions)
+        foreach (var i in viskInstructions)
         {
             switch (i.InstructionKind)
             {
@@ -65,6 +65,12 @@ public sealed class ViskFunction
                     var f = i.Arguments[0].As<ViskFunction>();
                     Max(f.Info.Params.Count, f.Info.ReturnType != typeof(void) ? 1 : 0);
                     break;
+                case ViskInstructionKind.IfTrue:
+                    Max(1, GetMaxStackSize(i.Arguments[0].As<List<ViskInstruction>>()));
+                    break;
+                case ViskInstructionKind.IfFalse:
+                    Max(1, GetMaxStackSize(i.Arguments[0].As<List<ViskInstruction>>()));
+                    break;
                 default:
                     var c = ViskInstruction.InstructionCharacteristics[i.InstructionKind];
                     Max(c.args, c.output);
@@ -73,6 +79,9 @@ public sealed class ViskFunction
 
             max = Math.Max(max, size - ViskRegister.PublicRegisters.Length);
         }
+
+        if (max >= 100_000)
+            ViskThrowHelper.ThrowInvalidOperationException("Max stack is too big. Maybe there is error here?");
 
         return max;
 

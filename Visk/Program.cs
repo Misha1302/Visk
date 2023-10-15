@@ -20,16 +20,18 @@ mf.RawInstructions.AddRange(
         ViskInstruction.CallForeign(inputLong),
         ViskInstruction.PushConst(0),
         ViskInstruction.LessThan(),
-        ViskInstruction.GotoIfFalse("else"),
-        
-        ViskInstruction.PushConst(-123),
-        ViskInstruction.Goto("end"),
-        
-        ViskInstruction.SetLabel("else"),
-        
-        ViskInstruction.PushConst(123),
-        
-        ViskInstruction.SetLabel("end"),
+
+        ViskInstruction.IfFalse(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(-123)
+            },
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(123)
+            }
+        ),
+
         ViskInstruction.Ret()
     }
 );

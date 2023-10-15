@@ -171,8 +171,7 @@ public sealed class Tests
                 ViskInstruction.LoadLocal("i"),
                 ViskInstruction.PushConst(10),
                 ViskInstruction.NotEquals(),
-                ViskInstruction.GotoIfTrue("m"),
-
+                ViskInstruction.IfTrue(ViskInstruction.Goto("m")),
 
                 ViskInstruction.LoadLocal("i"),
                 ViskInstruction.Ret()
@@ -205,7 +204,7 @@ public sealed class Tests
                 ViskInstruction.LoadLocal("i"),
                 ViskInstruction.PushConst(100),
                 ViskInstruction.NotEquals(),
-                ViskInstruction.GotoIfTrue("m"),
+                ViskInstruction.IfTrue(ViskInstruction.Goto("m")),
 
 
                 ViskInstruction.LoadLocal("i"),
@@ -468,7 +467,7 @@ public sealed class Tests
                         ViskInstruction.LoadLocal("arg"),
                         ViskInstruction.PushConst(100),
                         ViskInstruction.Equals(),
-                        ViskInstruction.GotoIfTrue("endOfRecursion"),
+                        ViskInstruction.IfTrue(ViskInstruction.Goto("endOfRecursion")),
 
                         ViskInstruction.LoadLocal("arg"),
                         ViskInstruction.PushConst(1),

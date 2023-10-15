@@ -63,7 +63,7 @@ internal abstract class ViskCompilerBase
             CompileInstruction(instruction, func);
     }
 
-    private void CompileInstruction(ViskInstruction instruction, ViskFunction func)
+    protected void CompileInstruction(ViskInstruction instruction, ViskFunction func)
     {
         var args = GetArgs(instruction, func);
 
@@ -80,7 +80,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.DivD => DivD,
             ViskInstructionKind.SetLabel => SetLabel,
             ViskInstructionKind.Goto => Goto,
-            ViskInstructionKind.GotoIfFalse => GotoIfFalse,
+            ViskInstructionKind.IfFalse => IfFalse,
             ViskInstructionKind.SetLocal => SetLocal,
             ViskInstructionKind.LoadLocal => LoadLocal,
             ViskInstructionKind.LoadLocalD => LoadLocalD,
@@ -103,7 +103,7 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.SetArg => SetArg,
             ViskInstructionKind.SetArgD => SetArgD,
             ViskInstructionKind.LogicNeg => LogicNeg,
-            ViskInstructionKind.GotoIfTrue => GotoIfTrue,
+            ViskInstructionKind.IfTrue => IfTrue,
             ViskInstructionKind.PushConstD => PushConstD,
             ViskInstructionKind.LessThan => LessThan,
             ViskInstructionKind.GreaterThan => GreaterThan,
@@ -123,7 +123,7 @@ internal abstract class ViskCompilerBase
     protected virtual void PushConstD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void GotoIfTrue(InstructionArgs args) =>
+    protected virtual void IfTrue(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Add(InstructionArgs args) =>
@@ -188,7 +188,7 @@ internal abstract class ViskCompilerBase
     protected virtual void Call(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
-    protected virtual void GotoIfFalse(InstructionArgs args) =>
+    protected virtual void IfFalse(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void Dup(InstructionArgs args) =>
