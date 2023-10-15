@@ -147,11 +147,12 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     [Pure] public static ViskInstruction GreaterThan() => new(ViskInstructionKind.GreaterThan);
     [Pure] public static ViskInstruction GreaterThanOrEquals() => new(ViskInstructionKind.GreaterThanOrEquals);
 
-    [Pure] public static ViskInstruction IfTrue(List<ViskInstruction> ifBlock, List<ViskInstruction>? elseBlock = null) =>
+    [Pure]
+    public static ViskInstruction IfTrue(List<ViskInstruction> ifBlock, List<ViskInstruction>? elseBlock = null) =>
         new(ViskInstructionKind.IfTrue, ifBlock, elseBlock ?? new List<ViskInstruction>());
-    
+
     [Pure] public static ViskInstruction IfTrue(params ViskInstruction[] ifBlock) => IfTrue(ifBlock.ToList());
-    
+
     [Pure] public static ViskInstruction IfFalse(List<ViskInstruction> ifBlock, List<ViskInstruction> elseBlock) =>
         new(ViskInstructionKind.IfFalse, ifBlock, elseBlock);
 }
