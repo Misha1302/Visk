@@ -1,8 +1,6 @@
 ﻿namespace ViskCompiler;
 
 using System.Diagnostics.Contracts;
-using Iced.Intel;
-using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskFunctionStackManager
 {

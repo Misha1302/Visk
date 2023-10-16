@@ -1,0 +1,55 @@
+﻿namespace ViskCompiler;
+
+public sealed partial class ViskInstruction
+{
+    public static readonly Dictionary<ViskInstructionKind, (int args, int output)> InstructionCharacteristics =
+        new()
+        {
+            [ViskInstructionKind.PushConst] = (0, 1),
+            [ViskInstructionKind.PushConstD] = (0, 1),
+            [ViskInstructionKind.LogicNeg] = (1, 1),
+            [ViskInstructionKind.Add] = (2, 1),
+            [ViskInstructionKind.AddD] = (2, 1),
+            [ViskInstructionKind.SubD] = (2, 1),
+            [ViskInstructionKind.MulD] = (2, 1),
+            [ViskInstructionKind.DivD] = (2, 1),
+            [ViskInstructionKind.DupD] = (2, 1),
+            [ViskInstructionKind.DropD] = (2, 1),
+            [ViskInstructionKind.Sub] = (2, 1),
+            [ViskInstructionKind.Ret] = (1, 0),
+            [ViskInstructionKind.RetD] = (1, 0),
+            [ViskInstructionKind.Equals] = (2, 1),
+            [ViskInstructionKind.LessThan] = (2, 1),
+            [ViskInstructionKind.GreaterThan] = (2, 1),
+            [ViskInstructionKind.LessThanOrEquals] = (2, 1),
+            [ViskInstructionKind.GreaterThanOrEquals] = (2, 1),
+            [ViskInstructionKind.LessThanD] = (2, 1),
+            [ViskInstructionKind.GreaterThanD] = (2, 1),
+            [ViskInstructionKind.LessThanOrEqualsD] = (2, 1),
+            [ViskInstructionKind.GreaterThanOrEqualsD] = (2, 1),
+            [ViskInstructionKind.NotEquals] = (2, 1),
+            [ViskInstructionKind.NotEqualsD] = (2, 1),
+            [ViskInstructionKind.EqualsD] = (2, 1),
+            [ViskInstructionKind.IDiv] = (2, 1),
+            [ViskInstructionKind.SetArg] = (1, 0),
+            [ViskInstructionKind.SetArgD] = (1, 0),
+            [ViskInstructionKind.CallForeign] = (100_000, 100_000),
+            [ViskInstructionKind.Call] = (100_000, 100_000),
+            [ViskInstructionKind.IMul] = (2, 1),
+            [ViskInstructionKind.SetLabel] = (0, 0),
+            [ViskInstructionKind.Goto] = (0, 0),
+            [ViskInstructionKind.Drop] = (1, 0),
+            [ViskInstructionKind.IfTrue] = (1, 100_000),
+            [ViskInstructionKind.IfFalse] = (1, 100_000),
+            [ViskInstructionKind.Prolog] = (0, 0),
+            [ViskInstructionKind.SetLocal] = (0, 0),
+            [ViskInstructionKind.SetLocalD] = (0, 0),
+            [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.LoadRef] = (1, 1),
+            [ViskInstructionKind.SetByRef] = (2, 0),
+            [ViskInstructionKind.SetByRefD] = (2, 0),
+            [ViskInstructionKind.LoadLocalD] = (0, 1),
+            [ViskInstructionKind.Dup] = (1, 2),
+            [ViskInstructionKind.Nop] = (0, 0)
+        };
+}

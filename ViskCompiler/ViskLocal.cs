@@ -1,7 +1,6 @@
 ﻿namespace ViskCompiler;
 
 using System.Collections.Immutable;
-using Iced.Intel;
 
 public sealed record ViskLocal(Type Type, string Name)
 {

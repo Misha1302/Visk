@@ -1,7 +1,5 @@
 ﻿namespace ViskCompiler;
 
-using Iced.Intel;
-
 internal sealed class ViskRegistersPair
 {
     private readonly AssemblerRegister64 _x64;

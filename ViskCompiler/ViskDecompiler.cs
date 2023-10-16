@@ -2,7 +2,6 @@ namespace ViskCompiler;
 
 using System.Diagnostics.Contracts;
 using System.Text;
-using Iced.Intel;
 
 public sealed class ViskDecompiler
 {

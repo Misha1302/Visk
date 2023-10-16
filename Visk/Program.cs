@@ -18,15 +18,28 @@ var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskCons
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.PushConst(123),
-        ViskInstruction.SetLocal("a"),
+        ViskInstruction.PushConst(0),
+        ViskInstruction.SetLocal("i"),
 
-        ViskInstruction.LoadRef("a"),
-        ViskInstruction.Call(of),
-        
-        ViskInstruction.LoadLocal("a"),
-        ViskInstruction.CallForeign(printLong),
+        ViskInstruction.SetLabel("loop"),
 
+        ViskInstruction.LoadLocal("i"),
+        ViskInstruction.PushConst(1_000_000_000),
+        ViskInstruction.LessThan(),
+        ViskInstruction.IfFalse(ViskInstruction.Goto("end")),
+
+
+        ViskInstruction.LoadLocal("i"),
+        ViskInstruction.PushConst(1),
+        ViskInstruction.Add(),
+        ViskInstruction.SetLocal("i"),
+
+
+        ViskInstruction.Goto("loop"),
+
+        ViskInstruction.SetLabel("end"),
+
+        ViskInstruction.LoadLocal("i"),
         ViskInstruction.Ret()
     }
 );
@@ -34,13 +47,13 @@ mf.RawInstructions.AddRange(
 of.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.SetArg("i"), 
-        
+        ViskInstruction.SetArg("i"),
+
         // push double, the var value will be -123, 'cause it's type is long
         ViskInstruction.PushConstD(BitConverter.Int64BitsToDouble(-123)),
         ViskInstruction.LoadLocal("i"),
         ViskInstruction.SetByRefD(),
-        
+
         ViskInstruction.Ret()
     }
 );

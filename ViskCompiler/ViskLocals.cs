@@ -1,7 +1,5 @@
 ﻿namespace ViskCompiler;
 
-using Iced.Intel;
-
 internal sealed class ViskLocals
 {
     public readonly

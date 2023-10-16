@@ -1,8 +1,6 @@
 ﻿namespace ViskCompiler;
 
 using System.Collections.Immutable;
-using Iced.Intel;
-using static Iced.Intel.AssemblerRegisters;
 
 internal sealed class ViskRegister
 {

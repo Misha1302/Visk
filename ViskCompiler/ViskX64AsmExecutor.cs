@@ -1,7 +1,6 @@
 ﻿namespace ViskCompiler;
 
 using System.Runtime.InteropServices;
-using Iced.Intel;
 
 public sealed partial class ViskX64AsmExecutor
 {

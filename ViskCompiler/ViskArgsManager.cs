@@ -1,8 +1,5 @@
 ﻿namespace ViskCompiler;
 
-using Iced.Intel;
-using static Iced.Intel.AssemblerRegisters;
-
 internal sealed class ViskArgsManager
 {
     private static readonly AssemblerRegister64[] _argsRegisters = { rcx, rdx, r8, r9 };

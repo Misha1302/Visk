@@ -1,7 +1,6 @@
 namespace ViskCompiler;
 
 using System.Diagnostics.Contracts;
-using Iced.Intel;
 
 internal sealed class ViskDataManager
 {
