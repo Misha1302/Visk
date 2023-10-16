@@ -30,7 +30,6 @@ mf.AddInstructions(
     ViskInstruction.Goto("loop"),
     ViskInstruction.SetLabel("end"),
     ViskInstruction.LoadLocal("i"),
-    
     ViskInstruction.LoadRef("i"),
     ViskInstruction.LoadByRef(),
     ViskInstruction.Ret()
