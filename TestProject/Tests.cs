@@ -1374,6 +1374,157 @@ public sealed class Tests
         Assert.That(result, Is.EqualTo(1));
     }
 
+    [Test]
+    public void Test48()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(1),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.PushConst(2),
+                ViskInstruction.LoadRef("i"),
+                ViskInstruction.SetByRef(),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Test49()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.PushConst(1),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocal("i"),
+
+                ViskInstruction.PushConst(2),
+                ViskInstruction.LoadRef("i"),
+                ViskInstruction.SetByRef(),
+
+                ViskInstruction.LoadLocal("i"),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Test50()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD($"i{Guid.NewGuid()}"),
+                ViskInstruction.SetLocalD("i"),
+
+                ViskInstruction.PushConstD(2.123),
+                ViskInstruction.LoadRef("i"),
+                ViskInstruction.SetByRefD(),
+
+                ViskInstruction.LoadLocalD("i"),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(2.123)));
+    }
+
+    [Test]
+    public void Test51()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConstD(1),
+                ViskInstruction.SetLocalD("i"),
+
+                ViskInstruction.PushConstD(2.123),
+                ViskInstruction.LoadRef("i"),
+                ViskInstruction.SetByRefD(),
+
+                ViskInstruction.LoadLocalD("i"),
+                ViskInstruction.CallForeign(_doubleToLongMethodInfo),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(result, Is.EqualTo(DoubleToLong(2.123)));
+    }
+
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
     {
         var module = new ViskModule("main");
