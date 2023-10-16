@@ -50,5 +50,8 @@ public enum ViskInstructionKind : long
     LessThanOrEqualsD = 1L << 39,
     GreaterThanOrEqualsD = 1L << 40,
     EqualsD = 1L << 41,
-    NotEqualsD = 1L << 42
+    NotEqualsD = 1L << 42,
+    LoadRef = 1L << 43,
+    SetByRef = 1L << 44,
+    SetByRefD = 1L << 45
 }

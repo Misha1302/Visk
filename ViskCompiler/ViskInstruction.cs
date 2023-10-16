@@ -51,6 +51,9 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
             [ViskInstructionKind.SetLocal] = (0, 0),
             [ViskInstructionKind.SetLocalD] = (0, 0),
             [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.LoadRef] = (1, 1),
+            [ViskInstructionKind.SetByRef] = (2, 0),
+            [ViskInstructionKind.SetByRefD] = (2, 0),
             [ViskInstructionKind.LoadLocalD] = (0, 1),
             [ViskInstructionKind.Dup] = (1, 2),
             [ViskInstructionKind.Nop] = (0, 0)
@@ -169,4 +172,10 @@ public sealed class ViskInstruction : IViskAssemblerPositionable
     [Pure] public static ViskInstruction GreaterThanD() => new(ViskInstructionKind.GreaterThanD);
     [Pure] public static ViskInstruction LessThanOrEqualsD() => new(ViskInstructionKind.LessThanOrEqualsD);
     [Pure] public static ViskInstruction GreaterThanOrEqualsD() => new(ViskInstructionKind.GreaterThanOrEqualsD);
+
+    public static ViskInstruction LoadRef(string s) => new(ViskInstructionKind.LoadRef, s);
+
+    public static ViskInstruction SetByRef() => new(ViskInstructionKind.SetByRef);
+
+    public static ViskInstruction SetByRefD() => new ViskInstruction(ViskInstructionKind.SetByRefD);
 }

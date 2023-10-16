@@ -115,6 +115,9 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.LessThanOrEqualsD => LessThanOrEqualsD,
             ViskInstructionKind.EqualsD => EqualsD,
             ViskInstructionKind.NotEqualsD => NotEqualsD,
+            ViskInstructionKind.LoadRef => LoadRef,
+            ViskInstructionKind.SetByRef => SetByRef,
+            ViskInstructionKind.SetByRefD => SetByRefD,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -249,6 +252,15 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void NotEqualsD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LoadRef(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void SetByRef(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void SetByRefD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     [Pure]

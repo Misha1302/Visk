@@ -13,14 +13,19 @@ var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
 
 var module = new ViskModule("main");
 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
-var of = module.AddFunction("other", new List<Type> { ViskConsts.F64 }, ViskConsts.F64);
+var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.None);
 
 mf.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.CallForeign(inputDouble),
-        ViskInstruction.PushConstD(123),
-        ViskInstruction.LessThanD(),
+        ViskInstruction.PushConst(123),
+        ViskInstruction.SetLocal("a"),
+
+        ViskInstruction.LoadRef("a"),
+        ViskInstruction.Call(of),
+        
+        ViskInstruction.LoadLocal("a"),
+        ViskInstruction.CallForeign(printLong),
 
         ViskInstruction.Ret()
     }
@@ -29,15 +34,14 @@ mf.RawInstructions.AddRange(
 of.RawInstructions.AddRange(
     new List<ViskInstruction>
     {
-        ViskInstruction.SetArgD("i"),
-
-        ViskInstruction.LoadLocalD("i"),
-        ViskInstruction.PushConstD(0.75),
-        ViskInstruction.DivD(),
-        ViskInstruction.CallForeign(printDouble),
-
-        ViskInstruction.LoadLocalD("i"),
-        ViskInstruction.RetD()
+        ViskInstruction.SetArg("i"), 
+        
+        // push double, the var value will be -123, 'cause it's type is long
+        ViskInstruction.PushConstD(BitConverter.Int64BitsToDouble(-123)),
+        ViskInstruction.LoadLocal("i"),
+        ViskInstruction.SetByRefD(),
+        
+        ViskInstruction.Ret()
     }
 );
 

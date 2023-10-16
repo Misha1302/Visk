@@ -174,6 +174,111 @@ internal sealed class ViskCompiler : ViskCompilerBase
         });
     }
 
+    protected override void LoadRef(InstructionArgs args)
+    {
+        NextStackOrRegX64(() =>
+            {
+                DataManager.Assembler.lea
+                (
+                    DataManager.Register.Next(ViskConsts.I64).X64,
+                    DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out _, out var mem)
+                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(
+                            "Cannot get address of register")
+                        : mem!.Value
+                );
+            },
+            () =>
+            {
+                DataManager.Assembler.lea
+                (
+                    rax,
+                    DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out _, out var mem)
+                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(
+                            "Cannot get address of register")
+                        : mem!.Value
+                );
+
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
+            }
+        );
+    }
+
+    protected override void SetByRef(InstructionArgs args)
+    {
+        PreviousStackOrRegX64(
+            () =>
+            {
+                var pos = DataManager.Register.Previous().X64;
+
+                PreviousStackOrRegX64(
+                    () =>
+                    {
+                        DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64);
+                    },
+                    () =>
+                    {
+                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                        DataManager.Assembler.mov(__[pos], rax);
+                    }
+                );
+            },
+            () =>
+            {
+                var pos = DataManager.Stack.GetPrevious();
+                
+                PreviousStackOrRegX64(
+                    () =>
+                    {
+                        DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64);
+                    },
+                    () =>
+                    {
+                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                        DataManager.Assembler.mov(__[pos], rax);
+                    }
+                );
+            }
+        );
+    }
+
+    protected override void SetByRefD(InstructionArgs args)
+    {
+        PreviousStackOrRegD(
+            () =>
+            {
+                var pos = DataManager.Register.Previous().X64;
+
+                PreviousStackOrRegD(
+                    () =>
+                    {
+                        DataManager.Assembler.movq(__[pos], DataManager.Register.Previous().Xmm);
+                    },
+                    () =>
+                    {
+                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                        DataManager.Assembler.mov(__[pos], rax);
+                    }
+                );
+            },
+            () =>
+            {
+                var pos = DataManager.Stack.GetPrevious();
+                
+                PreviousStackOrRegD(
+                    () =>
+                    {
+                        DataManager.Assembler.movq(__[pos], DataManager.Register.Previous().Xmm);
+                    },
+                    () =>
+                    {
+                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                        DataManager.Assembler.mov(__[pos], rax);
+                    }
+                );
+            }
+        );
+    }
+
     protected override void LoadLocal(InstructionArgs args)
     {
         NextStackOrRegX64(() =>
