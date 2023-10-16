@@ -5,7 +5,7 @@ public enum ViskInstructionKind : long
 {
     DoubleInstruction = PushConstD | SetLocalD | LoadLocalD | SetArgD | AddD | SubD | MulD | DivD | RetD | DupD |
                         DropD | LessThanOrEqualsD | GreaterThanOrEqualsD | LessThanD | GreaterThanD | EqualsD |
-                        NotEqualsD,
+                        NotEqualsD | SetByRefD | LoadByRefD,
 
 
     PushConst = 1L << 0,
@@ -53,5 +53,7 @@ public enum ViskInstructionKind : long
     NotEqualsD = 1L << 42,
     LoadRef = 1L << 43,
     SetByRef = 1L << 44,
-    SetByRefD = 1L << 45
+    SetByRefD = 1L << 45,
+    LoadByRef = 1L << 46,
+    LoadByRefD = 1L << 47
 }

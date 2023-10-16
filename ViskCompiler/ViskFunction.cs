@@ -4,7 +4,7 @@ public sealed class ViskFunction
 {
     public readonly ViskFunctionInfo Info;
 
-    public readonly List<ViskInstruction> RawInstructions = new();
+    private readonly List<ViskInstruction> _rawInstructions = new();
     private List<ViskLocal> _locals = new();
 
 
@@ -19,7 +19,7 @@ public sealed class ViskFunction
         private set => _locals = (List<ViskLocal>)value;
     }
 
-    public List<ViskInstruction> TotalInstructions => Prepare(RawInstructions);
+    public List<ViskInstruction> TotalInstructions => Prepare(_rawInstructions);
 
     public int MaxStackSize { get; private set; }
 
@@ -32,7 +32,7 @@ public sealed class ViskFunction
 
         CheckAllArgsNotNull();
         Locals = GetLocals();
-        MaxStackSize = GetMaxStackSize(RawInstructions);
+        MaxStackSize = GetMaxStackSize(_rawInstructions);
         var instr = ViskInstruction.Prolog();
 
         if (instructions[0].InstructionKind != ViskInstructionKind.Prolog)
@@ -45,7 +45,7 @@ public sealed class ViskFunction
     private void CheckAllArgsNotNull()
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (RawInstructions.Any(i => i.Arguments.Any(x => x == null)))
+        if (_rawInstructions.Any(i => i.Arguments.Any(x => x == null)))
             ViskThrowHelper.ThrowInvalidOperationException("Some arg is null");
     }
 
@@ -96,7 +96,7 @@ public sealed class ViskFunction
     private List<ViskLocal> GetLocals()
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var x in RawInstructions)
+        foreach (var x in _rawInstructions)
         {
             if (x.InstructionKind
                 is not ViskInstructionKind.SetLocal
@@ -110,11 +110,17 @@ public sealed class ViskFunction
                 : ViskConsts.I64;
 
             if (_locals.All(y => y.Name != x.Arguments[0].As<string>()))
-                _locals.Add(new ViskLocal(type, x.Arguments[0].As<string>()));
+                _locals.Add(new ViskLocal(type, x.Arguments[0].As<string>(), x.Arguments[1].As<ViskLocType>()));
         }
 
         return _locals;
     }
 
     public override string ToString() => Info.ToString();
+
+    public void AddInstructions(params ViskInstruction[] viskInstructions)
+    {
+        new ViskLocalsOptimizer().Optimize(viskInstructions);
+        _rawInstructions.AddRange(viskInstructions);
+    }
 }

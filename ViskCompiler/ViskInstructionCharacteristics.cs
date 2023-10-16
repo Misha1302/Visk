@@ -45,6 +45,8 @@ public sealed partial class ViskInstruction
             [ViskInstructionKind.SetLocal] = (0, 0),
             [ViskInstructionKind.SetLocalD] = (0, 0),
             [ViskInstructionKind.LoadLocal] = (0, 1),
+            [ViskInstructionKind.LoadByRef] = (1, 1),
+            [ViskInstructionKind.LoadByRefD] = (1, 1),
             [ViskInstructionKind.LoadRef] = (1, 1),
             [ViskInstructionKind.SetByRef] = (2, 0),
             [ViskInstructionKind.SetByRefD] = (2, 0),

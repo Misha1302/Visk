@@ -15,47 +15,35 @@ var module = new ViskModule("main");
 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
 var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.None);
 
-mf.RawInstructions.AddRange(
-    new List<ViskInstruction>
-    {
-        ViskInstruction.PushConst(0),
-        ViskInstruction.SetLocal("i"),
-
-        ViskInstruction.SetLabel("loop"),
-
-        ViskInstruction.LoadLocal("i"),
-        ViskInstruction.PushConst(1_000_000_000),
-        ViskInstruction.LessThan(),
-        ViskInstruction.IfFalse(ViskInstruction.Goto("end")),
-
-
-        ViskInstruction.LoadLocal("i"),
-        ViskInstruction.PushConst(1),
-        ViskInstruction.Add(),
-        ViskInstruction.SetLocal("i"),
-
-
-        ViskInstruction.Goto("loop"),
-
-        ViskInstruction.SetLabel("end"),
-
-        ViskInstruction.LoadLocal("i"),
-        ViskInstruction.Ret()
-    }
+mf.AddInstructions(
+    ViskInstruction.PushConst(0),
+    ViskInstruction.SetLocal("i"),
+    ViskInstruction.SetLabel("loop"),
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.PushConst(1_000_000_000),
+    ViskInstruction.LessThan(),
+    ViskInstruction.IfFalse(ViskInstruction.Goto("end")),
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.PushConst(1),
+    ViskInstruction.Add(),
+    ViskInstruction.SetLocal("i"),
+    ViskInstruction.Goto("loop"),
+    ViskInstruction.SetLabel("end"),
+    ViskInstruction.LoadLocal("i"),
+    
+    ViskInstruction.LoadRef("i"),
+    ViskInstruction.LoadByRef(),
+    ViskInstruction.Ret()
 );
 
-of.RawInstructions.AddRange(
-    new List<ViskInstruction>
-    {
-        ViskInstruction.SetArg("i"),
+of.AddInstructions(
+    ViskInstruction.SetArg("i"),
 
-        // push double, the var value will be -123, 'cause it's type is long
-        ViskInstruction.PushConstD(BitConverter.Int64BitsToDouble(-123)),
-        ViskInstruction.LoadLocal("i"),
-        ViskInstruction.SetByRefD(),
-
-        ViskInstruction.Ret()
-    }
+    // push double, the var value will be -123, 'cause it's type is long
+    ViskInstruction.PushConstD(BitConverter.Int64BitsToDouble(-123)),
+    ViskInstruction.LoadLocal("i"),
+    ViskInstruction.SetByRefD(),
+    ViskInstruction.Ret()
 );
 
 var image = new ViskImage(module);

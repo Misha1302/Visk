@@ -117,6 +117,8 @@ internal abstract class ViskCompilerBase
             ViskInstructionKind.LoadRef => LoadRef,
             ViskInstructionKind.SetByRef => SetByRef,
             ViskInstructionKind.SetByRefD => SetByRefD,
+            ViskInstructionKind.LoadByRef => LoadByRef,
+            ViskInstructionKind.LoadByRefD => LoadByRefD,
             _ => ViskThrowHelper.ThrowInvalidOperationException<Action<InstructionArgs>>(
                 $"Unknown instruction: {instruction}"
             )
@@ -260,6 +262,12 @@ internal abstract class ViskCompilerBase
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     protected virtual void SetByRefD(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LoadByRef(InstructionArgs args) =>
+        ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
+
+    protected virtual void LoadByRefD(InstructionArgs args) =>
         ViskThrowHelper.ThrowInvalidOperationException(NotImplemented);
 
     [Pure]

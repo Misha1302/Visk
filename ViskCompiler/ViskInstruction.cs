@@ -68,7 +68,8 @@ public sealed partial class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction LoadLocal(string name) => new(ViskInstructionKind.LoadLocal, name);
 
-    [Pure] public static ViskInstruction SetLocal(string name) => new(ViskInstructionKind.SetLocal, name);
+    [Pure] public static ViskInstruction SetLocal(string name) =>
+        new(ViskInstructionKind.SetLocal, name, ViskLocType.Default);
 
     [Pure] public static ViskInstruction Nop() => new(ViskInstructionKind.Nop);
 
@@ -87,9 +88,11 @@ public sealed partial class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction DropD() => new(ViskInstructionKind.DropD);
 
-    [Pure] public static ViskInstruction SetArg(string name) => new(ViskInstructionKind.SetArg, name);
+    [Pure] public static ViskInstruction SetArg(string name) =>
+        new(ViskInstructionKind.SetArg, name, ViskLocType.Default);
 
-    [Pure] public static ViskInstruction SetArgD(string name) => new(ViskInstructionKind.SetArgD, name);
+    [Pure] public static ViskInstruction SetArgD(string name) =>
+        new(ViskInstructionKind.SetArgD, name, ViskLocType.Default);
 
     [Pure] public static ViskInstruction LogicNeg() => new(ViskInstructionKind.LogicNeg);
 
@@ -99,7 +102,8 @@ public sealed partial class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction PushConstD(double d) => new(ViskInstructionKind.PushConstD, d);
 
-    [Pure] public static ViskInstruction SetLocalD(string s) => new(ViskInstructionKind.SetLocalD, s);
+    [Pure] public static ViskInstruction SetLocalD(string s) =>
+        new(ViskInstructionKind.SetLocalD, s, ViskLocType.Default);
 
     [Pure] public static ViskInstruction LoadLocalD(string s) => new(ViskInstructionKind.LoadLocalD, s);
 
@@ -125,9 +129,12 @@ public sealed partial class ViskInstruction : IViskAssemblerPositionable
     [Pure] public static ViskInstruction LessThanOrEqualsD() => new(ViskInstructionKind.LessThanOrEqualsD);
     [Pure] public static ViskInstruction GreaterThanOrEqualsD() => new(ViskInstructionKind.GreaterThanOrEqualsD);
 
-    public static ViskInstruction LoadRef(string s) => new(ViskInstructionKind.LoadRef, s);
+    [Pure] public static ViskInstruction LoadRef(string s) => new(ViskInstructionKind.LoadRef, s);
 
-    public static ViskInstruction SetByRef() => new(ViskInstructionKind.SetByRef);
+    [Pure] public static ViskInstruction SetByRef() => new(ViskInstructionKind.SetByRef);
 
-    public static ViskInstruction SetByRefD() => new(ViskInstructionKind.SetByRefD);
+    [Pure] public static ViskInstruction SetByRefD() => new(ViskInstructionKind.SetByRefD);
+
+    [Pure] public static ViskInstruction LoadByRef() => new(ViskInstructionKind.LoadByRef);
+    [Pure] public static ViskInstruction LoadByRefD() => new(ViskInstructionKind.LoadByRefD);
 }

@@ -1,5 +1,7 @@
 ﻿namespace ViskCompiler;
 
+using ViskLocT3 = ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>;
+
 internal sealed class ViskLocals
 {
     public readonly
@@ -11,11 +13,20 @@ internal sealed class ViskLocals
         var min = Math.Min(ViskLocal.LocalsRegisters.Length, locals.Count);
         for (var index = 0; index < min; index++)
         {
-            var value = locals[index].Type == ViskConsts.I64
-                ? new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(
-                    ViskLocal.LocalsRegisters[index])
-                : new ViskT3<AssemblerRegister64?, AssemblerRegisterXMM?, AssemblerMemoryOperand?>(
-                    ViskLocal.LocalsRegistersD[index]);
+            var value = locals[index].LocType switch
+            {
+                ViskLocType.Default => locals[index].Type == ViskConsts.I64
+                    ? new ViskLocT3(ViskLocal.LocalsRegisters[index])
+                    : new ViskLocT3(ViskLocal.LocalsRegistersD[index]),
+
+                ViskLocType.Ref => new ViskLocT3(funcStackManager.GetMemoryLocal((index + 1) * 8)),
+
+                ViskLocType.Invalid => ViskThrowHelper.ThrowInvalidOperationException<ViskLocT3>("Invalid local type"),
+
+                _ => ViskThrowHelper.ThrowInvalidOperationException<ViskLocT3>(
+                    $"Unknown local type ({locals[index].LocType})"
+                )
+            };
 
             Locals.Add((locals[index].Name, value));
         }

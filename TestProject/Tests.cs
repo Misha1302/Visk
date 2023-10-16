@@ -259,26 +259,18 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
                 var of = module.AddFunction("other", new List<Type>(0), ViskConsts.I64);
 
-                mf.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.Call(of),
-                        ViskInstruction.Call(of),
-                        ViskInstruction.Add(),
-
-                        ViskInstruction.Ret()
-                    }
+                mf.AddInstructions(
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Add(),
+                    ViskInstruction.Ret()
                 );
 
-                of.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.PushConst(23),
-                        ViskInstruction.PushConst(2),
-                        ViskInstruction.Add(),
-
-                        ViskInstruction.Ret()
-                    }
+                of.AddInstructions(
+                    ViskInstruction.PushConst(23),
+                    ViskInstruction.PushConst(2),
+                    ViskInstruction.Add(),
+                    ViskInstruction.Ret()
                 );
             }
         );
@@ -295,28 +287,19 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
                 var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.I64);
 
-                mf.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.PushConst(5),
-                        ViskInstruction.Call(of),
-                        ViskInstruction.Call(of),
-
-                        ViskInstruction.Ret()
-                    }
+                mf.AddInstructions(
+                    ViskInstruction.PushConst(5),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Ret()
                 );
 
-                of.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.SetArg("arg"),
-
-                        ViskInstruction.LoadLocal("arg"),
-                        ViskInstruction.PushConst(2),
-                        ViskInstruction.IMul(),
-
-                        ViskInstruction.Ret()
-                    }
+                of.AddInstructions(
+                    ViskInstruction.SetArg("arg"),
+                    ViskInstruction.LoadLocal("arg"),
+                    ViskInstruction.PushConst(2),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.Ret()
                 );
             }
         );
@@ -335,61 +318,52 @@ public sealed class Tests
                     Enumerable.Repeat(ViskConsts.I64, 10).ToList(),
                     ViskConsts.I64);
 
-                mf.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.PushConst(1),
-                        ViskInstruction.PushConst(2),
-                        ViskInstruction.PushConst(3),
-                        ViskInstruction.PushConst(4),
-                        ViskInstruction.PushConst(5),
-                        ViskInstruction.PushConst(6),
-                        ViskInstruction.PushConst(7),
-                        ViskInstruction.PushConst(8),
-                        ViskInstruction.PushConst(9),
-                        ViskInstruction.PushConst(10),
-                        ViskInstruction.Call(of),
-
-                        ViskInstruction.Ret()
-                    }
+                mf.AddInstructions(
+                    ViskInstruction.PushConst(1),
+                    ViskInstruction.PushConst(2),
+                    ViskInstruction.PushConst(3),
+                    ViskInstruction.PushConst(4),
+                    ViskInstruction.PushConst(5),
+                    ViskInstruction.PushConst(6),
+                    ViskInstruction.PushConst(7),
+                    ViskInstruction.PushConst(8),
+                    ViskInstruction.PushConst(9),
+                    ViskInstruction.PushConst(10),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Ret()
                 );
 
-                of.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.SetArg("arg0"),
-                        ViskInstruction.SetArg("arg1"),
-                        ViskInstruction.SetArg("arg2"),
-                        ViskInstruction.SetArg("arg3"),
-                        ViskInstruction.SetArg("arg4"),
-                        ViskInstruction.SetArg("arg5"),
-                        ViskInstruction.SetArg("arg6"),
-                        ViskInstruction.SetArg("arg7"),
-                        ViskInstruction.SetArg("arg8"),
-                        ViskInstruction.SetArg("arg9"),
-
-                        ViskInstruction.LoadLocal("arg0"),
-                        ViskInstruction.LoadLocal("arg1"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg2"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg3"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg4"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg5"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg6"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg7"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg8"),
-                        ViskInstruction.IMul(),
-                        ViskInstruction.LoadLocal("arg9"),
-                        ViskInstruction.IMul(),
-
-                        ViskInstruction.Ret()
-                    }
+                of.AddInstructions(
+                    ViskInstruction.SetArg("arg0"),
+                    ViskInstruction.SetArg("arg1"),
+                    ViskInstruction.SetArg("arg2"),
+                    ViskInstruction.SetArg("arg3"),
+                    ViskInstruction.SetArg("arg4"),
+                    ViskInstruction.SetArg("arg5"),
+                    ViskInstruction.SetArg("arg6"),
+                    ViskInstruction.SetArg("arg7"),
+                    ViskInstruction.SetArg("arg8"),
+                    ViskInstruction.SetArg("arg9"),
+                    ViskInstruction.LoadLocal("arg0"),
+                    ViskInstruction.LoadLocal("arg1"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg2"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg3"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg4"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg5"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg6"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg7"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg8"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.LoadLocal("arg9"),
+                    ViskInstruction.IMul(),
+                    ViskInstruction.Ret()
                 );
             }
         );
@@ -449,40 +423,28 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
                 var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.I64);
 
-                mf.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.PushConst(6),
-                        ViskInstruction.Call(of),
-
-                        ViskInstruction.Ret()
-                    }
+                mf.AddInstructions(
+                    ViskInstruction.PushConst(6),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.Ret()
                 );
 
-                of.RawInstructions.AddRange(
-                    new List<ViskInstruction>
-                    {
-                        ViskInstruction.SetArg("arg"),
-
-                        ViskInstruction.LoadLocal("arg"),
-                        ViskInstruction.PushConst(100),
-                        ViskInstruction.Equals(),
-                        ViskInstruction.IfTrue(ViskInstruction.Goto("endOfRecursion")),
-
-                        ViskInstruction.LoadLocal("arg"),
-                        ViskInstruction.PushConst(1),
-                        ViskInstruction.Add(),
-                        ViskInstruction.SetLocal("arg"),
-
-                        ViskInstruction.LoadLocal("arg"),
-                        ViskInstruction.Call(of),
-                        ViskInstruction.SetLocal("arg"),
-
-                        ViskInstruction.SetLabel("endOfRecursion"),
-
-                        ViskInstruction.LoadLocal("arg"),
-                        ViskInstruction.Ret()
-                    }
+                of.AddInstructions(
+                    ViskInstruction.SetArg("arg"),
+                    ViskInstruction.LoadLocal("arg"),
+                    ViskInstruction.PushConst(100),
+                    ViskInstruction.Equals(),
+                    ViskInstruction.IfTrue(ViskInstruction.Goto("endOfRecursion")),
+                    ViskInstruction.LoadLocal("arg"),
+                    ViskInstruction.PushConst(1),
+                    ViskInstruction.Add(),
+                    ViskInstruction.SetLocal("arg"),
+                    ViskInstruction.LoadLocal("arg"),
+                    ViskInstruction.Call(of),
+                    ViskInstruction.SetLocal("arg"),
+                    ViskInstruction.SetLabel("endOfRecursion"),
+                    ViskInstruction.LoadLocal("arg"),
+                    ViskInstruction.Ret()
                 );
             }
         );
@@ -700,29 +662,12 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", new List<Type> { ViskConsts.F64 }, ViskConsts.F64);
 
-                mf.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.PushConstD(321.123),
-                    ViskInstruction.Call(of),
-                    ViskInstruction.Call(of),
+                mf.AddInstructions(ViskInstruction.PushConstD(321.123), ViskInstruction.Call(of),
+                    ViskInstruction.Call(of), ViskInstruction.PushConstD(22.33), ViskInstruction.MulD(),
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
 
-                    ViskInstruction.PushConstD(22.33),
-                    ViskInstruction.MulD(),
-
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
-                    ViskInstruction.Ret()
-                });
-
-                of.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.SetArgD("i"),
-
-                    ViskInstruction.LoadLocalD("i"),
-                    ViskInstruction.PushConstD(2.1),
-                    ViskInstruction.DivD(),
-
-                    ViskInstruction.RetD()
-                });
+                of.AddInstructions(ViskInstruction.SetArgD("i"), ViskInstruction.LoadLocalD("i"),
+                    ViskInstruction.PushConstD(2.1), ViskInstruction.DivD(), ViskInstruction.RetD());
             }
         );
 
@@ -739,50 +684,20 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
-                mf.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.PushConstD(1),
-                    ViskInstruction.PushConstD(2),
-                    ViskInstruction.PushConstD(3),
-                    ViskInstruction.PushConstD(4),
-                    ViskInstruction.PushConstD(5),
-                    ViskInstruction.PushConstD(6),
-                    ViskInstruction.PushConstD(7),
-                    ViskInstruction.PushConstD(8),
-                    ViskInstruction.PushConstD(9),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(11),
-                    ViskInstruction.PushConstD(12),
-                    ViskInstruction.PushConstD(13),
-                    ViskInstruction.PushConstD(14),
-                    ViskInstruction.PushConstD(15),
-                    ViskInstruction.Call(of),
+                mf.AddInstructions(ViskInstruction.PushConstD(1), ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3), ViskInstruction.PushConstD(4), ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6), ViskInstruction.PushConstD(7), ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12), ViskInstruction.PushConstD(13), ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15), ViskInstruction.Call(of),
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
 
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
-                    ViskInstruction.Ret()
-                });
-
-                of.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.SetArgD("i0"),
-                    ViskInstruction.SetArgD("i1"),
-                    ViskInstruction.SetArgD("i2"),
-                    ViskInstruction.SetArgD("i3"),
-                    ViskInstruction.SetArgD("i4"),
-                    ViskInstruction.SetArgD("i5"),
-                    ViskInstruction.SetArgD("i6"),
-                    ViskInstruction.SetArgD("i7"),
-                    ViskInstruction.SetArgD("i8"),
-                    ViskInstruction.SetArgD("i9"),
-                    ViskInstruction.SetArgD("i10"),
-                    ViskInstruction.SetArgD("i11"),
-                    ViskInstruction.SetArgD("i12"),
-                    ViskInstruction.SetArgD("i13"),
-                    ViskInstruction.SetArgD("i14"),
-
-                    ViskInstruction.LoadLocalD("i4"),
-                    ViskInstruction.RetD()
-                });
+                of.AddInstructions(ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"), ViskInstruction.SetArgD("i3"), ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"), ViskInstruction.SetArgD("i6"), ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"), ViskInstruction.SetArgD("i9"), ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"), ViskInstruction.SetArgD("i12"), ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"), ViskInstruction.LoadLocalD("i4"), ViskInstruction.RetD());
             }
         );
 
@@ -799,50 +714,20 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
-                mf.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.PushConstD(1),
-                    ViskInstruction.PushConstD(2),
-                    ViskInstruction.PushConstD(3),
-                    ViskInstruction.PushConstD(4),
-                    ViskInstruction.PushConstD(5),
-                    ViskInstruction.PushConstD(6),
-                    ViskInstruction.PushConstD(7),
-                    ViskInstruction.PushConstD(8),
-                    ViskInstruction.PushConstD(9),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(11),
-                    ViskInstruction.PushConstD(12),
-                    ViskInstruction.PushConstD(13),
-                    ViskInstruction.PushConstD(14),
-                    ViskInstruction.PushConstD(15),
-                    ViskInstruction.Call(of),
+                mf.AddInstructions(ViskInstruction.PushConstD(1), ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3), ViskInstruction.PushConstD(4), ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6), ViskInstruction.PushConstD(7), ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12), ViskInstruction.PushConstD(13), ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15), ViskInstruction.Call(of),
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
 
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
-                    ViskInstruction.Ret()
-                });
-
-                of.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.SetArgD("i0"),
-                    ViskInstruction.SetArgD("i1"),
-                    ViskInstruction.SetArgD("i2"),
-                    ViskInstruction.SetArgD("i3"),
-                    ViskInstruction.SetArgD("i4"),
-                    ViskInstruction.SetArgD("i5"),
-                    ViskInstruction.SetArgD("i6"),
-                    ViskInstruction.SetArgD("i7"),
-                    ViskInstruction.SetArgD("i8"),
-                    ViskInstruction.SetArgD("i9"),
-                    ViskInstruction.SetArgD("i10"),
-                    ViskInstruction.SetArgD("i11"),
-                    ViskInstruction.SetArgD("i12"),
-                    ViskInstruction.SetArgD("i13"),
-                    ViskInstruction.SetArgD("i14"),
-
-                    ViskInstruction.LoadLocalD("i14"),
-                    ViskInstruction.RetD()
-                });
+                of.AddInstructions(ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"), ViskInstruction.SetArgD("i3"), ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"), ViskInstruction.SetArgD("i6"), ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"), ViskInstruction.SetArgD("i9"), ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"), ViskInstruction.SetArgD("i12"), ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"), ViskInstruction.LoadLocalD("i14"), ViskInstruction.RetD());
             }
         );
 
@@ -859,50 +744,20 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
-                mf.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.PushConstD(1),
-                    ViskInstruction.PushConstD(2),
-                    ViskInstruction.PushConstD(3),
-                    ViskInstruction.PushConstD(4),
-                    ViskInstruction.PushConstD(5),
-                    ViskInstruction.PushConstD(6),
-                    ViskInstruction.PushConstD(7),
-                    ViskInstruction.PushConstD(8),
-                    ViskInstruction.PushConstD(9),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(11),
-                    ViskInstruction.PushConstD(12),
-                    ViskInstruction.PushConstD(13),
-                    ViskInstruction.PushConstD(14),
-                    ViskInstruction.PushConstD(15),
-                    ViskInstruction.Call(of),
+                mf.AddInstructions(ViskInstruction.PushConstD(1), ViskInstruction.PushConstD(2),
+                    ViskInstruction.PushConstD(3), ViskInstruction.PushConstD(4), ViskInstruction.PushConstD(5),
+                    ViskInstruction.PushConstD(6), ViskInstruction.PushConstD(7), ViskInstruction.PushConstD(8),
+                    ViskInstruction.PushConstD(9), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(11),
+                    ViskInstruction.PushConstD(12), ViskInstruction.PushConstD(13), ViskInstruction.PushConstD(14),
+                    ViskInstruction.PushConstD(15), ViskInstruction.Call(of),
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
 
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
-                    ViskInstruction.Ret()
-                });
-
-                of.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.SetArgD("i0"),
-                    ViskInstruction.SetArgD("i1"),
-                    ViskInstruction.SetArgD("i2"),
-                    ViskInstruction.SetArgD("i3"),
-                    ViskInstruction.SetArgD("i4"),
-                    ViskInstruction.SetArgD("i5"),
-                    ViskInstruction.SetArgD("i6"),
-                    ViskInstruction.SetArgD("i7"),
-                    ViskInstruction.SetArgD("i8"),
-                    ViskInstruction.SetArgD("i9"),
-                    ViskInstruction.SetArgD("i10"),
-                    ViskInstruction.SetArgD("i11"),
-                    ViskInstruction.SetArgD("i12"),
-                    ViskInstruction.SetArgD("i13"),
-                    ViskInstruction.SetArgD("i14"),
-
-                    ViskInstruction.LoadLocalD("i0"),
-                    ViskInstruction.RetD()
-                });
+                of.AddInstructions(ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"), ViskInstruction.SetArgD("i3"), ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"), ViskInstruction.SetArgD("i6"), ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"), ViskInstruction.SetArgD("i9"), ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"), ViskInstruction.SetArgD("i12"), ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"), ViskInstruction.LoadLocalD("i0"), ViskInstruction.RetD());
             }
         );
 
@@ -919,67 +774,28 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
-                mf.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10),
-                    ViskInstruction.Call(of),
+                mf.AddInstructions(ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                    ViskInstruction.PushConstD(10), ViskInstruction.Call(of),
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
 
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo),
-                    ViskInstruction.Ret()
-                });
-
-                of.RawInstructions.AddRange(new[]
-                {
-                    ViskInstruction.SetArgD("i0"),
-                    ViskInstruction.SetArgD("i1"),
-                    ViskInstruction.SetArgD("i2"),
-                    ViskInstruction.SetArgD("i3"),
-                    ViskInstruction.SetArgD("i4"),
-                    ViskInstruction.SetArgD("i5"),
-                    ViskInstruction.SetArgD("i6"),
-                    ViskInstruction.SetArgD("i7"),
-                    ViskInstruction.SetArgD("i8"),
-                    ViskInstruction.SetArgD("i9"),
-                    ViskInstruction.SetArgD("i10"),
-                    ViskInstruction.SetArgD("i11"),
-                    ViskInstruction.SetArgD("i12"),
-                    ViskInstruction.SetArgD("i13"),
-                    ViskInstruction.SetArgD("i14"),
-
-                    ViskInstruction.LoadLocalD("i0"),
-                    ViskInstruction.LoadLocalD("i1"),
-                    ViskInstruction.LoadLocalD("i2"),
-                    ViskInstruction.LoadLocalD("i3"),
-                    ViskInstruction.LoadLocalD("i4"),
-                    ViskInstruction.LoadLocalD("i5"),
-                    ViskInstruction.LoadLocalD("i6"),
-                    ViskInstruction.LoadLocalD("i7"),
-                    ViskInstruction.LoadLocalD("i8"),
-                    ViskInstruction.LoadLocalD("i9"),
-                    ViskInstruction.LoadLocalD("i10"),
-                    ViskInstruction.LoadLocalD("i11"),
-                    ViskInstruction.LoadLocalD("i12"),
-                    ViskInstruction.LoadLocalD("i13"),
-                    ViskInstruction.LoadLocalD("i14"),
-
-                    ViskInstruction.CallForeign(_sum15DoublesMethodInfo),
-
-                    ViskInstruction.RetD()
-                });
+                of.AddInstructions(ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.SetArgD("i2"), ViskInstruction.SetArgD("i3"), ViskInstruction.SetArgD("i4"),
+                    ViskInstruction.SetArgD("i5"), ViskInstruction.SetArgD("i6"), ViskInstruction.SetArgD("i7"),
+                    ViskInstruction.SetArgD("i8"), ViskInstruction.SetArgD("i9"), ViskInstruction.SetArgD("i10"),
+                    ViskInstruction.SetArgD("i11"), ViskInstruction.SetArgD("i12"), ViskInstruction.SetArgD("i13"),
+                    ViskInstruction.SetArgD("i14"), ViskInstruction.LoadLocalD("i0"), ViskInstruction.LoadLocalD("i1"),
+                    ViskInstruction.LoadLocalD("i2"), ViskInstruction.LoadLocalD("i3"),
+                    ViskInstruction.LoadLocalD("i4"), ViskInstruction.LoadLocalD("i5"),
+                    ViskInstruction.LoadLocalD("i6"), ViskInstruction.LoadLocalD("i7"),
+                    ViskInstruction.LoadLocalD("i8"), ViskInstruction.LoadLocalD("i9"),
+                    ViskInstruction.LoadLocalD("i10"), ViskInstruction.LoadLocalD("i11"),
+                    ViskInstruction.LoadLocalD("i12"), ViskInstruction.LoadLocalD("i13"),
+                    ViskInstruction.LoadLocalD("i14"), ViskInstruction.CallForeign(_sum15DoublesMethodInfo),
+                    ViskInstruction.RetD());
             }
         );
 
@@ -1525,12 +1341,15 @@ public sealed class Tests
         Assert.That(result, Is.EqualTo(DoubleToLong(2.123)));
     }
 
-    private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions)
+    private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions) =>
+        ExecuteFunctions(instructions.ToArray());
+
+    private static long ExecuteFunctions(params ViskInstruction[] instructions)
     {
         var module = new ViskModule("main");
         var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
 
-        mf.RawInstructions.AddRange(instructions);
+        mf.AddInstructions(instructions);
 
         var image = new ViskImage(module);
         var executor = image.Compile(new ViskSettings(ViskCompilationMode.Release));

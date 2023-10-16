@@ -167,14 +167,15 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void LoadRef(InstructionArgs args)
     {
+        var exceptionMessage = $"Cannot get (load) address (reference) of register ({args[0].As<string>()})";
+
         NextStackOrRegX64(() =>
             {
                 DataManager.Assembler.lea
                 (
                     DataManager.Register.Next(ViskConsts.I64).X64,
                     DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out _, out var mem)
-                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(
-                            "Cannot get address of register")
+                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(exceptionMessage)
                         : mem!.Value
                 );
             },
@@ -184,8 +185,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 (
                     rax,
                     DataManager.CurrentFuncLocals.GetLocalPos(args[0].As<string>(), out _, out _, out var mem)
-                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(
-                            "Cannot get address of register")
+                        ? ViskThrowHelper.ThrowInvalidOperationException<AssemblerMemoryOperand>(exceptionMessage)
                         : mem!.Value
                 );
 
@@ -222,6 +222,44 @@ internal sealed class ViskCompiler : ViskCompilerBase
                         DataManager.Assembler.mov(__[pos], rax);
                     }
                 );
+            }
+        );
+    }
+
+    protected override void LoadByRef(InstructionArgs args)
+    {
+        NextStackOrRegX64(
+            () =>
+            {
+                var pos = DataManager.Register.Previous().X64;
+
+                DataManager.Assembler.mov(DataManager.Register.Next(ViskConsts.I64).X64, __[pos]);
+            },
+            () =>
+            {
+                var pos = DataManager.Stack.GetPrevious();
+
+                DataManager.Assembler.mov(rax, __[pos]);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.I64), rax);
+            }
+        );
+    }
+
+    protected override void LoadByRefD(InstructionArgs args)
+    {
+        NextStackOrRegX64(
+            () =>
+            {
+                var pos = DataManager.Register.Previous().X64;
+
+                DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.F64).Xmm, __[pos]);
+            },
+            () =>
+            {
+                var pos = DataManager.Stack.GetPrevious();
+
+                DataManager.Assembler.mov(rax, __[pos]);
+                DataManager.Assembler.mov(DataManager.Stack.GetNext(ViskConsts.F64), rax);
             }
         );
     }
@@ -651,10 +689,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
     {
         var mem = __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))];
         NextStackOrRegD(
-            () =>
-            {
-                DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.F64).Xmm, mem);
-            },
+            () => { DataManager.Assembler.movq(DataManager.Register.Next(ViskConsts.F64).Xmm, mem); },
             () =>
             {
                 DataManager.Assembler.movq(xmm0, mem);
