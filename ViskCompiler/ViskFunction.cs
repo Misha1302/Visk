@@ -123,4 +123,10 @@ public sealed class ViskFunction
         new ViskLocalsOptimizer().Optimize(viskInstructions);
         _rawInstructions.AddRange(viskInstructions);
     }
+
+    public void AddInstructions(List<ViskInstruction> viskInstructions)
+    {
+        var instructions = viskInstructions.ToArray();
+        AddInstructions(instructions);
+    }
 }

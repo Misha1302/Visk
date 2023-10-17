@@ -774,28 +774,40 @@ public sealed class Tests
                 var mf = module.AddFunction("main", new List<Type>(), ViskConsts.I64);
                 var of = module.AddFunction("other", Enumerable.Repeat(ViskConsts.F64, 15).ToList(), ViskConsts.F64);
 
-                mf.AddInstructions(ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
+                mf.AddInstructions(new List<ViskInstruction>
+                {
+                    ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
                     ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
                     ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
                     ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
                     ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10), ViskInstruction.PushConstD(10),
-                    ViskInstruction.PushConstD(10), ViskInstruction.Call(of),
-                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret());
+                    ViskInstruction.PushConstD(10),
 
-                of.AddInstructions(ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
+                    ViskInstruction.Call(of),
+
+                    ViskInstruction.CallForeign(_doubleToLongMethodInfo), ViskInstruction.Ret()
+                });
+
+                of.AddInstructions(new List<ViskInstruction>
+                {
+                    ViskInstruction.SetArgD("i0"), ViskInstruction.SetArgD("i1"),
                     ViskInstruction.SetArgD("i2"), ViskInstruction.SetArgD("i3"), ViskInstruction.SetArgD("i4"),
                     ViskInstruction.SetArgD("i5"), ViskInstruction.SetArgD("i6"), ViskInstruction.SetArgD("i7"),
                     ViskInstruction.SetArgD("i8"), ViskInstruction.SetArgD("i9"), ViskInstruction.SetArgD("i10"),
                     ViskInstruction.SetArgD("i11"), ViskInstruction.SetArgD("i12"), ViskInstruction.SetArgD("i13"),
-                    ViskInstruction.SetArgD("i14"), ViskInstruction.LoadLocalD("i0"), ViskInstruction.LoadLocalD("i1"),
+                    ViskInstruction.SetArgD("i14"),
+
+                    ViskInstruction.LoadLocalD("i0"), ViskInstruction.LoadLocalD("i1"),
                     ViskInstruction.LoadLocalD("i2"), ViskInstruction.LoadLocalD("i3"),
                     ViskInstruction.LoadLocalD("i4"), ViskInstruction.LoadLocalD("i5"),
                     ViskInstruction.LoadLocalD("i6"), ViskInstruction.LoadLocalD("i7"),
                     ViskInstruction.LoadLocalD("i8"), ViskInstruction.LoadLocalD("i9"),
                     ViskInstruction.LoadLocalD("i10"), ViskInstruction.LoadLocalD("i11"),
                     ViskInstruction.LoadLocalD("i12"), ViskInstruction.LoadLocalD("i13"),
-                    ViskInstruction.LoadLocalD("i14"), ViskInstruction.CallForeign(_sum15DoublesMethodInfo),
-                    ViskInstruction.RetD());
+                    ViskInstruction.LoadLocalD("i14"),
+                    ViskInstruction.CallForeign(_sum15DoublesMethodInfo),
+                    ViskInstruction.RetD()
+                });
             }
         );
 

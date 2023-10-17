@@ -60,11 +60,13 @@ internal sealed class ViskArgsManager
 
             if (r is not null)
             {
-                _dataManager.Assembler.mov(_argsRegisters[j], r.Value);
+                if (_argsRegisters[j] != r.Value)
+                    _dataManager.Assembler.mov(_argsRegisters[j], r.Value);
             }
             else if (xmm is not null)
             {
-                _dataManager.Assembler.movq(_argsRegistersD[j], xmm.Value);
+                if (_argsRegistersD[j] != xmm.Value)
+                    _dataManager.Assembler.movq(_argsRegistersD[j], xmm.Value);
             }
             else
             {

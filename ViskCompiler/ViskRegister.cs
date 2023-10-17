@@ -5,14 +5,17 @@ using System.Collections.Immutable;
 internal sealed class ViskRegister
 {
     public static readonly ImmutableArray<AssemblerRegister64> PublicRegisters =
-        ImmutableArray.Create(r10, r11, r12, rbx, rsi);
+        ImmutableArray.Create(rcx, rbx, r8, r9, r10, r11, r12, rsi);
 
     public static readonly ImmutableArray<AssemblerRegisterXMM> PublicRegistersD =
-        ImmutableArray.Create(xmm4, xmm5, xmm6, xmm7, xmm8, xmm9, xmm10, xmm11, xmm12);
+        ImmutableArray.Create(xmm2, xmm3, xmm4, xmm5, xmm6, xmm7, xmm8, xmm9, xmm10, xmm11, xmm12);
 
     public static readonly IReadOnlyDictionary<AssemblerRegister64, AssemblerRegister8> PublicRegisters8 =
         new Dictionary<AssemblerRegister64, AssemblerRegister8>
         {
+            [rcx] = cl,
+            [r8] = r8b,
+            [r9] = r9b,
             [r10] = r10b,
             [r11] = r11b,
             [r12] = r12b,

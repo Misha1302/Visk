@@ -26,22 +26,22 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void AddD(InstructionArgs args)
     {
-        OperateD(DataManager.Assembler.addsd, DataManager.Assembler.addsd);
+        OperateD(DataManager.Assembler.addsd);
     }
 
     protected override void SubD(InstructionArgs args)
     {
-        OperateD(DataManager.Assembler.subsd, DataManager.Assembler.subsd);
+        OperateD(DataManager.Assembler.subsd);
     }
 
     protected override void MulD(InstructionArgs args)
     {
-        OperateD(DataManager.Assembler.mulsd, DataManager.Assembler.mulsd);
+        OperateD(DataManager.Assembler.mulsd);
     }
 
     protected override void DivD(InstructionArgs args)
     {
-        OperateD(DataManager.Assembler.divsd, DataManager.Assembler.divsd);
+        OperateD(DataManager.Assembler.divsd);
     }
 
     protected override void SetLabel(InstructionArgs args)
@@ -569,6 +569,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
         DataManager.Assembler.push(rbp);
         DataManager.Assembler.push(rdi);
         DataManager.Assembler.push(rsi);
+        if (args.Function.Info.IsMain)
+            SaveAllRegisters();
         DataManager.Assembler.mov(rbp, rsp);
 
         DataManager.NewFunc(args.Function.MaxStackSize, args.Function.Locals);
@@ -607,11 +609,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
             () => { }
         );
 
-        DataManager.Assembler.mov(rsp, rbp);
-        DataManager.Assembler.pop(rsi);
-        DataManager.Assembler.pop(rdi);
-        DataManager.Assembler.pop(rbp);
-        DataManager.Assembler.ret();
+        RetInternal(args);
     }
 
     protected override void RetD(InstructionArgs args)
@@ -622,11 +620,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
             () => { }
         );
 
-        DataManager.Assembler.mov(rsp, rbp);
-        DataManager.Assembler.pop(rsi);
-        DataManager.Assembler.pop(rdi);
-        DataManager.Assembler.pop(rbp);
-        DataManager.Assembler.ret();
+        RetInternal(args);
     }
 
     protected override void SetArg(InstructionArgs args)
@@ -685,6 +679,17 @@ internal sealed class ViskCompiler : ViskCompilerBase
         );
     }
 
+    private void RetInternal(InstructionArgs args)
+    {
+        DataManager.Assembler.mov(rsp, rbp);
+        if (args.Function.Info.IsMain)
+            LoadAllRegisters();
+        DataManager.Assembler.pop(rsi);
+        DataManager.Assembler.pop(rdi);
+        DataManager.Assembler.pop(rbp);
+        DataManager.Assembler.ret();
+    }
+
     private void Push(double number)
     {
         var mem = __[DataManager.DefineI64(BitConverter.DoubleToInt64Bits(number))];
@@ -726,8 +731,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
         );
     }
 
-    private void OperateD(Action<AssemblerRegisterXMM, AssemblerMemoryOperand> mm,
-        Action<AssemblerRegisterXMM, AssemblerRegisterXMM> rr, bool saveResult = true)
+    private void OperateD(Action<AssemblerRegisterXMM, AssemblerRegisterXMM> rr, bool saveResult = true)
     {
         PreviousStackOrRegD(() =>
         {
@@ -735,13 +739,15 @@ internal sealed class ViskCompiler : ViskCompilerBase
             rr(saveResult ? DataManager.Register.BackValue().Xmm : DataManager.Register.Previous().Xmm, srcReg);
         }, () =>
         {
-            var src = DataManager.Stack.GetPrevious();
+            var src = xmm1;
+            DataManager.Assembler.movq(src, DataManager.Stack.GetPrevious());
+
             PreviousStackOrRegD(
-                () => mm(saveResult ? DataManager.Register.BackValue().Xmm : DataManager.Register.Previous().Xmm, src),
+                () => rr(saveResult ? DataManager.Register.BackValue().Xmm : DataManager.Register.Previous().Xmm, src),
                 () =>
                 {
                     DataManager.Assembler.movq(xmm0, DataManager.Stack.GetPrevious());
-                    mm(xmm0, src);
+                    rr(xmm0, src);
 
                     if (saveResult)
                         DataManager.Assembler.movq(DataManager.Stack.GetNext(ViskConsts.I64), xmm0);
@@ -797,7 +803,7 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
         OperateD(
             (r, m) => DataManager.Assembler.cmppd(xmm = r, m, (byte)operation),
-            (r, r2) => DataManager.Assembler.cmppd(xmm = r, r2, (byte)operation)
+            false
         );
 
         NextStackOrRegX64(
@@ -813,5 +819,62 @@ internal sealed class ViskCompiler : ViskCompilerBase
                 DataManager.Assembler.movq(assemblerMemoryOperand, xmm);
                 DataManager.Assembler.and(assemblerMemoryOperand, 1);
             });
+    }
+
+
+    private void SaveAllRegisters()
+    {
+        foreach (var pr in ViskRegister.PublicRegisters)
+            DataManager.Assembler.push(pr);
+        foreach (var prd in ViskRegister.PublicRegistersD)
+        {
+            DataManager.Assembler.sub(rsp, 16);
+            DataManager.Assembler.movdqu(__[rsp], prd);
+        }
+
+        foreach (var pr in ViskLocal.LocalsRegisters)
+            DataManager.Assembler.push(pr);
+        foreach (var prd in ViskLocal.LocalsRegistersD)
+        {
+            DataManager.Assembler.sub(rsp, 16);
+            DataManager.Assembler.movdqu(__[rsp], prd);
+        }
+
+        AlignIfNeed(true);
+    }
+
+    private void AlignIfNeed(bool subOrAdd)
+    {
+        var len = ViskRegister.PublicRegisters.Length + ViskLocal.LocalsRegisters.Length +
+                  ViskLocal.LocalsRegistersD.Length + 1;
+
+        if (len % 2 == 0) return;
+
+        if (subOrAdd)
+            DataManager.Assembler.sub(rsp, 8);
+        else DataManager.Assembler.add(rsp, 8);
+    }
+
+
+    private void LoadAllRegisters()
+    {
+        AlignIfNeed(false);
+        foreach (var prd in ViskLocal.LocalsRegistersD.Reverse())
+        {
+            DataManager.Assembler.movdqu(prd, __[rsp]);
+            DataManager.Assembler.add(rsp, 16);
+        }
+
+        foreach (var pr in ViskLocal.LocalsRegisters.Reverse())
+            DataManager.Assembler.pop(pr);
+
+        foreach (var prd in ViskRegister.PublicRegistersD.Reverse())
+        {
+            DataManager.Assembler.movdqu(prd, __[rsp]);
+            DataManager.Assembler.add(rsp, 16);
+        }
+
+        foreach (var pr in ViskRegister.PublicRegisters.Reverse())
+            DataManager.Assembler.pop(pr);
     }
 }
