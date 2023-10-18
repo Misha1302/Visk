@@ -23,6 +23,19 @@ internal sealed class ViskRegister
             [rsi] = sil
         };
 
+    public static readonly IReadOnlyDictionary<AssemblerRegister64, AssemblerRegister16> PublicRegisters16 =
+        new Dictionary<AssemblerRegister64, AssemblerRegister16>
+        {
+            [rcx] = cx,
+            [r8] = r8w,
+            [r9] = r9w,
+            [r10] = r10w,
+            [r11] = r11w,
+            [r12] = r12w,
+            [rbx] = bx,
+            [rsi] = si
+        };
+
     private readonly Stack<Type> _stack = new();
 
     public readonly ViskRegisterInternal<AssemblerRegister64> Rx64 = new(PublicRegisters);
@@ -65,7 +78,7 @@ internal sealed class ViskRegister
             () => d = actXmm()
         );
 
-        return new ViskRegistersPair(x64, d);
+        return new ViskRegistersPair(x64 != default ? PublicRegisters16[x64] : default, x64, d);
     }
 
     public ViskRegister Copy() => new(Rx64, Rd);

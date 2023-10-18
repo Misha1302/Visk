@@ -65,6 +65,10 @@ public sealed class ViskFunction
                     var f = i.Arguments[0].As<ViskFunction>();
                     Max(f.Info.Params.Count, f.Info.ReturnType != ViskConsts.None ? 1 : 0);
                     break;
+                case ViskInstructionKind.CallBuildIn:
+                    var io = ViskBuildInCharacteristics.BuildIns[i.Arguments[0].As<ViskBuildIn>()];
+                    Max(io.input, io.output);
+                    break;
                 case ViskInstructionKind.IfTrue:
                     Max(1, GetMaxStackSize(i.Arguments[0].As<List<ViskInstruction>>()));
                     break;

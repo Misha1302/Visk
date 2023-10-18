@@ -131,10 +131,12 @@ public sealed partial class ViskInstruction : IViskAssemblerPositionable
 
     [Pure] public static ViskInstruction LoadRef(string s) => new(ViskInstructionKind.LoadRef, s);
 
-    [Pure] public static ViskInstruction SetByRef() => new(ViskInstructionKind.SetByRef);
+    [Pure] public static ViskInstruction SetByRef(int i) => new(ViskInstructionKind.SetByRef, i);
 
     [Pure] public static ViskInstruction SetByRefD() => new(ViskInstructionKind.SetByRefD);
 
     [Pure] public static ViskInstruction LoadByRef() => new(ViskInstructionKind.LoadByRef);
     [Pure] public static ViskInstruction LoadByRefD() => new(ViskInstructionKind.LoadByRefD);
+
+    [Pure] public static ViskInstruction CallBuildIn(ViskBuildIn func) => new(ViskInstructionKind.CallBuildIn, func);
 }

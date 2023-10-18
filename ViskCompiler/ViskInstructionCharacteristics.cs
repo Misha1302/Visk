@@ -34,6 +34,7 @@ public sealed partial class ViskInstruction
             [ViskInstructionKind.SetArg] = (1, 0),
             [ViskInstructionKind.SetArgD] = (1, 0),
             [ViskInstructionKind.CallForeign] = (100_000, 100_000),
+            [ViskInstructionKind.CallBuildIn] = (100_000, 100_000),
             [ViskInstructionKind.Call] = (100_000, 100_000),
             [ViskInstructionKind.IMul] = (2, 1),
             [ViskInstructionKind.SetLabel] = (0, 0),

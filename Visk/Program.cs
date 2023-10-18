@@ -10,39 +10,75 @@ var inputDouble = typeof(Helper).GetMethod(nameof(Helper.InputDouble));
 var printDouble = typeof(Helper).GetMethod(nameof(Helper.PrintDouble));
 var printDoubles = typeof(Helper).GetMethod(nameof(Helper.PrintDoubles));
 var printSmt = typeof(Helper).GetMethod(nameof(Helper.PrintSmt));
+var printByPointer = typeof(Helper).GetMethod(nameof(Helper.PrintByPointer));
 
 var module = new ViskModule("main");
 var mf = module.AddFunction("main", new List<Type>(0), ViskConsts.I64);
 var of = module.AddFunction("other", new List<Type> { ViskConsts.I64 }, ViskConsts.None);
 
-mf.AddInstructions(
-    ViskInstruction.PushConst(0),
-    ViskInstruction.SetLocal("i"),
-    ViskInstruction.SetLabel("loop"),
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.PushConst(1_000_000_000),
-    ViskInstruction.LessThan(),
-    ViskInstruction.IfFalse(ViskInstruction.Goto("end")),
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.PushConst(1),
-    ViskInstruction.Add(),
-    ViskInstruction.SetLocal("i"),
-    ViskInstruction.Goto("loop"),
-    ViskInstruction.SetLabel("end"),
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.LoadRef("i"),
-    ViskInstruction.LoadByRef(),
-    ViskInstruction.Ret()
-);
+mf.AddInstructions(new List<ViskInstruction>
+    {
+        ViskInstruction.PushConst(0),
+        ViskInstruction.SetLocal("someChar"),
+        
+        ViskInstruction.SetLabel("start"),
+        
+        
+        ViskInstruction.PushConst(123),
+        ViskInstruction.CallBuildIn(ViskBuildIn.Alloc),
+        ViskInstruction.SetLocal("pointer"),
 
-of.AddInstructions(
-    ViskInstruction.SetArg("i"),
+        ViskInstruction.PushConst(4), // len of str
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.PushConst(0),
+        ViskInstruction.Add(),
+        ViskInstruction.SetByRef(sizeof(long)),
 
-    // push double, the var value will be -123, 'cause it's type is long
-    ViskInstruction.PushConstD(BitConverter.Int64BitsToDouble(-123)),
-    ViskInstruction.LoadLocal("i"),
-    ViskInstruction.SetByRefD(),
-    ViskInstruction.Ret()
+
+        ViskInstruction.PushConst('К'),
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.PushConst(8),
+        ViskInstruction.Add(),
+        ViskInstruction.SetByRef(sizeof(char)),
+        
+        ViskInstruction.PushConst('у'),
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.PushConst(10),
+        ViskInstruction.Add(),
+        ViskInstruction.SetByRef(sizeof(char)),
+
+        ViskInstruction.LoadLocal("someChar"),
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.PushConst(12),
+        ViskInstruction.Add(),
+        ViskInstruction.SetByRef(sizeof(char)),
+
+        ViskInstruction.PushConst('\n'),
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.PushConst(14),
+        ViskInstruction.Add(),
+        ViskInstruction.SetByRef(sizeof(char)),
+
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.CallForeign(printByPointer),
+
+
+        ViskInstruction.LoadLocal("pointer"),
+        ViskInstruction.CallBuildIn(ViskBuildIn.Free),
+        
+        ViskInstruction.LoadLocal("someChar"),
+        ViskInstruction.PushConst(1),
+        ViskInstruction.Add(),
+        ViskInstruction.SetLocal("someChar"),
+        
+        ViskInstruction.LoadLocal("someChar"),
+        ViskInstruction.PushConst(1150),
+        ViskInstruction.LessThan(),
+        ViskInstruction.IfTrue(ViskInstruction.Goto("start")),
+
+        ViskInstruction.PushConst(0),
+        ViskInstruction.Ret()
+    }
 );
 
 var image = new ViskImage(module);

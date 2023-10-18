@@ -4,6 +4,8 @@ internal sealed class ViskCompiler : ViskCompilerBase
 {
     private const int FuncPrologSize = 8 + 8 + 8 + 8;
 
+    private readonly ViskBuildInFunctions _functions = new();
+
     public ViskCompiler(ViskModule module, ViskSettings settings) : base(module, settings)
     {
     }
@@ -12,6 +14,25 @@ internal sealed class ViskCompiler : ViskCompilerBase
     protected override void PushConst(InstructionArgs args)
     {
         Push(args[0].AsI64());
+    }
+
+    protected override void CallBuildIn(InstructionArgs args)
+    {
+        DataManager.ViskArgsManager.SaveRegs();
+        DataManager.ViskArgsManager.ForeignMoveArgs(new List<Type> { typeof(long) });
+
+        var buildIn = args[0].As<ViskBuildIn>();
+        DataManager.Assembler.call(
+            buildIn switch
+            {
+                ViskBuildIn.Alloc => (ulong)_functions.AllocPtr,
+                ViskBuildIn.Free => (ulong)_functions.FreePtr,
+                _ => ViskThrowHelper.ThrowInvalidOperationException<ulong>("Unknown buildIn call")
+            }
+        );
+
+        DataManager.ViskArgsManager.LoadRegs();
+        DataManager.ViskArgsManager.SaveReturnValue(typeof(long));
     }
 
     protected override void PushConstD(InstructionArgs args)
@@ -196,32 +217,72 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void SetByRef(InstructionArgs args)
     {
+        var argLen = args[0].As<int>();
+
         PreviousStackOrRegX64(
             () =>
             {
                 var pos = DataManager.Register.Previous().X64;
 
-                PreviousStackOrRegX64(
-                    () => { DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64); },
-                    () =>
-                    {
-                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-                        DataManager.Assembler.mov(__[pos], rax);
-                    }
-                );
+                switch (argLen)
+                {
+                    case sizeof(long):
+                        PreviousStackOrRegX64(
+                            () => { DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64); },
+                            () =>
+                            {
+                                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                                DataManager.Assembler.mov(__[pos], rax);
+                            }
+                        );
+                        break;
+                    case sizeof(char):
+                        PreviousStackOrRegX64(
+                            () => DataManager.Assembler.mov(__dword_ptr[pos], DataManager.Register.Previous().X16),
+                            () =>
+                            {
+                                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                                DataManager.Assembler.mov(__[pos], ax);
+                            }
+                        );
+                        break;
+                    default:
+                        ViskThrowHelper.ThrowInvalidOperationException($"Invalid len ({argLen})");
+                        break;
+                }
             },
             () =>
             {
                 var pos = DataManager.Stack.GetPrevious();
 
-                PreviousStackOrRegX64(
-                    () => { DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64); },
-                    () =>
-                    {
-                        DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
-                        DataManager.Assembler.mov(__[pos], rax);
-                    }
-                );
+                switch (argLen)
+                {
+                    case sizeof(long):
+                        PreviousStackOrRegX64(
+                            () => DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X64),
+                            () =>
+                            {
+                                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                                DataManager.Assembler.mov(rdi, pos);
+                                DataManager.Assembler.mov(__[rdi], rax);
+                            }
+                        );
+                        break;
+                    case sizeof(char):
+                        PreviousStackOrRegX64(
+                            () => DataManager.Assembler.mov(__[pos], DataManager.Register.Previous().X16),
+                            () =>
+                            {
+                                DataManager.Assembler.mov(rax, DataManager.Stack.GetPrevious());
+                                DataManager.Assembler.mov(rdi, pos);
+                                DataManager.Assembler.mov(__[rdi], ax);
+                            }
+                        );
+                        break;
+                    default:
+                        ViskThrowHelper.ThrowInvalidOperationException($"Invalid len ({argLen})");
+                        break;
+                }
             }
         );
     }

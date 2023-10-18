@@ -1,6 +1,7 @@
 ﻿namespace Visk;
 
 using System.Runtime.CompilerServices;
+using ViskCompiler;
 
 public static class Helper
 {
@@ -25,6 +26,12 @@ public static class Helper
     public static void PrintLong(long l1)
     {
         Console.WriteLine(l1);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void PrintByPointer(long ptr)
+    {
+        Console.Write(ViskBuildInFunctions.ViskPtrToStr(ptr));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -55,5 +55,6 @@ public enum ViskInstructionKind : long
     SetByRef = 1L << 44,
     SetByRefD = 1L << 45,
     LoadByRef = 1L << 46,
-    LoadByRefD = 1L << 47
+    LoadByRefD = 1L << 47,
+    CallBuildIn = 1L << 48
 }
