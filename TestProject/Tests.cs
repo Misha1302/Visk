@@ -1213,7 +1213,7 @@ public sealed class Tests
 
                 ViskInstruction.PushConst(2),
                 ViskInstruction.LoadRef("i"),
-                ViskInstruction.SetByRef(),
+                ViskInstruction.SetByRef(sizeof(long)),
 
                 ViskInstruction.LoadLocal("i"),
                 ViskInstruction.Ret()
@@ -1269,7 +1269,7 @@ public sealed class Tests
 
                 ViskInstruction.PushConst(2),
                 ViskInstruction.LoadRef("i"),
-                ViskInstruction.SetByRef(),
+                ViskInstruction.SetByRef(sizeof(long)),
 
                 ViskInstruction.LoadLocal("i"),
                 ViskInstruction.Ret()
@@ -1509,6 +1509,158 @@ public sealed class Tests
         );
 
         Assert.That(result, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Test56()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(123),
+                ViskInstruction.CallBuildIn(ViskBuildIn.Alloc),
+                ViskInstruction.SetLocal("pointer"),
+
+                ViskInstruction.PushConst(1), // len of str
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(0),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(long)),
+
+
+                ViskInstruction.PushConst('К'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(8),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(ViskBuildInFunctions.ViskPtrToStr(result), Is.EqualTo("К"));
+    }
+
+    [Test]
+    public void Test57()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(123),
+                ViskInstruction.CallBuildIn(ViskBuildIn.Alloc),
+                ViskInstruction.SetLocal("pointer"),
+
+                ViskInstruction.PushConst(4), // len of str
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(0),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(long)),
+
+
+                ViskInstruction.PushConst('К'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(8),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('у'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('!'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(12),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('\n'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(14),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(ViskBuildInFunctions.ViskPtrToStr(result), Is.EqualTo("Ку!\n"));
+    }
+
+    [Test]
+    public void Test58()
+    {
+        var result = ExecuteFunctions(
+            new List<ViskInstruction>
+            {
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.PushConst(123),
+                ViskInstruction.CallBuildIn(ViskBuildIn.Alloc),
+                ViskInstruction.SetLocal("pointer"),
+
+                ViskInstruction.PushConst(4), // len of str
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(0),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(long)),
+
+
+                ViskInstruction.PushConst('К'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(8),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('у'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(10),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('!'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(12),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+                
+                ViskInstruction.PushConst('\n'),
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.PushConst(14),
+                ViskInstruction.Add(),
+                ViskInstruction.SetByRef(sizeof(char)),
+
+                ViskInstruction.LoadLocal("pointer"),
+                ViskInstruction.Ret()
+            }
+        );
+
+        Assert.That(ViskBuildInFunctions.ViskPtrToStr(result), Is.EqualTo("Ку!\n"));
     }
 
     private static long ExecuteFunctions(IEnumerable<ViskInstruction> instructions) =>
