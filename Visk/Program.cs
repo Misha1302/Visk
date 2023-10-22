@@ -20,10 +20,9 @@ mf.AddInstructions(new List<ViskInstruction>
     {
         ViskInstruction.PushConst(0),
         ViskInstruction.SetLocal("someChar"),
-        
+
         ViskInstruction.SetLabel("start"),
-        
-        
+
         ViskInstruction.PushConst(123),
         ViskInstruction.CallBuildIn(ViskBuildIn.Alloc),
         ViskInstruction.SetLocal("pointer"),
@@ -40,7 +39,7 @@ mf.AddInstructions(new List<ViskInstruction>
         ViskInstruction.PushConst(8),
         ViskInstruction.Add(),
         ViskInstruction.SetByRef(sizeof(char)),
-        
+
         ViskInstruction.PushConst('у'),
         ViskInstruction.LoadLocal("pointer"),
         ViskInstruction.PushConst(10),
@@ -59,20 +58,20 @@ mf.AddInstructions(new List<ViskInstruction>
         ViskInstruction.Add(),
         ViskInstruction.SetByRef(sizeof(char)),
 
-        ViskInstruction.LoadLocal("pointer"),
-        ViskInstruction.CallForeign(printByPointer),
+        // ViskInstruction.LoadLocal("pointer"),
+        // ViskInstruction.CallForeign(printByPointer),
 
 
         ViskInstruction.LoadLocal("pointer"),
         ViskInstruction.CallBuildIn(ViskBuildIn.Free),
-        
+
         ViskInstruction.LoadLocal("someChar"),
         ViskInstruction.PushConst(1),
         ViskInstruction.Add(),
         ViskInstruction.SetLocal("someChar"),
-        
+
         ViskInstruction.LoadLocal("someChar"),
-        ViskInstruction.PushConst(1150),
+        ViskInstruction.PushConst(10_000_000),
         ViskInstruction.LessThan(),
         ViskInstruction.IfTrue(ViskInstruction.Goto("start")),
 

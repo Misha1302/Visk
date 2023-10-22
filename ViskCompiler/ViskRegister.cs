@@ -78,7 +78,7 @@ internal sealed class ViskRegister
             () => d = actXmm()
         );
 
-        return new ViskRegistersPair(x64 != default ? PublicRegisters16[x64] : default, x64, d);
+        return new ViskRegistersPair(x64, d);
     }
 
     public ViskRegister Copy() => new(Rx64, Rd);

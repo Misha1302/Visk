@@ -18,8 +18,10 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void CallBuildIn(InstructionArgs args)
     {
-        DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.ForeignMoveArgs(new List<Type> { typeof(long) });
+        var argTypes = new List<Type> { typeof(long) };
+
+        DataManager.ViskArgsManager.SaveRegs(argTypes);
+        DataManager.ViskArgsManager.ForeignMoveArgs(argTypes);
 
         var buildIn = args[0].As<ViskBuildIn>();
         DataManager.Assembler.call(
@@ -602,8 +604,10 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void CallForeign(InstructionArgs args)
     {
-        DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.ForeignMoveArgs(args[1].As<List<Type>>());
+        var argTypes = args[1].As<List<Type>>();
+
+        DataManager.ViskArgsManager.SaveRegs(argTypes);
+        DataManager.ViskArgsManager.ForeignMoveArgs(argTypes);
 
         DataManager.Assembler.call((ulong)args[0].As<nint>());
 
@@ -613,8 +617,10 @@ internal sealed class ViskCompiler : ViskCompilerBase
 
     protected override void Call(InstructionArgs args)
     {
-        DataManager.ViskArgsManager.SaveRegs();
-        DataManager.ViskArgsManager.MoveArgs(args[0].As<ViskFunction>().Info.Params);
+        var argTypes = args[0].As<ViskFunction>().Info.Params;
+
+        DataManager.ViskArgsManager.SaveRegs(argTypes);
+        DataManager.ViskArgsManager.MoveArgs(argTypes);
 
         DataManager.Assembler.call(DataManager.GetLabel(args[0].As<ViskFunction>().Info.Name));
 
